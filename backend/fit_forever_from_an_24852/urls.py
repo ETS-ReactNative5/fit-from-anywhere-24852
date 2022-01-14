@@ -38,9 +38,9 @@ urlpatterns = [
     path("home/", include("home.urls")),
 ]
 
-admin.site.site_header = "Fit Forever-From Anywhere"
-admin.site.site_title = "Fit Forever-From Anywhere Admin Portal"
-admin.site.index_title = "Fit Forever-From Anywhere Admin"
+admin.site.site_header = "Fit From Anywhere"
+admin.site.site_title = "Fit From Anywhere Admin Portal"
+admin.site.index_title = "Fit From Anywhere Admin"
 
 # swagger
 api_info = openapi.Info(
