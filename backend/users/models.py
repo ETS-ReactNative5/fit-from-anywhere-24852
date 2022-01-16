@@ -4,6 +4,9 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from utils import generate_file_name
+from utils.models import BaseModel
+
 
 class User(AbstractUser):
     # WARNING!
@@ -28,3 +31,22 @@ class User(AbstractUser):
         blank=True,
         related_name="user_group",
     )
+
+
+class Profile(BaseModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_profile"
+    )
+    profile_image = models.ImageField(
+        upload_to=generate_file_name, null=True, blank=True
+    )
+
+    class Meta:
+        verbose_name = "Profile"
+        verbose_name_plural = "Profiles"
+
+    def __unicode__(self):
+        return f"{self.user}"
+
+    def __str__(self) -> str:
+        return f"{self.user}"
