@@ -8,7 +8,10 @@ from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 from rest_framework import serializers
 from rest_auth.serializers import PasswordResetSerializer
+from rest_auth.models import TokenModel
+
 from home.models import CustomText, HomePage
+from users.models import Profile
 
 User = get_user_model()
 
@@ -85,3 +88,58 @@ class PasswordSerializer(PasswordResetSerializer):
     """Custom serializer for rest_auth to solve reset password error"""
 
     password_reset_form_class = ResetPasswordForm
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Profile
+        fields = [
+            "id",
+            "profile_image",
+            "user",
+        ]
+
+    def create(self, validated_data):
+        # breakpoint()
+        instance = super().create(validated_data)
+        return instance
+
+    def update(self, instance, validated_data):
+        user = validated_data.pop("user", None)
+        if user:
+            _user = User.objects.get(id=instance.user.id)
+            if "name" in user:
+                _user.name = user.get("name")
+            if "is_agent" in user:
+                _user.is_agent = user.get("is_agent")
+            _user.save()
+            instance.user = _user
+        instance.save()
+        instance = super().update(instance, validated_data)
+        return instance
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Token model.
+    """
+
+    user = UserSerializer(read_only=True)
+    profile = serializers.SerializerMethodField(read_only=True)
+    # address = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = TokenModel
+        fields = ("key", "user", "profile", "address")
+
+    # def get_address(self, obj):
+    #     query = Address.objects.filter(user=obj.user)
+    #     if query.exists():
+    #         return AddressSerializer(query[0]).data
+    #     return None
+
+    def get_profile(self, obj):
+        query = Profile.objects.get(user=obj.user)
+        return UserProfileSerializer(query).data
