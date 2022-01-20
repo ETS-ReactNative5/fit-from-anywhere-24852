@@ -5,3 +5,4 @@ env/
 staticfiles/
 postgres-data/
 db.sqlite*
+.vscode*
