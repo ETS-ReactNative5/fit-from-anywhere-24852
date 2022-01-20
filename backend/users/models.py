@@ -1,3 +1,4 @@
+from pickle import TRUE
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -39,6 +40,38 @@ class Profile(BaseModel):
     )
     profile_image = models.ImageField(
         upload_to=generate_file_name, null=True, blank=True
+    )
+    weight = models.PositiveIntegerField(blank=True, null=True)
+    _WEIGHT_METRIC = [("KG", "KGs"), ("LB", "LBs")]
+    weight_metric = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        choices=_WEIGHT_METRIC,
+        default="LB",
+    )
+    _HEIGHT_METRIC = [("CM", "CMs"), ("FEET", "Feets")]
+    height_metric = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        choices=_HEIGHT_METRIC,
+        default="CM",
+    )
+    fitness_goal = models.CharField(max_length=255, blank=True, null=True)
+    age = models.PositiveIntegerField(blank=True, null=True)
+    dob = models.DateField(blank=True, null=True)
+    _GENDER = [
+        ("M", "Male"),
+        ("F", "Female"),
+        ("O", "Others"),
+    ]
+    gender = models.CharField(
+        choices=_GENDER, default="F", blank=True, null=True, max_length=50
+    )
+    student_campus_residential_address = models.TextField(
+        blank=True,
+        null=True,
     )
 
     class Meta:

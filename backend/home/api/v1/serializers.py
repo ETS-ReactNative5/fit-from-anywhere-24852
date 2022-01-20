@@ -132,7 +132,7 @@ class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TokenModel
-        fields = ("key", "user", "profile", "address")
+        fields = ("key", "user", "profile")
 
     # def get_address(self, obj):
     #     query = Address.objects.filter(user=obj.user)
