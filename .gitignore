@@ -18,6 +18,7 @@ xcuserdata
 *.moved-aside
 DerivedData
 *.hmap
+*.ipa
 *.xcuserstate
 
 # Android/IntelliJ
@@ -27,6 +28,7 @@ build/
 .gradle
 local.properties
 *.iml
+*.hprof
 
 # node.js
 #
@@ -50,15 +52,9 @@ buck-out/
 */fastlane/report.xml
 */fastlane/Preview.html
 */fastlane/screenshots
-*/fastlane/test_output/
 
 # Bundle artifact
 *.jsbundle
 
 # CocoaPods
 /ios/Pods/
-
-## App packaging
-*.ipa
-*.dSYM.zip
-*.dSYM
