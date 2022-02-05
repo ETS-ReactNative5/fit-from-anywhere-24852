@@ -7,6 +7,9 @@ import Home from "../screens/Home";
 import { useDispatch, useSelector } from "react-redux";
 import Walkthrough from "../screens/Walkthrough";
 import Intro from "../screens/Intro";
+import Register from "../screens/Register";
+import Onboarding from "../screens/Onboarding";
+import Login from "../screens/Login";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -14,6 +17,7 @@ const Stack = createStackNavigator();
 const HomeNavigator = () => {
     return (
         <Tab.Navigator tabBar={() => null}>
+            <Tab.Screen name="Onboarding" component={Onboarding} options={() => ({ headerShown: false })} />
             <Tab.Screen name="Home" component={Home} options={() => ({ headerShown: false })} />
         </Tab.Navigator>
     );
@@ -23,6 +27,8 @@ const AuthTab = () => {
     return (
         <Tab.Navigator tabBar={() => null}>
             <Tab.Screen name="Intro" component={Intro} options={() => ({ headerShown: false })} />
+            <Tab.Screen name="Register" component={Register} options={() => ({ headerShown: false })} />
+            <Tab.Screen name="Login" component={Login} options={() => ({ headerShown: false })} />
         </Tab.Navigator>
     );
 }

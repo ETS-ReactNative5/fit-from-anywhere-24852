@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import color from "../utils/color";
 import LinearGradient from 'react-native-linear-gradient';
+import { font } from "../utils/font";
 
 
 export default function Button(props) {
@@ -18,19 +19,19 @@ export default function Button(props) {
 
     if (theme == "primary" || theme == null) {
         backgroundStyle = {
-            backgroundColor: color.black,
+            backgroundColor: color.primary,
         };
         textStyle = {
             color: color.white,
         };
-    } else if (theme == "secondary" || theme == "secondary-light") {
+    } else if (theme == "secondary") {
         backgroundStyle = {
             backgroundColor: color.white,
-            borderColor: color.black,
+            borderColor: color.primary,
             borderWidth: 1,
         };
         textStyle = {
-            color: color.black,
+            color: color.primary,
         };
     } else if (theme == "secondary-dark") {
         backgroundStyle = {
@@ -63,15 +64,16 @@ export default function Button(props) {
     }
 
     return (
-        <TouchableOpacity activeOpacity={1} onPress={() => {
-            if (!loading && !isDisabled) {
-                props.onPress != null && props.onPress();
-            }
-        }}>
-            <LinearGradient colors={['#1bae68', '#7dce59']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.backgroundStyle, backgroundStyle, props.style]}>
-                {!loading && <Text style={[styles.textStyle, textStyle]}>{props.children}</Text>}
-                {loading && <ActivityIndicator color={textStyle.color ?? color.white} />}
-            </LinearGradient>
+        <TouchableOpacity activeOpacity={1}
+            style={[styles.backgroundStyle, backgroundStyle, props.style]}
+            onPress={() => {
+                if (!loading && !isDisabled) {
+                    props.onPress != null && props.onPress();
+                }
+            }}>
+            {!loading && <Text style={[styles.textStyle, textStyle]}>{props.children}</Text>}
+            {loading && <ActivityIndicator color={textStyle.color ?? color.white} />}
+
         </TouchableOpacity>
     );
 }
@@ -79,14 +81,14 @@ export default function Button(props) {
 const styles = StyleSheet.create({
     backgroundStyle: {
         backgroundColor: color.primary,
-        borderRadius: 40,
-        height: 55,
+        borderRadius: 6,
+        height: 45,
         justifyContent: "center",
         alignItems: "center",
     },
     textStyle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontFamily: font.sourceSansPro,
         color: color.white,
     }
 });

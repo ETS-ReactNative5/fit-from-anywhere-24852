@@ -10,6 +10,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 import SearchInput, { createFilter } from 'react-native-search-filter';
 import NoData from './NoData';
+import { font } from '../utils/font';
 let KEYS_TO_FILTERS = ['label', 'value', 'id'];
 
 class Combobox extends Component {
@@ -263,7 +264,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10
     },
     grayText: {
-        fontSize: 14,
+        fontSize: 17,
+        fontFamily: font.sourceSansPro,
         color: '#000',
     },
     dropdownItem: {

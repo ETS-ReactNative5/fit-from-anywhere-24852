@@ -1,12 +1,11 @@
 export default {
-    primary: "#158BBE",
+    primary: "#003358",
     white: "#FFFFFF",
     black: "#000000",
-    gray: "#CCCCCC",
+    gray: "#ABB3BB",
     danger: "#e74c3c",
     header: "#2E2E30",
-    border: '#ccc',
-    text: "#7a7f83",
-    Walkthrough: "#14ac69",
+    border: '#003358',
+    text: "#3F5259",
     sliderteks:"#fe9870"
 }

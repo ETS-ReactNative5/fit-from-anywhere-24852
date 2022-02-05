@@ -8,6 +8,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Home(props) {
+    
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <Text>This is home</Text>
