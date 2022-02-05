@@ -33,12 +33,12 @@ export default function UploadImageView(props) {
         <View style={[styles.container, props.containerStyle]}>
             <Text style={styles.label}>{props.label}</Text>
             {image != null && (
-                <View style={[styles.imageContainer, { width: size, height: size, borderRadius: size / 2 }]}>
+                <View style={[styles.imageContainer, { width: size, height: size, borderRadius: 10 }]}>
                     <View style={styles.loadingWrapper}>
                         <ActivityIndicator size="small" color={color.black} />
                     </View>
 
-                    <Image source={{ uri: image }} style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]} resizeMode='cover' />
+                    <Image source={{ uri: image }} style={[styles.image, { width: size, height: size, borderRadius: 10 }]} resizeMode='cover' />
 
                     <TouchableOpacity style={[styles.buttonDelete, styles.whiteButton]}
                         activeOpacity={1}
@@ -55,7 +55,7 @@ export default function UploadImageView(props) {
             )}
 
             {image == null && (
-                <TouchableOpacity style={[styles.inputContainer, { width: size, height: size, borderRadius: size / 2 }]} onPress={() => {
+                <TouchableOpacity style={[styles.inputContainer, { width: size, height: size, borderRadius: 10 }]} onPress={() => {
                     pickPhoto();
                 }}>
                     <Ionicons name="cloud-upload-outline" size={20} color={color.black} />
@@ -82,14 +82,14 @@ const styles = StyleSheet.create({
     loadingWrapper: {
         width: '100%',
         height: '100%',
-        borderRadius: 100,
+        borderRadius: 10,
         position: "absolute",
         backgroundColor: "#E5E5E5",
         justifyContent: "center",
         alignItems: "center",
     },
     inputContainer: {
-        borderRadius: 100,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: "#A5A4A4",
         height: 175,
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
-        borderRadius: 100,
+        borderRadius: 10,
     },
     textUpload: {
         fontSize: 14,

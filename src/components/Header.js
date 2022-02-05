@@ -11,7 +11,7 @@ export default function Header(props) {
 
     //let withSearch = props.withSearch ?? false;
 
-    console.log("Header props", props);
+    //console.log("Header props", props);
 
     return (
         <>
@@ -20,7 +20,9 @@ export default function Header(props) {
             <View style={styles.wrapper}>
                 <View style={{ flexDirection: 'row' }}>
                     <TouchableOpacity style={styles.sideButton} onPress={() => {
-                        
+                        if (props.onLeftClick != null) {
+                            props.onLeftClick();
+                        }
                     }}>
                         <Entypo name='menu' color={color.white} size={25} />
                     </TouchableOpacity>
@@ -28,9 +30,9 @@ export default function Header(props) {
                         <Text style={styles.centerText}>{props.title}</Text>
                     </View>
                     <TouchableOpacity style={styles.sideButton} onPress={() => {
-                        
+
                     }}>
-                        
+
                     </TouchableOpacity>
                 </View>
             </View>

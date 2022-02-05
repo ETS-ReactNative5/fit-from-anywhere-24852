@@ -42,7 +42,9 @@ export default function Home(props) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="Dashboard" />
+            <Header title="Dashboard" onLeftClick={() => {
+                props.navigation.openDrawer();
+            }} />
             <ScrollView>
                 <View style={styles.profile}>
                     <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />

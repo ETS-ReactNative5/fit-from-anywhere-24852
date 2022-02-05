@@ -5,34 +5,66 @@ import {
     TouchableOpacity,
     Image,
     StyleSheet,
-    Alert
+    Alert,
+    ScrollView
 } from "react-native";
 import color from "../utils/color";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/actions";
-import ImageUtils from "../utils/ImageUtils";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { font } from "../utils/font";
 
 const userMenus = [
     {
-        icon: require('../assets/images/icon-bottom-home.png'),
+        icon: <MaterialCommunityIcons name="home" size={30} color={color.text} />,
         label: "Home",
         target: "Home",
     },
     {
-        icon: require('../assets/images/icon-bottom-myteam.png'),
-        label: "MyTeams",
-        target: "My Teams",
+        icon: <MaterialCommunityIcons name="message-text-outline" size={30} color={color.text} />,
+        label: "Message",
+        target: "Message",
     },
     {
-        icon: require('../assets/images/icon-bottom-allteam.png'),
-        label: "All Teams",
-        target: "AllTeams",
+        icon: <MaterialCommunityIcons name="bell" size={30} color={color.text} />,
+        label: "Notifications",
+        target: "Notification",
     },
     {
-        icon: require('../assets/images/icon-bottom-event.png'),
-        label: "All Events",
-        target: "AllEvents",
+        icon: <MaterialCommunityIcons name="dumbbell" size={30} color={color.text} />,
+        label: "Workout Library",
+        target: "Workout",
+    },
+    {
+        icon: <MaterialCommunityIcons name="book-multiple" size={30} color={color.text} />,
+        label: "Health Tips & Resources",
+        target: "Resource",
+    },
+    {
+        icon: <MaterialCommunityIcons name="calendar-clock" size={30} color={color.text} />,
+        label: "Appointments",
+        target: "Appointment",
+    },
+    {
+        icon: <MaterialCommunityIcons name="shield-lock" size={30} color={color.text} />,
+        label: "Privacy policy",
+        target: "PrivacyPolicy",
+    },
+    {
+        icon: <MaterialCommunityIcons name="file-document-edit-outline" size={30} color={color.text} />,
+        label: "Terms and conditions",
+        target: "TermAndCondition",
+    },
+    {
+        icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
+        label: "Push notifications",
+        target: null,
+    },
+    {
+        icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
+        label: "Email notifications",
+        target: null,
     },
 ];
 
@@ -48,146 +80,129 @@ export default function SideMenu(props) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* <View style={styles.photoWrap}>
-                <Image source={ImageUtils.getSafeImage(user.image)} style={styles.photo} />
-
-                <TouchableOpacity style={styles.editProfileButton}
+            <ScrollView>
+                <TouchableOpacity style={styles.profile}
                     activeOpacity={0.8}
                     onPress={() => {
                         props.navigation.closeDrawer();
-                        if (!isProvider) {
-                            props.navigation.navigate("UserProfile");
-                        } else {
-                            props.navigation.navigate("ProviderProfile");
-                        }
+                        props.navigation.navigate("Profile");
                     }}>
-                    <Text style={styles.editProfileText}>Edit profile</Text>
+                    <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
+                    <View style={styles.profileContent}>
+                        <Text style={styles.profileName}>Tim Castle</Text>
+                        <View style={styles.profileInfo}>
+                            <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
+                            <Text style={styles.profileLocation}>Los Angeles, CA</Text>
+                        </View>
+                    </View>
                 </TouchableOpacity>
-            </View> 
 
-            <Text style={styles.name}>{user.name ?? "(No Name)"}</Text>
+                <View style={styles.line} />
 
-            <View style={styles.line} />*/}
-
-            <View style={styles.logoWrap}>
-                <Image source={require('../assets/images/logo-white.png')}
-                    style={styles.logo}
-                    resizeMode="contain" />
-            </View>
-
-            {userMenus.map((item, index) => {
-                if (item == null) {
-                    return <View style={styles.line} key={index} />
-                }
-                return (
-                    <TouchableOpacity
-                        key={index}
-                        style={styles.menu}
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            props.navigation.closeDrawer();
-                            props.navigation.navigate(item.target);
-                        }}>
-                        <Image source={item.icon} style={styles.menuIcon} />
-                        <Text style={styles.menuLabel}>{item.label}</Text>
-                    </TouchableOpacity>
-                );
-            })}
-
-            <View style={styles.line} />
-
-            <TouchableOpacity
-                style={styles.menu}
-                activeOpacity={0.9}
-                onPress={() => {
-                    props.navigation.closeDrawer();
-                    Alert.alert(
-                        'Information',
-                        'Are you sure want to logout?',
-                        [
-                            { text: 'No', onPress: () => { }, style: 'cancel' },
-                            {
-                                text: 'Yes', onPress: () => {
-                                    logout();
+                {userMenus.map((item, index) => {
+                    if (item == null) {
+                        return <View style={styles.line} key={index} />
+                    }
+                    return (
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.menu}
+                            activeOpacity={0.9}
+                            onPress={() => {
+                                if (item.target != null) {
+                                    props.navigation.closeDrawer();
+                                    props.navigation.navigate(item.target);
                                 }
-                            },
-                        ],
-                        { cancelable: false }
+                            }}>
+                            {item.icon}
+                            <Text style={styles.menuLabel}>{item.label}</Text>
+                        </TouchableOpacity>
                     );
-                }}>
-                <Text style={styles.logoutButton}>Logout</Text>
-            </TouchableOpacity>
+                })}
+
+                <View style={styles.line} />
+
+                <TouchableOpacity
+                    style={styles.menu}
+                    activeOpacity={0.9}
+                    onPress={() => {
+                        props.navigation.closeDrawer();
+                        Alert.alert(
+                            'Information',
+                            'Are you sure want to logout?',
+                            [
+                                { text: 'No', onPress: () => { }, style: 'cancel' },
+                                {
+                                    text: 'Yes', onPress: () => {
+                                        logout();
+                                    }
+                                },
+                            ],
+                            { cancelable: false }
+                        );
+                    }}>
+                    <MaterialCommunityIcons name="exit-to-app" size={30} color={color.text} />
+                    <Text style={styles.logoutButton}>Logout</Text>
+                </TouchableOpacity>
+            </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: color.header,
-        paddingHorizontal: 20,
+        backgroundColor: color.white,
         paddingVertical: 20,
         flex: 1,
     },
-    logoWrap: {
-        alignItems: 'center',
-        marginBottom: 50,
-    },
-    logo: {
-        width: 90,
-        height: 90,
-    },
 
-
-    menuIcon: {
-        width: 24,
-        height: 24,
-        tintColor: color.white,
+    profile: {
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        paddingVertical: 20,
     },
-    photoWrap: {
+    profileImage: {
+        width: 63,
+        height: 63,
+        borderRadius: 10,
+    },
+    profileContent: {
+        flex: 1,
+        justifyContent: 'center',
+        marginLeft: 15,
+    },
+    profileName: {
+        fontSize: 20,
+        fontFamily: font.sourceSansProBold,
+        color: color.primary,
+    },
+    profileInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 20,
     },
-    photo: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+    profileLocation: {
+        fontSize: 12,
+        fontFamily: font.sourceSansPro,
+        color: color.text,
+        marginLeft: 5,
     },
-    editProfileButton: {
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 7,
-        backgroundColor: color.primary,
-        marginLeft: 10,
-    },
-    editProfileText: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: color.white,
-    },
-    name: {
-        fontSize: 16,
-        color: color.black,
-        marginBottom: 3,
-    },
-    type: {
-        fontSize: 14,
-        color: "#4F4F4F",
-        marginBottom: 20,
-    },
+
+
+
     line: {
         height: 1,
-        backgroundColor: "#444",
+        backgroundColor: "rgba(60, 60, 67, 0.36)",
         marginBottom: 20,
     },
     menu: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 20,
+        paddingHorizontal: 20,
     },
     menuLabel: {
         fontSize: 16,
-        color: color.white,
+        color: color.text,
         flex: 1,
         marginLeft: 10,
     },
