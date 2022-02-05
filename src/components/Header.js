@@ -15,41 +15,24 @@ export default function Header(props) {
 
     return (
         <>
-            <StatusBar barStyle='light-content' backgroundColor={color.header} />
+            <StatusBar barStyle='light-content' backgroundColor={color.primary} />
             {Platform.OS == 'ios' && <View style={styles.iosHeader} />}
             <View style={styles.wrapper}>
                 <View style={{ flexDirection: 'row' }}>
-                    <TouchableOpacity style={styles.ellipseButton} onPress={() => {
-                        props.navigation?.openDrawer();
+                    <TouchableOpacity style={styles.sideButton} onPress={() => {
+                        
                     }}>
                         <Entypo name='menu' color={color.white} size={25} />
                     </TouchableOpacity>
                     <View style={styles.center}>
-                        <Image source={require('../assets/images/logo-header.png')} style={styles.logo} />
+                        <Text style={styles.centerText}>{props.title}</Text>
                     </View>
-                    <TouchableOpacity style={styles.userButton} onPress={() => {
-                        props.navigation?.navigate("MyProfile");
+                    <TouchableOpacity style={styles.sideButton} onPress={() => {
+                        
                     }}>
-                        <Image source={require('../assets/images/logo-default.png')} style={styles.userImage} />
+                        
                     </TouchableOpacity>
                 </View>
-
-                {props.withSearch && (
-                    <View style={styles.textInputWrapper}>
-                        <Feather name='search' size={25} color={color.header} />
-                        <TextInput
-                            style={styles.textInput}
-                            placeholder='Search for a team ...'
-                            placeholderTextColor='#5A5A5A'
-                            value={search}
-                            autoCapitalize='none'
-                            autoCorrect={false}
-                            onChangeText={(search) => {
-                                setSearch(search);
-                            }}
-                        />
-                    </View>
-                )}
             </View>
         </>
     );
@@ -57,7 +40,7 @@ export default function Header(props) {
 
 const styles = {
     iosHeader: {
-        backgroundColor: color.header,
+        backgroundColor: color.primary,
         height: 100,
         width: '100%',
         position: 'absolute',
@@ -65,7 +48,7 @@ const styles = {
     },
     wrapper: {
         paddingHorizontal: 16,
-        backgroundColor: color.header,
+        backgroundColor: color.primary,
         paddingTop: Platform.OS == 'ios' ? 0 : 12,
         paddingBottom: 12
     },
@@ -74,15 +57,18 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
     },
+    centerText: {
+        fontSize: 16,
+        color: color.white,
+    },
     logo: {
         height: 40,
         width: 120,
     },
-    ellipseButton: {
-        backgroundColor: '#3D3D3D',
+    sideButton: {
         height: 40,
         width: 40,
-        borderRadius: 20,
+        // backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
     },
