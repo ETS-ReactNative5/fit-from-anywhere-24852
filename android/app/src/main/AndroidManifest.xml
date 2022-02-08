@@ -1,9 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.fit_forever_from_an_24852">
+  package="com.fitfromanywhere">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
       android:name=".MainApplication"
@@ -12,11 +10,6 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
-
-      <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyCA63HJpE1k9ExLBvLZaGeoBZ0yvoPlzsI"/>
-
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -28,7 +21,5 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
-      <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>
-
 </manifest>
