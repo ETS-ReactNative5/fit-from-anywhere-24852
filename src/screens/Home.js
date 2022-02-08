@@ -13,6 +13,7 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Calendar } from 'react-native-calendars';
+import { useSelector } from 'react-redux';
 
 const promotions = [
     {
@@ -38,7 +39,7 @@ const promotions = [
 ];
 
 export default function Home(props) {
-
+    const user = useSelector(state => state.user);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -49,7 +50,7 @@ export default function Home(props) {
                 <View style={styles.profile}>
                     <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
                     <View style={styles.profileContent}>
-                        <Text style={styles.profileName}>Tim Castle</Text>
+                        <Text style={styles.profileName}>{user?.user.name}</Text>
                         <View style={styles.profileInfo}>
                             <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
                             <Text style={styles.profileLocation}>Los Angeles, CA</Text>

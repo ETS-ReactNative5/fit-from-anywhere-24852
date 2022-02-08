@@ -2,15 +2,40 @@ import React, { Component, useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useDispatch } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
+import Toast from "../components/Toast";
+import app from "../config/app";
+import { setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
+import { HttpRequest } from "../utils/http";
 
 export default function Login(props) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
+    const [password, setPassword] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
+    const [email, setEmail] = useState(__DEV__ ? app.EXAMPLE_EMAIL : "");
     const [isRemember, setIsRemember] = useState(false);
+    const [isLoading, setLoading] = useState(false);
+
+    const login = useCallback(() => {
+        setLoading(true);
+
+        let data = { email, password };
+        HttpRequest.login(data).then((res) => {
+            console.log("Res", res.data);
+            Toast.showSuccess("Login Success");
+            setLoading(false);
+            dispatch(setUser(res.data));
+
+            //navigation.navigate("PreLogin");
+        }).catch((err) => {
+            console.log(err, err.response);
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot login"));
+            setLoading(false);
+        });
+    }, [email, password]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -49,9 +74,11 @@ export default function Login(props) {
                     </TouchableOpacity>
 
                     <View style={styles.inputView}>
-                        <Button style={{ flex: 1 }}
+                        <Button
+                            loading={isLoading}
+                            style={{ flex: 1 }}
                             onPress={() => {
-                                props.navigation.navigate("Dashboard");
+                                login();
                             }}>Log in</Button>
 
                         <View style={{ width: 20 }} />

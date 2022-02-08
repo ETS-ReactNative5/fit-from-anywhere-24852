@@ -71,7 +71,7 @@ const userMenus = [
 export default function SideMenu(props) {
     const dispatch = useDispatch();
     const user = useSelector(state => state.user);
-    console.log("SideMenu:User", user);
+    //console.log("SideMenu:User", user);
 
     const logout = useCallback(() => {
         dispatch(setUser(null));
@@ -89,7 +89,7 @@ export default function SideMenu(props) {
                     }}>
                     <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
                     <View style={styles.profileContent}>
-                        <Text style={styles.profileName}>Tim Castle</Text>
+                        <Text style={styles.profileName}>{user?.user.name}</Text>
                         <View style={styles.profileInfo}>
                             <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
                             <Text style={styles.profileLocation}>Los Angeles, CA</Text>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         marginLeft: 15,
     },
     profileName: {
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: font.sourceSansProBold,
         color: color.primary,
     },

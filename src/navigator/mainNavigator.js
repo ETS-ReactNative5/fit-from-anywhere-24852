@@ -82,8 +82,8 @@ export default function AppContainer() {
         return (
             <NavigationContainer>
                 <Tab.Navigator tabBar={() => null}>
-                    <Tab.Screen name="Auth" component={AuthTab} options={() => ({ headerShown: false })} />
-                    <Tab.Screen name="Dashboard" component={DashboardStack} options={() => ({ headerShown: false })} />
+                    {user == null && <Tab.Screen name="Auth" component={AuthTab} options={() => ({ headerShown: false })} />}
+                    {user != null && <Tab.Screen name="Dashboard" component={DashboardStack} options={() => ({ headerShown: false })} />}
                 </Tab.Navigator>
             </NavigationContainer>
         )

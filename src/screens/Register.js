@@ -4,14 +4,49 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
+import Toast from "../components/Toast";
+import app from "../config/app";
 import color from "../utils/color";
 import { font } from "../utils/font";
+import { HttpRequest, HttpResponse } from "../utils/http";
 
 export default function Register(props) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const [name, setName] = useState(__DEV__ ? app.EXAMPLE_FULL_NAME : "");
+    const [phoneNumber, setPhoneNumber] = useState(__DEV__ ? app.EXAMPLE_PHONE : "");
+    const [email, setEmail] = useState(__DEV__ ? app.EXAMPLE_EMAIL : "");
+    const [password, setPassword] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
+    const [passwordConfirm, setPasswordConfirm] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
+    const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+
+    const register = useCallback(() => {
+        //validate password
+        if (password !== passwordConfirm) {
+            Toast.showError("Password does not match");
+            return;
+        }
+        if (password.length < 6) {
+            Toast.showError("Password must be at least 6 characters");
+            return;
+        }
+
+        setIsLoading(true);
+
+        let data = {
+            name,
+            email,
+            password,
+        };
+        HttpRequest.signup(data).then((res) => {
+            console.log("Res", res.data);
+            Toast.showSuccess("Register Success, Please Login");
+            setIsLoading(false);
+            props.navigation.navigate("Login");
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot login"));
+            setIsLoading(false);
+        });
+    }, [name, email, password, passwordConfirm]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -21,6 +56,14 @@ export default function Register(props) {
             </View>
             <ScrollView>
                 <View style={styles.bottomView}>
+                    <TextInput
+                        // label='Email address'
+                        icon={<MaterialCommunityIcons name='account' size={20} color={color.gray} />}
+                        placeholder="Enter your name"
+                        value={name}
+                        onChangeText={setName}
+                        containerStyle={styles.input} />
+
                     <TextInput
                         // label='Email address'
                         icon={<MaterialCommunityIcons name='email-outline' size={20} color={color.gray} />}
@@ -58,10 +101,13 @@ export default function Register(props) {
                     </TouchableOpacity>
 
                     <View style={styles.inputView}>
-                        <Button style={{ flex: 1 }}
+                        <Button
+                            loading={isLoading}
+                            style={{ flex: 1, backgroundColor: isChecked ? color.primary : 'rgba(0, 51, 88, 0.4)' }}
                             onPress={() => {
-                                props.navigation.navigate("Dashboard");
-                                props.navigation.navigate("Onboarding");
+                                if (isChecked) {
+                                    register();
+                                }
                             }}>Sign up</Button>
 
                         <View style={{ width: 20 }} />

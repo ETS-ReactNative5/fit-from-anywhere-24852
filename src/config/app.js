@@ -1,5 +1,5 @@
 export default {
-    BASE_URL: "https://fancy-dew-24253.botics.co",
+    BASE_URL: "https://fit-from-anywhere-24852.botics.co",
     TIMEOUT: 10000,
     GOOGLE_WEB_CLIENT_ID: "979284398932-r6ga8k85uu3geg4c6j7dsq3dp9btvpch.apps.googleusercontent.com",
     GOOGLE_IOS_CLIENT_ID: "979284398932-r6ga8k85uu3geg4c6j7dsq3dp9btvpch.apps.googleusercontent.com",
