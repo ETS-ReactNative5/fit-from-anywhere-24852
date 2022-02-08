@@ -38,7 +38,7 @@ const userMenus = [
     },
     {
         icon: <MaterialCommunityIcons name="book-multiple" size={30} color={color.text} />,
-        label: "Health Tips & Resources",
+        label: "Resources Library",
         target: "Resource",
     },
     {

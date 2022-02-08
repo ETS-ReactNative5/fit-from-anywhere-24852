@@ -12,6 +12,7 @@ import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import NoData from '../components/NoData';
 
 export default function Message(props) {
 
@@ -22,11 +23,7 @@ export default function Message(props) {
                 props.navigation.openDrawer();
             }} />
             <ScrollView>
-                <View style={styles.profile}>
-                    <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
-                </View>
-
-                <View style={styles.line} />
+                <NoData>No Message Available</NoData>
             </ScrollView>
         </SafeAreaView>
     );
