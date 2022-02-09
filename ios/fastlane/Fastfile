@@ -17,12 +17,13 @@ fastlane_require('httparty')
 default_platform(:ios)
 
 app_name = 'fit-forever-from-an-24852'
-base_name = 'fit_forever_from_an_24852'
+base_name = 'FitFromAnywhere'
 team_name = 'Crowdbotics Corporation'
 team_id = '6YKR59QXKM'
-filename = "#{base_name}.xcodeproj"
-workspace_name = "#{base_name}.xcworkspace"
+filename = "FitFromAnywhere.xcodeproj"
+workspace_name = "FitFromAnywhere.xcworkspace"
 identifier = "com.crowdbotics.#{app_name}"
+app_privacy_details = "app_privacy_details.json"
 
 platform(:ios) do
   before_all do
@@ -46,6 +47,21 @@ platform(:ios) do
       team_name: team_name,
       itc_team_name: team_name
     )
+
+    if(File.file?(app_privacy_details))
+      puts("app_privacy_details.json exists. Uploading APP Privacy Details to App Store...")
+
+      desc('Upload App Privacy Details to App Store')
+      upload_app_privacy_details_to_app_store(
+        app_identifier: identifier,
+        team_id: team_id,
+        team_name: team_name,
+        json_path: app_privacy_details
+      )      
+    else
+      puts("app_privacy_details.json does not exist.")
+    end
+    
   end
 
   desc('Pre-build setup')
@@ -70,6 +86,8 @@ platform(:ios) do
 
   desc('Create a new beta build to TestFlight')
   lane(:create_build) do
+    init_app
+
     build_setup
 
     settings_to_override = {
@@ -92,7 +110,7 @@ platform(:ios) do
     create_build
 
     upload_to_testflight(
-      email: 'Cameron@cameronclarkfitness.com',
+      email: 'ira@ideapros.com',
       beta_app_description: "Beta version of #{app_name} uploaded by Crowdbotics"
     )
   end
@@ -176,3 +194,4 @@ def fetch_appetize_public_key(platform, base_name)
 
   item['publicKey']
 end
+

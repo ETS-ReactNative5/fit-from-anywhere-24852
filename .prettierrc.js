@@ -1,6 +1,7 @@
 module.exports = {
-  semi: false,
-  parser: "babel",
-  trailingComma: "none",
-  arrowParens: "avoid"
+  bracketSpacing: false,
+  jsxBracketSameLine: true,
+  singleQuote: true,
+  trailingComma: 'all',
+  arrowParens: 'avoid',
 };
