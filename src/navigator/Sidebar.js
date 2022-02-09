@@ -68,7 +68,7 @@ const userMenus = [
     },
 ];
 
-export default function SideMenu(props) {
+export default function Sidebar(props) {
     const dispatch = useDispatch();
     const user = useSelector(state => state.user);
     //console.log("SideMenu:User", user);

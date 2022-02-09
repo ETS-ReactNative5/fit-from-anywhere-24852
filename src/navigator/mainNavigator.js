@@ -11,7 +11,7 @@ import Intro from "../screens/Intro";
 import Register from "../screens/Register";
 import Onboarding from "../screens/Onboarding";
 import Login from "../screens/Login";
-import SideMenu from "./SideMenu";
+import Sidebar from "./Sidebar";
 import Profile from "../screens/Profile";
 import Workout from "../screens/Workout";
 import Resource from "../screens/Resource";
@@ -28,7 +28,7 @@ const Drawer = createDrawerNavigator();
 const HomeNavigator = () => {
     return (
         <Drawer.Navigator initialRouteName="Onboarding" drawerContent={(props) => {
-            return <SideMenu {...props} />
+            return <Sidebar {...props} />
         }}>
             <Drawer.Screen name="Onboarding" component={Onboarding} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Home" component={Home} options={() => ({ headerShown: false })} />
