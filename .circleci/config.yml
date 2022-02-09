@@ -3,7 +3,7 @@ jobs:
   node:
     working_directory: ~/build
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:16
     environment:
       - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     steps:
