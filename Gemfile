@@ -1,6 +1,13 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-# You may use http://rbenv.org/ or https://rvm.io/ to install and use this version
-ruby '2.7.4'
+gem "fastlane"
+gem "httparty"
 
-gem 'cocoapods', '~> 1.11', '>= 1.11.2'
+android_plugins_path = File.join(
+  File.dirname(__FILE__), 'android', 'fastlane', 'Pluginfile'
+)
+eval_gemfile(android_plugins_path) if File.exist?(android_plugins_path)
+ios_plugins_path = File.join(
+  File.dirname(__FILE__), 'ios', 'fastlane', 'Pluginfile'
+)
+eval_gemfile(ios_plugins_path) if File.exist?(ios_plugins_path)
