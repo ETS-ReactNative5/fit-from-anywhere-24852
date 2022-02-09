@@ -52,6 +52,7 @@ LOCAL_APPS = [
     "home",
     "modules",
     "users.apps.UsersConfig",
+    "photos",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
