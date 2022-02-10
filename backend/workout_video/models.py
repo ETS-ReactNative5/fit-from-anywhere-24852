@@ -13,7 +13,11 @@ class WorkoutVideo(BaseModel):
         related_name="user_workout_video",
         on_delete=models.CASCADE,
     )
-    video_file = models.FileField(upload_to=generate_file_name, blank=False, null=False)
+    video_file = models.FileField(
+        upload_to=generate_file_name,
+        blank=False,
+        null=False,
+    )
     description = models.TextField(
         blank=True,
         null=True,

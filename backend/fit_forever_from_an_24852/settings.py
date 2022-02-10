@@ -54,6 +54,7 @@ LOCAL_APPS = [
     "users.apps.UsersConfig",
     "photos",
     "workout_video",
+    "resources_library",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
