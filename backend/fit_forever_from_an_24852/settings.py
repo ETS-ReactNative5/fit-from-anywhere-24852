@@ -53,6 +53,7 @@ LOCAL_APPS = [
     "modules",
     "users.apps.UsersConfig",
     "photos",
+    "workout_video",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",

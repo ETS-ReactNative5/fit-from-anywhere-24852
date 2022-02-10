@@ -13,7 +13,7 @@ class PhotoViewSet(viewsets.ModelViewSet):
         parsers.FormParser,
     )
     # swagger_schema = None
-    filterset_fields = ["business__id"]
+    filterset_fields = ["user__id"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
