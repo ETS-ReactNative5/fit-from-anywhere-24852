@@ -28,7 +28,7 @@ class Photos(BaseModel):
         verbose_name_plural = "Photos"
 
     def __unicode__(self):
-        return f"{self.business}"
+        return f"{self.user}"
 
     def __str__(self):
-        return f"{self.business}"
+        return f"{self.user}"
