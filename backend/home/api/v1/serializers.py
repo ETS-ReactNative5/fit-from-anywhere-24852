@@ -99,6 +99,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "id",
             "profile_image",
             "user",
+            "is_trainer",
+            "student_campus_residential_address",
+            "gender",
+            "age",
+            "dob",
+            "fitness_goal",
+            "height_metric",
+            "weight_metric",
         ]
 
     def create(self, validated_data):

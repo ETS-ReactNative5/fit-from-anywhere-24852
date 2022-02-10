@@ -55,6 +55,7 @@ LOCAL_APPS = [
     "photos",
     "workout_video",
     "resources_library",
+    "appointments",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",

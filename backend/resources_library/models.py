@@ -43,7 +43,7 @@ class ResourceLibrary(BaseModel):
         verbose_name_plural = "Resource Library"
 
     def __unicode__(self):
-        return f"{self.user}"
+        return f"{self.title}"
 
     def __str__(self):
-        return f"{self.business}"
+        return f"{self.title}"

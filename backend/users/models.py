@@ -73,6 +73,10 @@ class Profile(BaseModel):
         blank=True,
         null=True,
     )
+    is_trainer = models.BooleanField(
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Profile"
