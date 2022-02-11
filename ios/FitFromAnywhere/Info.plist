@@ -36,7 +36,9 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Allow FitFromAnywhere to get your current location</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow FitFromAnywhere to get your photo library</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SourceSansPro-Bold.ttf</string>
