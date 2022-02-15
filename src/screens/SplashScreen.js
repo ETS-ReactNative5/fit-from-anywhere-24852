@@ -20,7 +20,6 @@ export default function SplashScreen(props) {
 
     return (
         <View style={styles.container}>
-            <Text>Hello</Text>
             <View style={styles.topSide}>
                 <StatusBar backgroundColor='transparent' translucent={true} />
                 <Image source={require('../assets/images/logo.png')} style={styles.logo} />

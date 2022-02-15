@@ -14,6 +14,10 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import UploadImageView from '../components/UploadImageView';
+import { FormDataConverter, HttpRequest, HttpResponse } from '../utils/http';
+import Toast from '../components/Toast';
+import Button from '../components/Button';
+import DatePicker from '../components/DatePicker';
 
 const analytics = [
     { label: "Jump Squats" },
@@ -28,12 +32,77 @@ export default function Profile(props) {
     const [dob, setDob] = useState('');
     const [gender, setGender] = useState('M');
     const [address, setAddress] = useState('Los Angeles, CA');
+    const [isLoading, setLoading] = useState(false);
+    const [isSaving, setSaving] = useState(false);
+    const [isImageChange, setImageChange] = useState(false);
+
+    useEffect(() => {
+        loadProfile();
+    }, []);
+
+    const loadProfile = useCallback(() => {
+        setLoading(true);
+
+        HttpRequest.getProfile().then((res) => {
+            console.log("getProfile", res.data);
+            let profile = res.data;
+
+            setLoading(false);
+            setName(profile.user.name);
+            setEmail(profile.user.email);
+            setDob(profile.dob ?? "");
+            setGender(profile.gender);
+            setImage(profile.profile_image);
+            setAddress(profile.student_campus_residential_address ?? "");
+        }).catch((err) => {
+            console.log(err, err.response);
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot load profile data"));
+            setLoading(false);
+        });
+    }, []);
+
+    const updateProfile = useCallback(() => {
+        setSaving(true);
+        let data = {
+            user: {
+                email,
+                name,
+            },
+            dob,
+            gender,
+            student_campus_residential_address: address,
+        };
+
+        if (isImageChange) {
+            data = FormDataConverter.convert(data);
+            data.append('profile_image', {
+                name: 'image-' + moment().format("YYYY-MM-DD-HH-mm-ss") + '.jpg',
+                type: 'image/jpeg',
+                uri: image,
+            });
+        }
+
+        console.log("Data", JSON.stringify(data));
+
+        HttpRequest.patchUserProfile(data).then((res) => {
+            Toast.showSuccess("Profile updated successfully");
+            setSaving(false);
+
+            loadProfile();
+        }).catch((err) => {
+            console.log(err, err.response);
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot update profile data"));
+            setSaving(false);
+        });
+    }, [image, name, email, dob, gender, address, isImageChange]);
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="Profile" onLeftClick={() => {
-                props.navigation.openDrawer();
-            }} />
+            <Header title="Profile"
+                onLeftClick={() => {
+                    props.navigation.openDrawer();
+                }}
+            />
             <ScrollView>
                 <View style={styles.image}>
                     <UploadImageView
@@ -43,6 +112,7 @@ export default function Profile(props) {
                         onSelectImage={(imagePath) => {
                             console.log("UploadImageView", imagePath);
                             setImage(imagePath);
+                            setImageChange(true);
                         }} />
                 </View>
 
@@ -76,13 +146,14 @@ export default function Profile(props) {
 
                 <View style={styles.row}>
                     <Text style={styles.label}>Date of Birth</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Date of Birth"
-                        placeholderTextColor={color.gray}
+                    <DatePicker
+                        style={{ borderWidth: 0, padding: 0, borderBottomWidth: 0, height: 30, paddingVertical: 0 }}
+                        containerStyle={{ width: 130, padding: 0 }}
+                        format='YYYY-MM-DD'
+                        displayFormat='MMM DD, YYYY'
                         value={dob}
-                        onChangeText={(text) => {
-                            setDob(text);
+                        onChange={(dob) => {
+                            setDob(dob);
                         }} />
                 </View>
 
@@ -106,12 +177,19 @@ export default function Profile(props) {
                     <Text style={styles.label}>Student Campus Address</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Gender"
+                        placeholder="Address"
                         placeholderTextColor={color.gray}
                         value={address}
                         onChangeText={(text) => {
                             setAddress(text);
                         }} />
+                </View>
+
+                <View style={styles.line} />
+
+                <View style={{ padding: 20 }}>
+                    <Button loading={isSaving}
+                        onPress={() => { updateProfile() }}>Update Profile</Button>
                 </View>
 
                 <View style={styles.line} />

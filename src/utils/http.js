@@ -23,6 +23,8 @@ const request = () => {
 const requestWithAuth = (useFormData = false) => {
     let user = store.getState().user;
 
+    console.log("Token", user.key);
+
     return axios.create({
         baseURL: AppConfig.BASE_URL,
         timeout: AppConfig.TIMEOUT,
@@ -61,7 +63,8 @@ export const HttpRequest = {
     },
 
     getProfile() {
-        return requestWithAuth().get("/api/v1/get-user-profile/");
+        ///api/v1/profile/{user__id}/
+        return requestWithAuth().get("/api/v1/user-profile/");
     },
     getUserProfileList() {
         return requestWithAuth().get("/api/v1/profile/");
@@ -69,6 +72,8 @@ export const HttpRequest = {
     patchUserProfile(data) {
         console.log("patchUserProfile", data);
         let user_id = store.getState().user.user.id;
+        // console.log(store.getState().user);
+        console.log("/api/v1/profile/" + user_id + "/");
         return requestWithAuth(true).patch("/api/v1/profile/" + user_id + "/", data);
     },
     getCurrentProfile() {

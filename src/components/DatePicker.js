@@ -132,7 +132,7 @@ export default class DatePicker extends Component {
                             });
                         }
                     }}
-                    style={styles.box}>
+                    style={[styles.box, this.props.style]}>
 
                     <View style={{ flexDirection: 'column', flex: 1 }}>
 
@@ -185,7 +185,7 @@ export default class DatePicker extends Component {
                                         </TouchableOpacity>
                                     </View>
                                     <Calendar
-                                        {...this.props}
+                                        // {...this.props}
                                         // current={moment(currentTime).format('YYYY-MM-DD')}
                                         current={currentDate}
                                         markedDates={markedDates}
@@ -205,6 +205,7 @@ export default class DatePicker extends Component {
 
                                         enableSwipeMonths={true}
                                     />
+                                    {/* <View style={{ height: 1, backgroundColor: Color.danger }} /> */}
                                 </>
                             )}
 

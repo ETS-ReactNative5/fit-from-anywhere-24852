@@ -28,8 +28,6 @@ export default function Login(props) {
             Toast.showSuccess("Login Success");
             setLoading(false);
             dispatch(setUser(res.data));
-
-            //navigation.navigate("PreLogin");
         }).catch((err) => {
             console.log(err, err.response);
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot login"));
