@@ -107,6 +107,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "fitness_goal",
             "height_metric",
             "weight_metric",
+            "weight",
+            "height",
         ]
 
     def create(self, validated_data):

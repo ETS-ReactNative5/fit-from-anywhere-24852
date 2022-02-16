@@ -58,6 +58,7 @@ class Profile(BaseModel):
         choices=_HEIGHT_METRIC,
         default="CM",
     )
+    height = models.PositiveIntegerField(blank=True, null=True)
     fitness_goal = models.CharField(max_length=255, blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
