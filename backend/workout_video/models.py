@@ -27,6 +27,16 @@ class WorkoutVideo(BaseModel):
         blank=True,
         null=True,
     )
+    workout_category = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    body_category = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Workout Video"
