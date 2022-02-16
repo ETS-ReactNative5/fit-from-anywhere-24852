@@ -27,6 +27,21 @@ class Appointment(BaseModel):
         blank=True,
         related_name="tainer_booked",
     )
+    apointment_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    zoom_link = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Appointment"
