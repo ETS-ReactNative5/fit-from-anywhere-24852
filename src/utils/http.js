@@ -122,30 +122,11 @@ export const HttpRequest = {
         return requestWithAuth().patch("/requests/" + id + "/", data);
     },
 
-    //Vehicles
-    getVehicles(user_id) {
-        return requestWithAuth().get("/vehicles/?user__id=" + user_id);
-    },
-    saveVehicle(data) {
-        return requestWithAuth().post("/vehicles/", data);
-    },
-    deleteVehicle(id) {
-        return requestWithAuth().delete("/vehicles/" + id + "/");
+    //Workout Video
+    getWorkoutVideoList() {
+        return requestWithAuth().get("/workout-video/");
     },
 
-    //Rating
-    getRating(user__id) {
-        return requestWithAuth().get("/reviews/?user__id=" + user__id);
-    },
-    getRatingOfProvider(provider__id) {
-        return requestWithAuth().get("/reviews/");
-    },
-    getRatingOfService(service__id) {
-        return requestWithAuth().get("/reviews/?service__id=" + service__id);
-    },
-    saveRating(data) {
-        return requestWithAuth().post("/reviews/", data);
-    },
 
     //Messages
     getMessages(customer_id, provider_id) {

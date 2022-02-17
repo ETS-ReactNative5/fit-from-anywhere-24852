@@ -48,7 +48,7 @@ export default function Home(props) {
     const calendarRef = useRef();
 
     const profileImage = useMemo(() => {
-        return profile.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
+        return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
     }, [profile]);
 
     const months = useMemo(() => {
@@ -83,9 +83,9 @@ export default function Home(props) {
                 <View style={styles.line} />
 
                 <View style={{ flexDirection: 'row', padding: 20 }}>
-                    <Button style={{ flex: 1, height: 40 }} onPress={() => { }}>Make Appointment</Button>
+                    <Button style={{ flex: 1, height: 40 }} onPress={() => { props.navigation.navigate("Appointment") }}>Make Appointment</Button>
                     <View style={{ width: 20 }} />
-                    <Button style={{ flex: 1, height: 40 }} onPress={() => { }}>Message Trainer</Button>
+                    <Button style={{ flex: 1, height: 40 }} onPress={() => { props.navigation.navigate("Message") }}>Message Trainer</Button>
                 </View>
 
                 <View style={styles.line} />

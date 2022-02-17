@@ -74,7 +74,7 @@ export default function Sidebar(props) {
     const profile = useSelector(state => state.profile);
 
     const profileImage = useMemo(() => {
-        return profile.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
+        return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
     }, [profile]);
 
     const logout = useCallback(() => {
