@@ -1,5 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
+import { serialize } from 'object-to-formdata';
 import qs from 'qs';
 import { Platform } from "react-native";
 import AppConfig from "../config/app";
@@ -23,13 +24,15 @@ const request = () => {
 const requestWithAuth = (useFormData = false) => {
     let user = store.getState().user;
 
+    console.log("Token", user.key);
+
     return axios.create({
         baseURL: AppConfig.BASE_URL,
         timeout: AppConfig.TIMEOUT,
         headers: {
-            "Accept": "application/json",
             "Content-Type": (useFormData ? "application/x-www-form-urlencoded" : "application/json"),
             "Authorization": "token " + user.key,
+            "Accept": "*/*",
         }
     });
 }
@@ -61,15 +64,17 @@ export const HttpRequest = {
     },
 
     getProfile() {
-        return requestWithAuth().get("/api/v1/get-user-profile/");
+        return requestWithAuth().get("/api/v1/user-profile/");
     },
     getUserProfileList() {
         return requestWithAuth().get("/api/v1/profile/");
     },
-    patchUserProfile(data) {
+    patchUserProfile(data, useFormData = false) {
         console.log("patchUserProfile", data);
-        let user_id = store.getState().user.user.id;
-        return requestWithAuth(true).patch("/api/v1/profile/" + user_id + "/", data);
+        let user_id = store.getState().profile.user.id;
+        // console.log(store.getState().user);
+        console.log("/api/v1/profile/" + user_id + "/");
+        return requestWithAuth(useFormData).patch("/api/v1/profile/" + user_id + "/", data);
     },
     getCurrentProfile() {
         let user_id = store.getState().user.user.id;
@@ -117,30 +122,11 @@ export const HttpRequest = {
         return requestWithAuth().patch("/requests/" + id + "/", data);
     },
 
-    //Vehicles
-    getVehicles(user_id) {
-        return requestWithAuth().get("/vehicles/?user__id=" + user_id);
-    },
-    saveVehicle(data) {
-        return requestWithAuth().post("/vehicles/", data);
-    },
-    deleteVehicle(id) {
-        return requestWithAuth().delete("/vehicles/" + id + "/");
+    //Workout Video
+    getWorkoutVideoList() {
+        return requestWithAuth().get("/workout-video/");
     },
 
-    //Rating
-    getRating(user__id) {
-        return requestWithAuth().get("/reviews/?user__id=" + user__id);
-    },
-    getRatingOfProvider(provider__id) {
-        return requestWithAuth().get("/reviews/");
-    },
-    getRatingOfService(service__id) {
-        return requestWithAuth().get("/reviews/?service__id=" + service__id);
-    },
-    saveRating(data) {
-        return requestWithAuth().post("/reviews/", data);
-    },
 
     //Messages
     getMessages(customer_id, provider_id) {
@@ -158,13 +144,14 @@ export const HttpRequest = {
 
 export const FormDataConverter = {
     convert(data) {
-        let form_data = new FormData();
+        // let form_data = new FormData();
 
-        for (let key in data) {
-            form_data.append(key, data[key]);
-        }
+        // for (let key in data) {
+        //     form_data.append(key, data[key]);
+        // }
 
-        return form_data;
+        // return form_data;
+        return serialize(data);
     }
 };
 

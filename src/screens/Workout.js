@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Dimensions,
     Image,
+    RefreshControl,
     ScrollView,
     Text,
     TouchableOpacity,
@@ -14,118 +15,118 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomVideoPlayer from '../components/CustomVideoPlayer';
-
-let categories = [
-    {
-        label: "Push Ups",
-        items: [
-            {
-                label: "Push Ups",
-                description: "A push-up is a common calisthenics exercise beginning from the prone position. By raising and lowering the body using the arms, push-ups exercise the pectoral muscles, triceps, and anterior deltoids, with ancillary benefits to the rest of the deltoids, serratus anterior, coracobrachialis and the midsection as a whole.",
-                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-            },
-            {
-                label: "Push Ups with Feet on Bench",
-                description: "A push-up is a common calisthenics exercise beginning from the prone position. By raising and lowering the body using the arms, push-ups exercise the pectoral muscles, triceps, and anterior deltoids, with ancillary benefits to the rest of the deltoids, serratus anterior, coracobrachialis and the midsection as a whole.",
-                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-            }
-        ],
-    },
-    {
-        label: "Bench Press",
-        items: [
-            {
-                label: "Bench Press",
-                description: "A bench press is a weight training exercise in which a weight is lifted from a weight rack and placed on the bench. The weight is then lowered to the ground by the use of the arms, with the elbows bent at 90 degrees.",
-                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            }
-        ],
-    },
-    {
-        label: "Sit Ups",
-        items: [
-            {
-                label: "Sit Ups",
-                description: "A sit-up is a strength training exercise in which the upper body is supported by the lower body by using the arms and legs to lift the body off the floor.",
-                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-            }
-        ],
-    },
-    {
-        label: "Barbell Bicep Curls",
-        items: [
-            {
-                label: "Barbell Bicep Curls",
-                description: "A bicep curl is a weight training exercise in which a barbell is held overhead with the arms extended in front of the body. The weight is then lifted by the arms and lowered to the ground by the elbows.",
-                videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            }
-        ],
-    },
-];
+import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
+import Toast from '../components/Toast';
+import _ from 'lodash';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 export default function Workout(props) {
-    const [selectedCategory, setSelectedCategory] = useState(0);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
-    let workout = categories[selectedCategory];
+    const [isLoading, setLoading] = useState(false);
+    const [workoutCategories, setWorkoutCategories] = useState([]);
+
+    const workoutList = useMemo(() => {
+        if (selectedCategory === null) {
+            return [];
+        }
+
+        return workoutCategories[selectedCategory];
+    }, [workoutCategories, selectedCategory]);
+
+    useEffect(() => {
+        loadWorkoutVideos();
+    }, []);
+
+    const loadWorkoutVideos = useCallback(() => {
+        setLoading(true);
+
+        HttpRequest.getWorkoutVideoList().then((res) => {
+            console.log("Result", res.data.results);
+            let _allVideo = res.data.results;
+
+            var grouped = _.mapValues(_.groupBy(_allVideo, 'workout_category'), clist => clist.map(vid => _.omit(vid, 'workout_category')));
+            console.log("Grouped", grouped);
+
+            setLoading(false);
+            setWorkoutCategories(grouped);
+            if (Object.keys(grouped).length > 0) {
+                setSelectedCategory(Object.keys(grouped)[0]);
+            }
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Failed to load workout videos"));
+            setLoading(false);
+        });
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
             <Header title="Workout Library" onLeftClick={() => {
                 props.navigation.openDrawer();
             }} />
-            <View style={styles.categoriesWrap}>
-                <ScrollView horizontal>
-                    <View style={styles.categories}>
-                        {categories.map((item, index) => {
+            {isLoading && (
+                <LoadingIndicator />
+            )}
+
+            {!isLoading && (
+                <>
+                    <View style={styles.categoriesWrap}>
+                        <ScrollView horizontal>
+                            <View style={styles.categories}>
+                                {Object.keys(workoutCategories).map((item, index) => {
+                                    return (
+                                        <TouchableOpacity key={index} style={[styles.category, item == selectedCategory ? styles.categoryActive : null]} onPress={() => {
+                                            setSelectedCategory(item);
+                                        }}>
+                                            <Text style={styles.categoryText}>{item}</Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+                        </ScrollView>
+                    </View>
+                    <ScrollView refreshControl={
+                        <RefreshControl refreshing={isLoading} onRefresh={loadWorkoutVideos} />
+                    }>
+                        {workoutList.map((item, index) => {
                             return (
-                                <TouchableOpacity key={index} style={[styles.category, index == selectedCategory ? styles.categoryActive : null]} onPress={() => {
-                                    setSelectedCategory(index);
-                                }}>
-                                    <Text style={styles.categoryText}>{item.label}</Text>
-                                </TouchableOpacity>
+                                <View key={selectedCategory + index} style={styles.item}>
+
+                                    <CustomVideoPlayer
+                                        resizeMode="cover"
+                                        source={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
+                                        style={styles.video}
+                                    />
+                                    <View style={styles.videoContent}>
+                                        <Text style={styles.videoLabel}>{item.name}</Text>
+                                        <Text style={styles.videoDescription}>{item.description}</Text>
+                                    </View>
+
+                                    <View style={styles.section} key={index}>
+                                        <View style={styles.sectionRow}>
+                                            <Text style={styles.sectionLabel}>Excercise instruction</Text>
+                                            <Text style={styles.sectionTime}>11 JAN - 15 JAN</Text>
+                                        </View>
+                                        <View style={styles.sectionValue}>
+                                            <MaterialCommunityIcons name='yoga' size={20} color={color.text} />
+                                            <Text style={styles.sectionQty}>7</Text>
+                                            <View style={styles.sectionSeparator} />
+                                            <MaterialCommunityIcons name='dumbbell' size={20} color={color.text} />
+                                            <Text style={styles.sectionQty}>14</Text>
+                                            <View style={styles.sectionSeparator} />
+                                            <MaterialCommunityIcons name='weight-lifter' size={20} color={color.text} />
+                                            <Text style={styles.sectionQty}>25 kg</Text>
+                                        </View>
+                                    </View>
+                                </View>
                             );
                         })}
-                    </View>
-                </ScrollView>
-            </View>
-            <ScrollView>
-                {workout.items.map((item, index) => {
-                    return (
-                        <View key={index} style={styles.item}>
-
-                            <CustomVideoPlayer
-                                resizeMode="cover"
-                                source={{ uri: item.videoUrl }}
-                                style={styles.video}
-                            />
-                            <View style={styles.videoContent}>
-                                <Text style={styles.videoLabel}>{item.label}</Text>
-                                <Text style={styles.videoDescription}>{item.description}</Text>
-                            </View>
-
-                            <View style={styles.section} key={index}>
-                                <View style={styles.sectionRow}>
-                                    <Text style={styles.sectionLabel}>Excercise instruction</Text>
-                                    <Text style={styles.sectionTime}>11 JAN - 15 JAN</Text>
-                                </View>
-                                <View style={styles.sectionValue}>
-                                    <MaterialCommunityIcons name='yoga' size={20} color={color.text} />
-                                    <Text style={styles.sectionQty}>7</Text>
-                                    <View style={styles.sectionSeparator} />
-                                    <MaterialCommunityIcons name='dumbbell' size={20} color={color.text} />
-                                    <Text style={styles.sectionQty}>14</Text>
-                                    <View style={styles.sectionSeparator} />
-                                    <MaterialCommunityIcons name='weight-lifter' size={20} color={color.text} />
-                                    <Text style={styles.sectionQty}>25 kg</Text>
-                                </View>
-                            </View>
-                        </View>
-                    );
-                })}
 
 
-                <View style={styles.line} />
-            </ScrollView>
+                        <View style={styles.line} />
+                    </ScrollView>
+                </>
+            )}
         </SafeAreaView>
     );
 }
@@ -162,7 +163,7 @@ const styles = {
     },
     video: {
         width: Dimensions.get('window').width,
-        height: 300,
+        height: Dimensions.get('window').width * 0.5625,
     },
     videoContent: {
         paddingHorizontal: 20,
