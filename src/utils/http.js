@@ -1,5 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
+import { serialize } from 'object-to-formdata';
 import qs from 'qs';
 import { Platform } from "react-native";
 import AppConfig from "../config/app";
@@ -29,9 +30,9 @@ const requestWithAuth = (useFormData = false) => {
         baseURL: AppConfig.BASE_URL,
         timeout: AppConfig.TIMEOUT,
         headers: {
-            "Accept": "application/json",
             "Content-Type": (useFormData ? "application/x-www-form-urlencoded" : "application/json"),
             "Authorization": "token " + user.key,
+            "Accept": "*/*",
         }
     });
 }
@@ -63,18 +64,17 @@ export const HttpRequest = {
     },
 
     getProfile() {
-        ///api/v1/profile/{user__id}/
         return requestWithAuth().get("/api/v1/user-profile/");
     },
     getUserProfileList() {
         return requestWithAuth().get("/api/v1/profile/");
     },
-    patchUserProfile(data) {
+    patchUserProfile(data, useFormData = false) {
         console.log("patchUserProfile", data);
-        let user_id = store.getState().user.user.id;
+        let user_id = store.getState().profile.user.id;
         // console.log(store.getState().user);
         console.log("/api/v1/profile/" + user_id + "/");
-        return requestWithAuth(true).patch("/api/v1/profile/" + user_id + "/", data);
+        return requestWithAuth(useFormData).patch("/api/v1/profile/" + user_id + "/", data);
     },
     getCurrentProfile() {
         let user_id = store.getState().user.user.id;
@@ -163,13 +163,14 @@ export const HttpRequest = {
 
 export const FormDataConverter = {
     convert(data) {
-        let form_data = new FormData();
+        // let form_data = new FormData();
 
-        for (let key in data) {
-            form_data.append(key, data[key]);
-        }
+        // for (let key in data) {
+        //     form_data.append(key, data[key]);
+        // }
 
-        return form_data;
+        // return form_data;
+        return serialize(data);
     }
 };
 

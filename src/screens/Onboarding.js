@@ -1,10 +1,11 @@
 import React, { Component, useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View, Dimensions, Text, Linking, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "../components/Button";
 import Combobox from "../components/Combobox";
 import Toast from "../components/Toast";
+import { setProfile } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest, HttpResponse } from "../utils/http";
@@ -16,8 +17,10 @@ const goals = [
 ];
 
 export default function Onboarding(props) {
+    const dispatch = useDispatch();
     const user = useSelector(state => state.user);
 
+    const profile = useSelector(state => state.profile);
     const [page, setPage] = useState(1);
     const [goal, setGoal] = useState(user.profile.fitness_goal ?? "lose_weight");
     const [weight, setWeight] = useState(user.profile.weight ?? "0");
@@ -26,6 +29,26 @@ export default function Onboarding(props) {
     const [weightType, setWeightType] = useState(user.profile.weight_metric ?? "LB");
     const [heightType, setHeightType] = useState(user.profile.height_metric ?? "CM");
     const [isLoading, setLoading] = useState(false);
+
+    useEffect(() => {
+        loadProfile();
+    }, []);
+
+    const loadProfile = useCallback(() => {
+        HttpRequest.getProfile().then((res) => {
+            console.log("getProfile", res.data);
+            let _profile = res.data;
+            dispatch(setProfile(_profile));
+            setGoal(_profile.fitness_goal ?? "lose_weight");
+            setWeight("" + _profile.weight ?? "0");
+            setHeight("" + _profile.height ?? "0");
+            setAge("" + _profile.age ?? "0");
+            setWeightType(_profile.weight_metric ?? "LB");
+            setHeightType(_profile.height_metric ?? "CM");
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
+        });
+    }, []);
 
     const patchProfile = useCallback((data) => {
         setLoading(true);
@@ -38,6 +61,8 @@ export default function Onboarding(props) {
                 setPage(page + 1);
             }
             setLoading(false);
+
+            loadProfile();
         }).catch((err) => {
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot update profile"));
             setLoading(false);
@@ -124,9 +149,9 @@ export default function Onboarding(props) {
                             style={styles.bigNumber} />
 
                         <View style={styles.weightTypeView}>
-                            <Button theme={heightType == 'IN' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
-                                setHeightType('IN');
-                            }}>inch</Button>
+                            <Button theme={heightType == 'FEET' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
+                                setHeightType('FEET');
+                            }}>feet</Button>
 
                             <Button theme={heightType == 'CM' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
                                 setHeightType('CM');
@@ -182,6 +207,11 @@ export default function Onboarding(props) {
                     </>
                 )}
 
+                {/* <Button
+                    style={{ marginTop: 20 }}
+                    onPress={() => {
+                        setPage(page - 1);
+                    }}>PREV</Button> */}
             </View>
             <View style={styles.bottomWhite} />
         </SafeAreaView>

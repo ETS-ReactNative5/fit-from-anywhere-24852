@@ -14,10 +14,12 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import UploadImageView from '../components/UploadImageView';
-import { FormDataConverter, HttpRequest, HttpResponse } from '../utils/http';
+import { FormDataConverter, HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import Button from '../components/Button';
 import DatePicker from '../components/DatePicker';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProfile } from '../store/actions';
 
 const analytics = [
     { label: "Jump Squats" },
@@ -26,6 +28,8 @@ const analytics = [
 ];
 
 export default function Profile(props) {
+    const dispatch = useDispatch();
+    const profile = useSelector(state => state.profile);
     const [image, setImage] = useState(null);
     const [name, setName] = useState('Tim Castle');
     const [email, setEmail] = useState('');
@@ -45,15 +49,17 @@ export default function Profile(props) {
 
         HttpRequest.getProfile().then((res) => {
             console.log("getProfile", res.data);
-            let profile = res.data;
+            let _profile = res.data;
 
             setLoading(false);
-            setName(profile.user.name);
-            setEmail(profile.user.email);
-            setDob(profile.dob ?? "");
-            setGender(profile.gender);
-            setImage(profile.profile_image);
-            setAddress(profile.student_campus_residential_address ?? "");
+            setName(_profile.user.name);
+            setEmail(_profile.user.email);
+            setDob(_profile.dob);
+            setGender(_profile.gender);
+            setImage(HttpUtils.normalizeUrl(_profile.profile_image));
+            setAddress(_profile.student_campus_residential_address ?? "");
+
+            dispatch(setProfile(_profile));
         }).catch((err) => {
             console.log(err, err.response);
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot load profile data"));
@@ -73,6 +79,12 @@ export default function Profile(props) {
             student_campus_residential_address: address,
         };
 
+        if (data.dob == '' || data.dob == null) {
+            delete data.dob;
+        }
+
+        let useFormData = false;
+
         if (isImageChange) {
             data = FormDataConverter.convert(data);
             data.append('profile_image', {
@@ -80,11 +92,12 @@ export default function Profile(props) {
                 type: 'image/jpeg',
                 uri: image,
             });
+            useFormData = true;
         }
 
         console.log("Data", JSON.stringify(data));
 
-        HttpRequest.patchUserProfile(data).then((res) => {
+        HttpRequest.patchUserProfile(data, useFormData).then((res) => {
             Toast.showSuccess("Profile updated successfully");
             setSaving(false);
 

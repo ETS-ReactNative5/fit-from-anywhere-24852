@@ -14,6 +14,7 @@ import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Calendar } from 'react-native-calendars';
 import { useSelector } from 'react-redux';
+import { HttpUtils } from '../utils/http';
 
 const promotions = [
     {
@@ -39,7 +40,11 @@ const promotions = [
 ];
 
 export default function Home(props) {
-    const user = useSelector(state => state.user);
+    const profile = useSelector(state => state.profile);
+
+    const profileImage = useMemo(() => {
+        return profile.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
+    }, [profile]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -48,12 +53,12 @@ export default function Home(props) {
             }} />
             <ScrollView>
                 <View style={styles.profile}>
-                    <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
+                    <Image source={profileImage} style={styles.profileImage} />
                     <View style={styles.profileContent}>
-                        <Text style={styles.profileName}>{user?.user.name}</Text>
+                        <Text style={styles.profileName}>{profile?.user.name}</Text>
                         <View style={styles.profileInfo}>
                             <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
-                            <Text style={styles.profileLocation}>Los Angeles, CA</Text>
+                            <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text>
                         </View>
                     </View>
                 </View>

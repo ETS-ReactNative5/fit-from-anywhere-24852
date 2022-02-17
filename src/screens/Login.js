@@ -37,11 +37,11 @@ export default function Login(props) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.topView}>
-                <Image source={require('../assets/images/logo-letter.png')} style={styles.logo} resizeMode='contain' />
-                <Text style={styles.title}>Log in</Text>
-            </View>
             <ScrollView>
+                <View style={styles.topView}>
+                    <Image source={require('../assets/images/logo-letter.png')} style={styles.logo} resizeMode='contain' />
+                    <Text style={styles.title}>Log in</Text>
+                </View>
                 <View style={styles.bottomView}>
                     <TextInput
                         // label='Email address'

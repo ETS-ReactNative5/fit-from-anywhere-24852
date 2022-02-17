@@ -7,6 +7,13 @@ export const setUser = (payload) => (dispatch) => {
     });
 };
 
+export const setProfile = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_PROFILE,
+        payload,
+    });
+};
+
 export const setSplash = (payload) => (dispatch) => {
     dispatch({
         type: types.SET_SPLASH,
