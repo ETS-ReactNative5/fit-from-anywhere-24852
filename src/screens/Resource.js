@@ -14,7 +14,7 @@ import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import CustomVideoPlayer from '../components/CustomVideoPlayer';
+import VideoPlayer from '../components/VideoPlayer';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import _ from 'lodash';
@@ -92,11 +92,14 @@ export default function Workout(props) {
                             return (
                                 <View key={selectedCategory + index} style={styles.item}>
 
-                                    <CustomVideoPlayer
+                                    {/* <CustomVideoPlayer
                                         resizeMode="cover"
                                         source={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
                                         style={styles.video}
-                                    />
+                                    /> */}
+
+                                    <VideoPlayer source={{ uri: HttpUtils.normalizeUrl(item.video_file) }} style={styles.video} />
+
                                     <View style={styles.videoContent}>
                                         <Text style={styles.videoLabel}>{item.name}</Text>
                                         <Text style={styles.videoDescription}>{item.description}</Text>
@@ -163,7 +166,8 @@ const styles = {
     },
     video: {
         width: Dimensions.get('window').width,
-        height: Dimensions.get('window').width * 0.5625,
+        height: Dimensions.get('window').width * 0.6,
+        backgroundColor: color.black,
     },
     videoContent: {
         paddingHorizontal: 20,
