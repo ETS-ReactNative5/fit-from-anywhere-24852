@@ -63,13 +63,13 @@ class CustomVideoPlayer extends React.Component {
                             this.videoPlayer = ref;
                         }} />
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={styles.buttonFullScreen}
                         onPress={() => {
                             this.presentFullscreen();
                         }}>
                         <MaterialCommunityIcons name='fullscreen' size={30} color='#fff' />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
             );
         }
@@ -112,14 +112,14 @@ class CustomVideoPlayer extends React.Component {
                         this.videoPlayer = ref;
                     }} />
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={styles.buttonFullScreen}
                     onPress={() => {
                         this.setState({ isFullScreen: true });
                         this.presentFullscreen();
                     }}>
                     <MaterialCommunityIcons name='fullscreen' size={30} color='#fff' />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <Modal
                     animationType="fade"

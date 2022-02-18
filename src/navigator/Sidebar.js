@@ -93,7 +93,7 @@ export default function Sidebar(props) {
                     }}>
                     <Image source={profileImage} style={styles.profileImage} />
                     <View style={styles.profileContent}>
-                        <Text style={styles.profileName}>{profile?.user.name}</Text>
+                        <Text style={styles.profileName}>{profile?.user?.name}</Text>
                         <View style={styles.profileInfo}>
                             <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
                             <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text>

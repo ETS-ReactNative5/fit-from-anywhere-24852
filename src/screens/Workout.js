@@ -14,11 +14,11 @@ import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import CustomVideoPlayer from '../components/CustomVideoPlayer';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import _ from 'lodash';
 import LoadingIndicator from '../components/LoadingIndicator';
+import VideoPlayer from '../components/VideoPlayer';
 
 export default function Workout(props) {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -92,11 +92,23 @@ export default function Workout(props) {
                             return (
                                 <View key={selectedCategory + index} style={styles.item}>
 
-                                    <CustomVideoPlayer
+                                    {/* <View style={{ height: 300, width: '100%', backgroundColor: color.black }}>
+                                        <VideoPlayer uri={HttpUtils.normalizeUrl(item.video_file)} style={styles.video} />
+                                    </View> */}
+                                    {/* <CustomVideoPlayer
                                         resizeMode="cover"
                                         source={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
                                         style={styles.video}
-                                    />
+                                    /> */}
+                                    {/* <VideoPlayer
+                                        video={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
+                                        videoWidth={1600}
+                                        videoHeight={900}
+                                        disableControlsAutoHide={true}
+                                        thumbnail={{ uri: 'https://i.picsum.photos/id/866/1600/900.jpg' }}
+                                    /> */}
+                                    <VideoPlayer source={{ uri: HttpUtils.normalizeUrl(item.video_file) }} style={styles.video} />
+
                                     <View style={styles.videoContent}>
                                         <Text style={styles.videoLabel}>{item.name}</Text>
                                         <Text style={styles.videoDescription}>{item.description}</Text>
@@ -163,7 +175,8 @@ const styles = {
     },
     video: {
         width: Dimensions.get('window').width,
-        height: Dimensions.get('window').width * 0.5625,
+        height: Dimensions.get('window').width * 0.6,
+        backgroundColor: color.black,
     },
     videoContent: {
         paddingHorizontal: 20,
