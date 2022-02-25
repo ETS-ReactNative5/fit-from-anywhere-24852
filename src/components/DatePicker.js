@@ -411,9 +411,10 @@ const styles = {
     },
     box: {
         justifyContent: 'flex-start',
-        borderColor: "#A5A4A4",
-        borderBottomWidth: 1,
-        paddingHorizontal: 2,
+        borderColor: Color.primary,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 15,
         paddingVertical: 15,
         flexDirection: 'row',
         alignItems: 'center',
@@ -423,6 +424,7 @@ const styles = {
     label: {
         fontSize: 14,
         color: Color.black,
+        marginBottom: 5,
     },
     text: {
         color: Color.black,

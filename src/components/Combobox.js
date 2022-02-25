@@ -208,8 +208,8 @@ class Combobox extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 5,
-        marginBottom: 15,
+        // marginTop: 5,
+        // marginBottom: 15,
     },
     pickerWrapper: {
         height: 50,

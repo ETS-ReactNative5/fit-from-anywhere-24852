@@ -20,6 +20,7 @@ import PrivacyPolicy from "../screens/PrivacyPolicy";
 import TermAndCondition from "../screens/TermAndCondition";
 import Notification from "../screens/Notification";
 import Message from "../screens/Message";
+import AppointmentEdit from "../screens/AppointmentEdit";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -58,6 +59,7 @@ const DashboardStack = () => {
     return (
         <Stack.Navigator initialRouteName="HomeStack" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeStack" component={HomeNavigator} />
+            <Stack.Screen name="AppointmentEdit" component={AppointmentEdit} />
         </Stack.Navigator>
     );
 }

@@ -77,6 +77,7 @@ export default function Profile(props) {
             dob,
             gender,
             student_campus_residential_address: address,
+            // is_trainer: "true",
         };
 
         if (data.dob == '' || data.dob == null) {

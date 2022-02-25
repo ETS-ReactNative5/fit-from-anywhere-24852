@@ -40,9 +40,9 @@ export default function Onboarding(props) {
             let _profile = res.data;
             dispatch(setProfile(_profile));
             setGoal(_profile.fitness_goal ?? "lose_weight");
-            setWeight("" + _profile.weight ?? "0");
-            setHeight("" + _profile.height ?? "0");
-            setAge("" + _profile.age ?? "0");
+            setWeight("" + (_profile.weight ?? "0"));
+            setHeight("" + (_profile.height ?? "0"));
+            setAge("" + ( _profile.age ?? "0"));
             setWeightType(_profile.weight_metric ?? "LB");
             setHeightType(_profile.height_metric ?? "CM");
         }).catch((err) => {
@@ -90,7 +90,7 @@ export default function Onboarding(props) {
                         />
 
                         <Button loading={isLoading} style={{ marginTop: 30, }} onPress={() => {
-                            patchProfile({ fitness_goal: goal });
+                            patchProfile({ fitness_goal: goal, is_trainer: false });
                         }}>Next</Button>
                     </>
                 )}
