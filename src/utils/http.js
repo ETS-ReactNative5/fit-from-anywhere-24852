@@ -63,6 +63,10 @@ export const HttpRequest = {
     getSettings() {
         return request().get('/app-settings/');
     },
+    uploadImage(data) {
+        ///modules/camera/upload_image/
+        return requestWithAuth(true).post("/modules/camera/upload_image/", data);
+    },
 
     getProfile() {
         return requestWithAuth().get("/api/v1/user-profile/");

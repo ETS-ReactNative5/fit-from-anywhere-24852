@@ -15,10 +15,11 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Calendar } from 'react-native-calendars';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { HttpUtils } from '../utils/http';
 import Button from '../components/Button';
 import { LineChart } from 'react-native-chart-kit';
+import { setShowOnboard } from '../store/actions';
 
 const rawData = [50, 10, 40, 95, 85, 91];
 
@@ -46,7 +47,9 @@ const promotions = [
 ];
 
 export default function Home(props) {
+    const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+    const isOnboarding = useSelector(state => state.isOnboarding);
     const [focusedDate, setFocusedDate] = useState(moment());
     const scrollRef = useRef();
     const calendarRef = useRef();
@@ -66,6 +69,14 @@ export default function Home(props) {
         }
         return months;
     }, [focusedDate]);
+
+    useEffect(() => {
+        console.log("Is onboarding", isOnboarding);
+        if (isOnboarding) {
+            props.navigation.navigate("Onboarding");
+            dispatch(setShowOnboard(false));
+        }
+    }, [isOnboarding]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -90,7 +101,10 @@ export default function Home(props) {
                     <Button style={{ flex: 1, height: 40 }} onPress={() => { props.navigation.navigate("Appointment") }}>Make Appointment</Button>
                     <View style={{ width: 20 }} />
                     <Button style={{ flex: 1, height: 40 }} onPress={() => { props.navigation.navigate("Message") }}>Message Trainer</Button>
+
                 </View>
+
+                {/* <Button style={{ height: 40 }} onPress={() => { props.navigation.goBack() }}>Back</Button> */}
 
                 <View style={styles.line} />
 

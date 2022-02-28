@@ -1,4 +1,6 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
+import PubNub from "pubnub";
+import { PubNubProvider } from "pubnub-react";
 import { NavigationContainer } from "@react-navigation/native";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,6 +23,10 @@ import TermAndCondition from "../screens/TermAndCondition";
 import Notification from "../screens/Notification";
 import Message from "../screens/Message";
 import AppointmentEdit from "../screens/AppointmentEdit";
+import app from "../config/app";
+import MessageCreateGroup from "../screens/MessageCreateGroup";
+import MessageEditGroupInfo from "../screens/MessageEditGroupInfo";
+import MessageDetail from "../screens/MessageDetail";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -28,11 +34,11 @@ const Drawer = createDrawerNavigator();
 
 const HomeNavigator = () => {
     return (
-        <Drawer.Navigator initialRouteName="Onboarding" drawerContent={(props) => {
+        <Drawer.Navigator initialRouteName="Home" drawerContent={(props) => {
             return <Sidebar {...props} />
         }}>
-            <Drawer.Screen name="Onboarding" component={Onboarding} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Home" component={Home} options={() => ({ headerShown: false })} />
+            <Drawer.Screen name="Onboarding" component={Onboarding} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Profile" component={Profile} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Message" component={Message} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Notification" component={Notification} options={() => ({ headerShown: false })} />
@@ -60,13 +66,29 @@ const DashboardStack = () => {
         <Stack.Navigator initialRouteName="HomeStack" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeStack" component={HomeNavigator} />
             <Stack.Screen name="AppointmentEdit" component={AppointmentEdit} />
+            <Stack.Screen name="MessageCreateGroup" component={MessageCreateGroup} />
+            <Stack.Screen name="MessageEditGroupInfo" component={MessageEditGroupInfo} />
+            <Stack.Screen name="MessageDetail" component={MessageDetail} />
         </Stack.Navigator>
     );
 }
 
 export default function AppContainer() {
     const user = useSelector((state) => state.user);
+    const profile = useSelector((state) => state.profile);
     const splash = useSelector((state) => state.splash);
+
+    const pubnub = useMemo(() => {
+        if (profile) {
+            return new PubNub({
+                publishKey: app.PUBNUB_PUB_KEY,
+                subscribeKey: app.PUBNUB_SUB_KEY,
+                uuid: profile.user.id + ""
+            });
+        }
+
+        return null;
+    }, [profile]);
 
     //console.log("SplashScreen", splash);
 
@@ -81,13 +103,26 @@ export default function AppContainer() {
     if (splash === true) {
         return <SplashScreen />
     } else {
-        return (
-            <NavigationContainer>
-                <Tab.Navigator tabBar={() => null}>
-                    {user == null && <Tab.Screen name="Auth" component={AuthTab} options={() => ({ headerShown: false })} />}
-                    {user != null && <Tab.Screen name="Dashboard" component={DashboardStack} options={() => ({ headerShown: false })} />}
-                </Tab.Navigator>
-            </NavigationContainer>
-        )
+        if (user != null && profile != null) {
+            return (
+                <PubNubProvider client={pubnub}>
+                    <NavigationContainer>
+                        <Tab.Navigator tabBar={() => null}>
+                            <Tab.Screen name="Dashboard" component={DashboardStack} options={() => ({ headerShown: false })} />
+                        </Tab.Navigator>
+                    </NavigationContainer>
+
+                </PubNubProvider>
+            )
+        } else {
+            return (
+                <NavigationContainer>
+                    <Tab.Navigator tabBar={() => null}>
+                        <Tab.Screen name="Auth" component={AuthTab} options={() => ({ headerShown: false })} />
+
+                    </Tab.Navigator>
+                </NavigationContainer>
+            )
+        }
     }
 }

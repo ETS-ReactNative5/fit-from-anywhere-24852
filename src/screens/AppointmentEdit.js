@@ -40,12 +40,12 @@ export default function AppointmentEdit(props) {
     const [trainers, setTrainers] = useState([]);
 
     useEffect(() => {
-        setZoomLink(appointment.zoom_link);
-        setBookedDate(appointment.booked_date);
-        setBookedTime(appointment.booked_time);
-        setApointmentType(appointment.apointment_type);
-        setStatus(appointment.status);
-        setTrainer(appointment.trainer.id);
+        setZoomLink(appointment?.zoom_link);
+        setBookedDate(appointment?.booked_date);
+        setBookedTime(appointment?.booked_time);
+        setApointmentType(appointment?.apointment_type);
+        setStatus(appointment?.status);
+        setTrainer(appointment?.trainer.id);
     }, [appointment]);
 
     useEffect(() => {
@@ -129,6 +129,7 @@ export default function AppointmentEdit(props) {
                         // style={{ borderWidth: 0, padding: 0, borderBottomWidth: 0, height: 30, paddingVertical: 0 }}
                         // containerStyle={{ width: 130, padding: 0 }}
                         format='HH:mm'
+                        mode='time'
                         displayFormat='HH:mm'
                         value={booked_time}
                         onChange={(val) => {
