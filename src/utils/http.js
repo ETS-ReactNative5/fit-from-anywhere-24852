@@ -1,5 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
+import moment from "moment";
 import { serialize } from 'object-to-formdata';
 import qs from 'qs';
 import { Platform } from "react-native";
@@ -62,6 +63,10 @@ export const HttpRequest = {
     getSettings() {
         return request().get('/app-settings/');
     },
+    uploadImage(data) {
+        ///modules/camera/upload_image/
+        return requestWithAuth(true).post("/modules/camera/upload_image/", data);
+    },
 
     getProfile() {
         return requestWithAuth().get("/api/v1/user-profile/");
@@ -92,20 +97,25 @@ export const HttpRequest = {
         return axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=` + address + `&key=` + apiKey)
     },
 
-    getReviews(user_id) {
-        return requestWithAuth().get("/reviews/?user__id=" + user_id);
+    getAppointmentList() {
+        let user_id = store.getState().profile.user.id;
+        let data = {
+            user__id: user_id,
+            booked_date__gte: moment().format("YYYY-MM-DD"),
+        };
+        return requestWithAuth().get("/appointment/?" + qs.stringify(data));
     },
-    getServices(user_id) {
-        return requestWithAuth().get("/services/?user__id=" + user_id);
+    getAppointment(id) {
+        return requestWithAuth().get("/appointment/" + id + "/");
     },
-    getServiceSingle(id) {
-        return requestWithAuth().get("/services/" + id + "/");
+    patchAppointment(id, data) {
+        return requestWithAuth().patch("/appointment/" + id + "/", data);
     },
-    saveService(data) {
-        return requestWithAuth().post("/services/", data);
+    saveAppointment(data) {
+        return requestWithAuth().post("/appointment/", data);
     },
-    deleteService(id) {
-        return requestWithAuth().delete("/services/" + id + "/");
+    deleteAppointment(id) {
+        return requestWithAuth().delete("/appointment/" + id + "/");
     },
 
     //Requests

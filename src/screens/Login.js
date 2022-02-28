@@ -7,7 +7,7 @@ import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import Toast from "../components/Toast";
 import app from "../config/app";
-import { setUser } from "../store/actions";
+import { setProfile, setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest } from "../utils/http";
@@ -28,12 +28,26 @@ export default function Login(props) {
             Toast.showSuccess("Login Success");
             setLoading(false);
             dispatch(setUser(res.data));
+
+            loadProfile();
         }).catch((err) => {
             console.log(err, err.response);
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot login"));
             setLoading(false);
         });
     }, [email, password]);
+
+    const loadProfile = useCallback(() => {
+        HttpRequest.getProfile().then((res) => {
+            console.log("getProfile", res.data);
+            let _profile = res.data;
+
+            dispatch(setProfile(_profile));
+        }).catch((err) => {
+            console.log(err, err.response);
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot load profile data"));
+        });
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>

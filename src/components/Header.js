@@ -24,15 +24,18 @@ export default function Header(props) {
                             props.onLeftClick();
                         }
                     }}>
-                        <Entypo name='menu' color={color.white} size={25} />
+                        {props.leftIcon != null && props.leftIcon}
+                        {props.leftIcon == null && <Entypo name="menu" size={25} color={color.white} />}
                     </TouchableOpacity>
                     <View style={styles.center}>
                         <Text style={styles.centerText}>{props.title}</Text>
                     </View>
                     <TouchableOpacity style={styles.sideButton} onPress={() => {
-
+                        if (props.onRightClick != null) {
+                            props.onRightClick();
+                        }
                     }}>
-
+                        {props.rightIcon}
                     </TouchableOpacity>
                 </View>
             </View>

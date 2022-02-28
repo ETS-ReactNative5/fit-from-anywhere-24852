@@ -14,9 +14,23 @@ export const setProfile = (payload) => (dispatch) => {
     });
 };
 
+export const setProfiles = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_PROFILES,
+        payload,
+    });
+};
+
 export const setSplash = (payload) => (dispatch) => {
     dispatch({
         type: types.SET_SPLASH,
+        payload,
+    });
+};
+
+export const setShowOnboard = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_SHOW_ONBOARDING,
         payload,
     });
 };

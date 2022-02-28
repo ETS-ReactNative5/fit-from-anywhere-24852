@@ -1,6 +1,7 @@
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+    Dimensions,
     Image,
     ScrollView,
     Text,
@@ -14,9 +15,13 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Calendar } from 'react-native-calendars';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { HttpUtils } from '../utils/http';
 import Button from '../components/Button';
+import { LineChart } from 'react-native-chart-kit';
+import { setShowOnboard } from '../store/actions';
+
+const rawData = [50, 10, 40, 95, 85, 91];
 
 const promotions = [
     {
@@ -42,7 +47,9 @@ const promotions = [
 ];
 
 export default function Home(props) {
+    const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+    const isOnboarding = useSelector(state => state.isOnboarding);
     const [focusedDate, setFocusedDate] = useState(moment());
     const scrollRef = useRef();
     const calendarRef = useRef();
@@ -62,6 +69,14 @@ export default function Home(props) {
         }
         return months;
     }, [focusedDate]);
+
+    useEffect(() => {
+        console.log("Is onboarding", isOnboarding);
+        if (isOnboarding) {
+            props.navigation.navigate("Onboarding");
+            dispatch(setShowOnboard(false));
+        }
+    }, [isOnboarding]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -86,7 +101,10 @@ export default function Home(props) {
                     <Button style={{ flex: 1, height: 40 }} onPress={() => { props.navigation.navigate("Appointment") }}>Make Appointment</Button>
                     <View style={{ width: 20 }} />
                     <Button style={{ flex: 1, height: 40 }} onPress={() => { props.navigation.navigate("Message") }}>Message Trainer</Button>
+
                 </View>
+
+                {/* <Button style={{ height: 40 }} onPress={() => { props.navigation.goBack() }}>Back</Button> */}
 
                 <View style={styles.line} />
 
@@ -135,6 +153,106 @@ export default function Home(props) {
                         }}
                     />
                 </View>
+
+                <View style={styles.line} />
+
+                <Text style={styles.chartTitle}>Frequency Bar chart</Text>
+                <Text style={styles.chartSubtitle}>Days of workout</Text>
+
+                <LineChart
+                    data={{
+                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                        datasets: [
+                            {
+                                data: rawData
+                            }
+                        ]
+                    }}
+                    width={Dimensions.get("window").width} // from react-native
+                    height={220}
+                    yAxisLabel=""
+                    yAxisSuffix=""
+                    yAxisInterval={1} // optional, defaults to 1
+                    chartConfig={{
+                        backgroundColor: "#e26a00",
+                        backgroundGradientFrom: color.white,
+                        backgroundGradientTo: color.white,
+                        fillShadowGradientFrom: color.primary,
+                        fillShadowGradientFromOpacity: 0.9,
+                        fillShadowGradientTo: color.primary,
+                        fillShadowGradientToOpacity: 0,
+                        decimalPlaces: 0, // optional, defaults to 2dp
+                        color: (opacity = 1) => color.primary,//`rgba(0, 0, 0, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        style: {
+                            borderRadius: 16
+                        },
+                        propsForDots: {
+                            r: "6",
+                            strokeWidth: "2",
+                            stroke: color.primary,
+                        }
+                    }}
+                    withDots={false}
+                    withVerticalLines={false}
+                    withOuterLines={false}
+                    bezier
+                    style={{
+                        marginVertical: 8,
+                        borderRadius: 16
+                    }}
+                />
+
+                <Text style={styles.chartTitle}>Activity Bar chart</Text>
+                <Text style={styles.chartSubtitle}>Days of workout</Text>
+
+                <LineChart
+                    data={{
+                        labels: ["Jump", "Sit Ups", "Push Ups", "Bench Press", "Rope", "Barbell"],
+                        datasets: [
+                            {
+                                data: rawData
+                            }
+                        ]
+                    }}
+                    width={Dimensions.get("window").width} // from react-native
+                    height={220}
+                    yAxisLabel=""
+                    yAxisSuffix=""
+                    yAxisInterval={1} // optional, defaults to 1
+                    chartConfig={{
+                        backgroundColor: "#e26a00",
+                        backgroundGradientFrom: color.white,
+                        backgroundGradientTo: color.white,
+                        fillShadowGradientFrom: color.primary,
+                        fillShadowGradientFromOpacity: 0.9,
+                        fillShadowGradientTo: color.primary,
+                        fillShadowGradientToOpacity: 0,
+                        decimalPlaces: 0, // optional, defaults to 2dp
+                        color: (opacity = 1) => color.primary,//`rgba(0, 0, 0, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        style: {
+                            borderRadius: 16
+                        },
+                        propsForDots: {
+                            r: "6",
+                            strokeWidth: "2",
+                            stroke: color.primary,
+                        },
+                        propsForVerticalLabels: {
+                            fontSize: "8"
+                        },
+                    }}
+                    withDots={false}
+                    withVerticalLines={false}
+                    withOuterLines={false}
+                    // verticalLabelRotation={30}
+                    bezier
+                    style={{
+                        marginVertical: 8,
+                        borderRadius: 16
+                    }}
+                />
 
                 <View style={styles.line} />
 
@@ -232,6 +350,24 @@ const styles = {
         fontWeight: 'bold',
         color: color.gray,
     },
+
+
+    chartTitle: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: color.primary,
+        marginTop: 20,
+        marginLeft: 20,
+    },
+    chartSubtitle: {
+        fontSize: 13,
+        fontWeight: '400',
+        color: color.primary,
+        marginTop: 5,
+        marginLeft: 20,
+        marginBottom: 15,
+    },
+
     promo: {
         paddingVertical: 20,
     },
