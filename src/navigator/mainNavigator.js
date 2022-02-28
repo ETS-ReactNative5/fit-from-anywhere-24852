@@ -79,11 +79,11 @@ export default function AppContainer() {
     const splash = useSelector((state) => state.splash);
 
     const pubnub = useMemo(() => {
-        if (profile) {
+        if (profile && profile?.user?.id != null) {
             return new PubNub({
                 publishKey: app.PUBNUB_PUB_KEY,
                 subscribeKey: app.PUBNUB_SUB_KEY,
-                uuid: profile.user.id + ""
+                uuid: profile?.user?.id + ""
             });
         }
 
@@ -103,7 +103,7 @@ export default function AppContainer() {
     if (splash === true) {
         return <SplashScreen />
     } else {
-        if (user != null && profile != null) {
+        if (user != null && pubnub != null) {
             return (
                 <PubNubProvider client={pubnub}>
                     <NavigationContainer>
