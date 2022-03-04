@@ -16,11 +16,16 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import NoData from '../components/NoData';
 import { useFocusEffect } from '@react-navigation/native';
 import { usePubNub } from 'pubnub-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { MenuView } from '@react-native-menu/menu';
+import CacheUtils from '../utils/CacheUtils';
 
 export default function Message(props) {
     const pubnub = usePubNub();
+    const dispatch = useDispatch();
     const profile = useSelector((state) => state.profile);
+    const profiles = useSelector((state) => state.profiles);
+
     const [channels, setChannels] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -41,7 +46,20 @@ export default function Message(props) {
             sort: { "channel.updated": "desc" }
         }).then((res) => {
             console.log("getMembership", res);
-            setChannels(res.data);
+
+            let result = res.data.map((message) => {
+                if (message.channel.name == "[DIRECT]") {
+                    let { member_1, member_2 } = message.channel.custom;
+                    CacheUtils.findProfile(member_1, dispatch);
+                    CacheUtils.findProfile(member_2, dispatch);
+
+                    message.other_profile = profile.user.id + '' == member_1 ? member_2 : member_1;
+                }
+
+                return message;
+            })
+
+            setChannels(result);
             setIsLoading(false);
         })
     }, [pubnub, profile]);
@@ -49,28 +67,70 @@ export default function Message(props) {
     return (
         <SafeAreaView style={styles.container}>
             <Header title="Messages"
-                rightIcon={<MaterialCommunityIcons name='plus' size={25} color={color.white} />}
-                onRightClick={() => {
-                    props.navigation.navigate("MessageCreateGroup");
-                }} />
+                onLeftClick={() => {
+                    props.navigation.openDrawer();
+                }}
+                rightIcon={
+                    <MenuView
+                        title="New Message"
+                        onPressAction={({ nativeEvent }) => {
+                            if (nativeEvent.event == "private") {
+                                props.navigation.navigate("MessageCreateDirect");
+                            } else {
+                                props.navigation.navigate("MessageCreateGroup");
+                            }
+                        }}
+                        actions={[
+                            {
+                                id: 'private',
+                                title: 'Private Message',
+                                titleColor: color.black,
+                                subtitle: 'Send private message to a trainer',
+                            },
+                            {
+                                id: 'group',
+                                title: 'Group Message',
+                                titleColor: color.black,
+                                subtitle: 'Create a group with some members',
+                            },
+                        ]}
+                        shouldOpenOnLongPress={false}
+                    >
+                        <MaterialCommunityIcons name='plus' size={25} color={color.white} />
+                    </MenuView>
+                }
+            // onRightClick={() => {
+            //     // props.navigation.navigate("MessageCreateGroup");
+            // }} 
+            />
 
             <ScrollView refreshControl={<RefreshControl refreshing={false} onRefresh={getMembership} />}>
                 <View style={styles.content}>
                     {channels.length == 0 && <NoData>No Message Available</NoData>}
                     {channels.map((message, index) => {
+                        let otherUser = null;
+                        if (message.other_profile) {
+                            otherUser = profiles[message.other_profile];
+                        }
                         let image = message.channel.custom?.image;
                         let totalMember = message.channel.custom?.total_member ?? 1;
 
                         return (
                             <TouchableOpacity style={styles.message} key={index} onPress={() => {
-                                props.navigation.navigate("MessageDetail", {
-                                    message,
-                                });
+                                if (message.other_profile) {
+                                    props.navigation.navigate("MessagePrivate", {
+                                        message,
+                                    });
+                                } else {
+                                    props.navigation.navigate("MessageDetail", {
+                                        message,
+                                    });
+                                }
                             }}>
                                 {image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
                                 {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
                                 <View style={styles.messageContent}>
-                                    <Text style={styles.title}>{message.channel.name}</Text>
+                                    <Text style={styles.title}>{otherUser ? otherUser.user.name : message.channel.name}</Text>
                                     <Text style={styles.description}>{totalMember} member{totalMember != 1 ? "s" : ""}</Text>
                                 </View>
                                 <MaterialCommunityIcons name="chevron-right" size={20} color={color.black} />

@@ -30,13 +30,29 @@ export default function Header(props) {
                     <View style={styles.center}>
                         <Text style={styles.centerText}>{props.title}</Text>
                     </View>
-                    <TouchableOpacity style={styles.sideButton} onPress={() => {
-                        if (props.onRightClick != null) {
-                            props.onRightClick();
-                        }
-                    }}>
-                        {props.rightIcon}
-                    </TouchableOpacity>
+
+                    {props.onRightClick == null && (
+                        <>
+                            {props.rightIcon != null && (
+                                <View style={styles.sideButton}>
+                                    {props.rightIcon}
+                                </View>
+                            )}
+                            {props.rightIcon == null && (
+                                <View style={styles.sideButton} />
+                            )}
+                        </>
+                    )}
+
+                    {props.onRightClick != null && (
+                        <TouchableOpacity style={styles.sideButton} onPress={() => {
+                            if (props.onRightClick != null) {
+                                props.onRightClick();
+                            }
+                        }}>
+                            {props.rightIcon}
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         </>
