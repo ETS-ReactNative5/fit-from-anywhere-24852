@@ -11,9 +11,10 @@ import {
 import color from "../utils/color";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../store/actions";
+import { setProfile, setUser } from "../store/actions";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { font } from "../utils/font";
+import { HttpUtils } from "../utils/http";
 
 const userMenus = [
     {
@@ -70,12 +71,15 @@ const userMenus = [
 
 export default function Sidebar(props) {
     const dispatch = useDispatch();
-    const user = useSelector(state => state.user);
-    //console.log("SideMenu:User", user);
+    const profile = useSelector(state => state.profile);
+
+    const profileImage = useMemo(() => {
+        return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
+    }, [profile]);
 
     const logout = useCallback(() => {
         dispatch(setUser(null));
-        // props.navigation.navigate("Auth");
+        dispatch(setProfile(null));
     }, []);
 
     return (
@@ -87,12 +91,12 @@ export default function Sidebar(props) {
                         props.navigation.closeDrawer();
                         props.navigation.navigate("Profile");
                     }}>
-                    <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
+                    <Image source={profileImage} style={styles.profileImage} />
                     <View style={styles.profileContent}>
-                        <Text style={styles.profileName}>{user?.user.name}</Text>
+                        <Text style={styles.profileName}>{profile?.user?.name}</Text>
                         <View style={styles.profileInfo}>
                             <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
-                            <Text style={styles.profileLocation}>Los Angeles, CA</Text>
+                            <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text>
                         </View>
                     </View>
                 </TouchableOpacity>

@@ -169,6 +169,20 @@ class Combobox extends Component {
     }
 
     render() {
+        if (this.props.renderDisplay != null) {
+            return (
+                <>
+                    <TouchableOpacity onPress={() => this.openPicker()}
+                        activeOpacity={0.7}
+                        style={this.props.style}>
+                        {this.props.renderDisplay()}
+                    </TouchableOpacity>
+
+                    {this.picker()}
+                </>
+            );
+        }
+
         return (
             <View style={styles.container}>
                 {this.props.label != null && (
@@ -208,8 +222,8 @@ class Combobox extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 5,
-        marginBottom: 15,
+        // marginTop: 5,
+        // marginBottom: 15,
     },
     pickerWrapper: {
         height: 50,
