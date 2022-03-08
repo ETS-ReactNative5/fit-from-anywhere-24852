@@ -111,6 +111,16 @@ export default function AppointmentEdit(props) {
                 }} />
             <ScrollView>
                 <View style={styles.content}>
+                    <Combobox
+                        label="Trainer"
+                        style={styles.combo}
+                        selectedValue={trainer}
+                        data={trainers}
+                        onValueChange={(val, itemIndex) => {
+                            setTrainer(val);
+                        }}
+                    />
+
                     <DatePicker
                         label='Booking Date'
                         style={styles.input}
@@ -146,15 +156,7 @@ export default function AppointmentEdit(props) {
                         }}
                     />
 
-                    <Combobox
-                        label="Trainer"
-                        style={styles.combo}
-                        selectedValue={trainer}
-                        data={trainers}
-                        onValueChange={(val, itemIndex) => {
-                            setTrainer(val);
-                        }}
-                    />
+
 
                     <TextInput
                         label='Zoom Link'

@@ -12,37 +12,38 @@ import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import NoData from '../components/NoData';
 
-const notifications = [
-    {
-        title: "Congratulations!",
-        description: "You have registered as a member",
-        created: "2022-01-01 13:45:22",
-    },
-    {
-        title: "Congratulations!",
-        description: "You have registered as a member",
-        created: "2022-01-01 13:45:22",
-    },
-    {
-        title: "Congratulations!",
-        description: "You have registered as a member",
-        created: "2022-01-01 13:45:22",
-    },
-    {
-        title: "Congratulations!",
-        description: "You have registered as a member",
-        created: "2022-01-01 13:45:22",
-    },
-    {
-        title: "Congratulations!",
-        description: "You have registered as a member",
-        created: "2022-01-01 13:45:22",
-    }
-];
+// const notifications = [
+//     {
+//         title: "Congratulations!",
+//         description: "You have registered as a member",
+//         created: "2022-01-01 13:45:22",
+//     },
+//     {
+//         title: "Congratulations!",
+//         description: "You have registered as a member",
+//         created: "2022-01-01 13:45:22",
+//     },
+//     {
+//         title: "Congratulations!",
+//         description: "You have registered as a member",
+//         created: "2022-01-01 13:45:22",
+//     },
+//     {
+//         title: "Congratulations!",
+//         description: "You have registered as a member",
+//         created: "2022-01-01 13:45:22",
+//     },
+//     {
+//         title: "Congratulations!",
+//         description: "You have registered as a member",
+//         created: "2022-01-01 13:45:22",
+//     }
+// ];
 
 export default function Notification(props) {
-
+    const [notifications, setNotifications] = useState([]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -50,6 +51,7 @@ export default function Notification(props) {
                 props.navigation.openDrawer();
             }} />
             <ScrollView>
+                {notifications.length == 0 && <NoData>No Notifications Available</NoData>}
                 {notifications.map((notification, index) => {
 
                     return (
