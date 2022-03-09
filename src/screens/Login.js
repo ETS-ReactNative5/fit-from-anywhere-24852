@@ -10,7 +10,7 @@ import app from "../config/app";
 import { setProfile, setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
-import { HttpRequest } from "../utils/http";
+import { HttpRequest, HttpResponse } from "../utils/http";
 import ImageUtils from "../utils/ImageUtils";
 
 export default function Login(props) {
