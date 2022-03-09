@@ -1,7 +1,7 @@
 import React, { Component, useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import { useDispatch } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
@@ -11,6 +11,7 @@ import { setProfile, setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest } from "../utils/http";
+import ImageUtils from "../utils/ImageUtils";
 
 export default function Login(props) {
     const dispatch = useDispatch();
@@ -53,7 +54,7 @@ export default function Login(props) {
         <SafeAreaView style={styles.container}>
             <ScrollView>
                 <View style={styles.topView}>
-                    <Image source={require('../assets/images/logo-letter.png')} style={styles.logo} resizeMode='contain' />
+                    <Image source={ImageUtils.logoLetter} style={styles.logo} resizeMode='contain' />
                     <Text style={styles.title}>Log in</Text>
                 </View>
                 <View style={styles.bottomView}>

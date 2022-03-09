@@ -1,14 +1,13 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useMemo } from "react"
 import PubNub from "pubnub";
 import { PubNubProvider } from "pubnub-react";
 import { NavigationContainer } from "@react-navigation/native";
-import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import SplashScreen from "../screens/SplashScreen";
 import Home from "../screens/Home";
-import { useDispatch, useSelector } from "react-redux";
-import Walkthrough from "../screens/Walkthrough";
+import { useSelector } from "react-redux";
 import Intro from "../screens/Intro";
 import Register from "../screens/Register";
 import Onboarding from "../screens/Onboarding";
@@ -36,9 +35,12 @@ const Drawer = createDrawerNavigator();
 
 const HomeNavigator = () => {
     return (
-        <Drawer.Navigator initialRouteName="Home" drawerContent={(props) => {
-            return <Sidebar {...props} />
-        }}>
+        <Drawer.Navigator
+            useLegacyImplementation={true}
+            initialRouteName="Home"
+            drawerContent={(props) => {
+                return <Sidebar {...props} />
+            }}>
             <Drawer.Screen name="Home" component={Home} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Onboarding" component={Onboarding} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Profile" component={Profile} options={() => ({ headerShown: false })} />
@@ -94,7 +96,7 @@ export default function AppContainer() {
         return null;
     }, [profile]);
 
-    //console.log("SplashScreen", splash);
+    console.log("User", { user, profile, splash });
 
     // useEffect(() => {
     //     console.log("User changed", user);

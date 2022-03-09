@@ -13,11 +13,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import { HttpRequest, HttpResponse } from '../utils/http';
 import Toast from '../components/Toast';
 import NoData from '../components/NoData';
 import LoadingIndicator from '../components/LoadingIndicator';
+import ImageUtils from '../utils/ImageUtils';
 
 // const appointments = [
 //     { label: "Practice online", time: "2022-01-01T09:30:00.000Z" },
@@ -90,7 +91,7 @@ export default function Appointment(props) {
                                                 }
                                             }}>
                                                 <Text style={styles.zoomButtonText}>Zoom</Text>
-                                                <Image source={require("../assets/images/logo-zoom.png")} style={styles.zoomImage} resizeMode='contain' />
+                                                <Image source={ImageUtils.logoZoom} style={styles.zoomImage} resizeMode='contain' />
                                             </TouchableOpacity>
                                         )}
 

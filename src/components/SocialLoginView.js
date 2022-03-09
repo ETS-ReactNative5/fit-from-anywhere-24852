@@ -7,7 +7,7 @@ import {
     StyleSheet
 } from "react-native";
 import color from "../utils/color";
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons/dist/AntDesign';
 import FacebookButton from "./FacebookButton";
 import GoogleButton from "./GoogleButton";
 import { AppleButton, appleAuth } from "@invertase/react-native-apple-authentication";

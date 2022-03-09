@@ -11,8 +11,8 @@ import {
     Platform,
     Modal,
 } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import moment from 'moment/min/moment-with-locales';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import moment from 'moment';
 import Color from '../utils/color';
 // import Styles from '../utility/Style';
 import { Calendar } from 'react-native-calendars';

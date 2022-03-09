@@ -8,17 +8,14 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import CalendarStrip from 'react-native-calendar-strip';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
-import { Calendar } from 'react-native-calendars';
 import { useDispatch, useSelector } from 'react-redux';
 import { HttpUtils } from '../utils/http';
 import Button from '../components/Button';
-import { LineChart } from 'react-native-chart-kit';
 import { setShowOnboard } from '../store/actions';
 import ImageUtils from '../utils/ImageUtils';
 
@@ -127,133 +124,7 @@ export default function Home(props) {
                             })}
                         </ScrollView>
                     </View>
-
-                    <CalendarStrip
-                        ref={calendarRef}
-                        scrollable
-                        // style={{ height: 100 }}
-                        upperCaseDays={false}
-                        showMonth={false}
-                        calendarColor={color.white}
-                        calendarHeaderStyle={{ color: color.primary }}
-                        // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
-                        // dateContainerStyle={{ backgroundColor: 'blue',  }}
-                        dateNumberStyle={{ color: color.primary, marginTop: 10, fontSize: 16 }}
-                        highlightDateNumberStyle={{ color: color.primary, marginTop: 10, fontSize: 16 }}
-                        dateNameStyle={{ color: color.primary, fontSize: 12 }}
-                        highlightDateNameStyle={{ color: color.primary, fontSize: 12 }}
-                        // iconContainer={{ flex: 0.1 }}
-                        onWeekChanged={(start, end) => {
-                            //console.log(start, end);
-                            setFocusedDate(start);
-                            //get month difference with today
-                            let firstDate = moment().date(1)
-                            let difference = start.diff(firstDate, 'month');
-                            console.log("Difference: ", difference);
-                            scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
-                        }}
-                    />
                 </View>
-
-                <View style={styles.line} />
-
-                <Text style={styles.chartTitle}>Frequency Bar chart</Text>
-                <Text style={styles.chartSubtitle}>Days of workout</Text>
-
-                <LineChart
-                    data={{
-                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                        datasets: [
-                            {
-                                data: rawData
-                            }
-                        ]
-                    }}
-                    width={Dimensions.get("window").width} // from react-native
-                    height={220}
-                    yAxisLabel=""
-                    yAxisSuffix=""
-                    yAxisInterval={1} // optional, defaults to 1
-                    chartConfig={{
-                        backgroundColor: "#e26a00",
-                        backgroundGradientFrom: color.white,
-                        backgroundGradientTo: color.white,
-                        fillShadowGradientFrom: color.primary,
-                        fillShadowGradientFromOpacity: 0.9,
-                        fillShadowGradientTo: color.primary,
-                        fillShadowGradientToOpacity: 0,
-                        decimalPlaces: 0, // optional, defaults to 2dp
-                        color: (opacity = 1) => color.primary,//`rgba(0, 0, 0, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                        style: {
-                            borderRadius: 16
-                        },
-                        propsForDots: {
-                            r: "6",
-                            strokeWidth: "2",
-                            stroke: color.primary,
-                        }
-                    }}
-                    withDots={false}
-                    withVerticalLines={false}
-                    withOuterLines={false}
-                    bezier
-                    style={{
-                        marginVertical: 8,
-                        borderRadius: 16
-                    }}
-                />
-
-                <Text style={styles.chartTitle}>Activity Bar chart</Text>
-                <Text style={styles.chartSubtitle}>Days of workout</Text>
-
-                <LineChart
-                    data={{
-                        labels: ["Jump", "Sit Ups", "Push Ups", "Bench Press", "Rope", "Barbell"],
-                        datasets: [
-                            {
-                                data: rawData
-                            }
-                        ]
-                    }}
-                    width={Dimensions.get("window").width} // from react-native
-                    height={220}
-                    yAxisLabel=""
-                    yAxisSuffix=""
-                    yAxisInterval={1} // optional, defaults to 1
-                    chartConfig={{
-                        backgroundColor: "#e26a00",
-                        backgroundGradientFrom: color.white,
-                        backgroundGradientTo: color.white,
-                        fillShadowGradientFrom: color.primary,
-                        fillShadowGradientFromOpacity: 0.9,
-                        fillShadowGradientTo: color.primary,
-                        fillShadowGradientToOpacity: 0,
-                        decimalPlaces: 0, // optional, defaults to 2dp
-                        color: (opacity = 1) => color.primary,//`rgba(0, 0, 0, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                        style: {
-                            borderRadius: 16
-                        },
-                        propsForDots: {
-                            r: "6",
-                            strokeWidth: "2",
-                            stroke: color.primary,
-                        },
-                        propsForVerticalLabels: {
-                            fontSize: "8"
-                        },
-                    }}
-                    withDots={false}
-                    withVerticalLines={false}
-                    withOuterLines={false}
-                    // verticalLabelRotation={30}
-                    bezier
-                    style={{
-                        marginVertical: 8,
-                        borderRadius: 16
-                    }}
-                />
 
                 <View style={styles.line} />
 

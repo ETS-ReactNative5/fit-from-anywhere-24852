@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 //import VideoPlayer from 'react-native-video-player'
 import VideoPlayer from 'react-native-video-controls';
 

@@ -1,11 +1,29 @@
 import { HttpUtils } from "./http";
 
+import defaultImage from '../assets/images/no-image.png';
+import profileImage from '../assets/images/profile.png';
+import home1 from '../assets/images/home-1.jpg';
+import home2 from '../assets/images/home-2.jpg';
+import logoZoom from '../assets/images/logo-zoom.png';
+import logoLetter from '../assets/images/logo-letter.png';
+import logo from '../assets/images/logo.png';
+
 export default {
+    defaultImage,
+    profileImage,
+
+    home1,
+    home2,
+
+    logoZoom,
+    logoLetter,
+    logo,
+
     getSafeImage(url) {
         if (url) {
             return { uri: HttpUtils.normalizeUrl(url) };
         }
-        return require("../assets/images/no-image.png");
+        return defaultImage;
     },
     getSafeImageUrl(url) {
         if (url) {

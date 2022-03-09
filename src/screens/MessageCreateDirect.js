@@ -13,8 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import NoData from '../components/NoData';
 import Toast from '../components/Toast';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
@@ -24,6 +24,7 @@ import slugify from 'slugify';
 import { v4 as uuidv4 } from 'uuid';
 import { usePubNub } from 'pubnub-react';
 import LoadingIndicator from '../components/LoadingIndicator';
+import ImageUtils from '../utils/ImageUtils';
 
 export default function MessageCreateDirect(props) {
     const profile = useSelector((state) => state.profile);
@@ -150,7 +151,7 @@ export default function MessageCreateDirect(props) {
                                     <TouchableOpacity style={isSelected ? styles.listSelected : styles.list} key={index} onPress={() => {
                                         setSelectedMember(member);
                                     }}>
-                                        {member.image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                                        {member.image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                                         {member.image != null && <Image source={{ uri: member.image }} style={styles.image} resizeMode='cover' />}
                                         <Text style={styles.name}>{member.label}</Text>
                                     </TouchableOpacity>

@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { Dimensions, Modal, ScrollView, StyleSheet, TouchableOpacity, View, Platform, Text } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/dist/MaterialIcons';
 import { connect } from 'react-redux';
 import Color from "../utils/color";
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-import SearchInput, { createFilter } from 'react-native-search-filter';
 import NoData from './NoData';
 import { font } from '../utils/font';
 let KEYS_TO_FILTERS = ['label', 'value', 'id'];
@@ -104,10 +103,6 @@ class Combobox extends Component {
             showSearchbar = true;
         }
 
-        let { selectedValue, modalPicker } = this.state
-        const filteredData = data.filter(createFilter(this.state.search, KEYS_TO_FILTERS))
-        filteredData.sort();
-
         return (
             <Modal
                 animationType="fade"
@@ -118,34 +113,17 @@ class Combobox extends Component {
                     activeOpacity={1}
                     style={styles.modalRoot}>
                     <View style={styles.modalContent}>
-                        {showSearchbar && (
-                            <View style={styles.searchBarStyle}>
-                                <MaterialIcons
-                                    name='search'
-                                    size={24}
-                                    color={Color.gray}
-                                />
-                                <View style={{ flex: 1, height: 40 }}>
-                                    <SearchInput
-                                        onChangeText={(term) => { this.searchUpdated(term) }}
-                                        style={styles.searchInput}
-                                        placeholder={"Search "}
-                                    // clearIcon
-                                    />
-                                </View>
-                            </View>
-                        )}
                         <ScrollView
                             showsHorizontalScrollIndicator={false}
                             showsVerticalScrollIndicator={false}
                             // style={{ flex:1, alignSelf:'center' }}
                             keyboardShouldPersistTaps='handled'>
-                            {filteredData.length == 0 && (
+                            {data.length == 0 && (
                                 <NoData>No Data Available</NoData>
                             )}
-                            {filteredData.map((item, index) => {
+                            {data.map((item, index) => {
                                 let styleModalItem = styles.modalItem;
-                                if (filteredData.length - 1 == index) {
+                                if (data.length - 1 == index) {
                                     styleModalItem = styles.modalItemNoBorder;
                                 }
                                 return (
