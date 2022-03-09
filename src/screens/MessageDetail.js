@@ -13,8 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import NoData from '../components/NoData';
 import TextInput from '../components/TextInput';
 import { usePubNub } from 'pubnub-react';
@@ -22,6 +22,7 @@ import Toast from '../components/Toast';
 import { useDispatch, useSelector } from 'react-redux';
 import CacheUtils from '../utils/CacheUtils';
 import { HttpUtils } from '../utils/http';
+import ImageUtils from '../utils/ImageUtils';
 
 export default function MessageDetail(props) {
     const pubnub = usePubNub();
@@ -133,7 +134,7 @@ export default function MessageDetail(props) {
                         let image = HttpUtils.normalizeUrl(user?.profile_image);
                         return (
                             <View style={styles.message} key={index}>
-                                {image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                                {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                                 {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
                                 <View style={styles.messageContent}>
                                     <View style={{ flexDirection: 'row', marginBottom: 6 }}>

@@ -1,8 +1,8 @@
 import React, { Component, useState } from "react";
 import { StatusBar, Image, TouchableOpacity, ActivityIndicator, View, Text } from 'react-native';
 import color from "../utils/color";
-import Entypo from 'react-native-vector-icons/Entypo';
-import Feather from 'react-native-vector-icons/Feather';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
+import Feather from 'react-native-vector-icons/dist/Feather';
 import { Platform } from "react-native";
 import { TextInput } from "react-native";
 

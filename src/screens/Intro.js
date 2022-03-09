@@ -4,13 +4,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "../components/Button";
 import color from "../utils/color";
 import { font } from "../utils/font";
+import ImageUtils from "../utils/ImageUtils";
 
 export default function Intro(props) {
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topView}>
-                <Image source={require('../assets/images/logo-letter.png')} style={styles.logo} resizeMode='contain' />
+                <Image source={ImageUtils.logoLetter} style={styles.logo} resizeMode='contain' />
                 <Text style={styles.title}>Sign in</Text>
             </View>
             <View style={styles.bottomView}>

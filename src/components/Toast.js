@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 
 //@ts-ignore
-import Icon from 'react-native-vector-icons/Entypo';
+import Icon from 'react-native-vector-icons/dist/Entypo';
 import { store } from '../store';
 
 export default {

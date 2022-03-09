@@ -22,12 +22,12 @@ export default function Onboarding(props) {
 
     const profile = useSelector(state => state.profile);
     const [page, setPage] = useState(1);
-    const [goal, setGoal] = useState(user.profile.fitness_goal ?? "lose_weight");
-    const [weight, setWeight] = useState(user.profile.weight ?? "0");
-    const [height, setHeight] = useState(user.profile.height ?? "0");
-    const [age, setAge] = useState(user.profile.age ?? "0");
-    const [weightType, setWeightType] = useState(user.profile.weight_metric ?? "LB");
-    const [heightType, setHeightType] = useState(user.profile.height_metric ?? "CM");
+    const [goal, setGoal] = useState(user.profile?.fitness_goal ?? "lose_weight");
+    const [weight, setWeight] = useState(user.profile?.weight ?? "0");
+    const [height, setHeight] = useState(user.profile?.height ?? "0");
+    const [age, setAge] = useState(user.profile?.age ?? "0");
+    const [weightType, setWeightType] = useState(user.profile?.weight_metric ?? "LB");
+    const [heightType, setHeightType] = useState(user.profile?.height_metric ?? "CM");
     const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {

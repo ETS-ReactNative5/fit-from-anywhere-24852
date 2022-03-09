@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import TextInput from '../components/TextInput';
 import Toast from '../components/Toast';
 import UploadImageView from '../components/UploadImageView';

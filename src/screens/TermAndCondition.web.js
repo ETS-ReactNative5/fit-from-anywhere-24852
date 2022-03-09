@@ -10,22 +10,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
-import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
-import WebView from 'react-native-webview';
 
-export default function PrivacyPolicy(props) {
-
-
+export default function TermAndCondition(props) {
+    const [source, setSource] = useState('test');
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="Privacy Policy" onLeftClick={() => {
+            <Header title="Terms and Conditions" onLeftClick={() => {
                 props.navigation.openDrawer();
             }} />
-            <WebView
-                originWhitelist={['*']}
-                source={{ uri: "https://www.crowdbotics.com/privacy-policy" }}
-            />
+            <ScrollView>
+                <View style={styles.content}>
+                    <div dangerouslySetInnerHTML={{ __html: source }} />
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -34,5 +31,8 @@ const styles = {
     container: {
         backgroundColor: color.white,
         flex: 1,
+    },
+    content: {
+        paddingHorizontal: 20,
     },
 };

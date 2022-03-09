@@ -12,13 +12,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import NoData from '../components/NoData';
 import { useFocusEffect } from '@react-navigation/native';
 import { usePubNub } from 'pubnub-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { MenuView } from '@react-native-menu/menu';
 import CacheUtils from '../utils/CacheUtils';
+import ImageUtils from '../utils/ImageUtils';
 
 export default function Message(props) {
     const pubnub = usePubNub();
@@ -127,7 +128,7 @@ export default function Message(props) {
                                     });
                                 }
                             }}>
-                                {image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                                {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                                 {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
                                 <View style={styles.messageContent}>
                                     <Text style={styles.title}>{otherUser ? otherUser.user.name : message.channel.name}</Text>

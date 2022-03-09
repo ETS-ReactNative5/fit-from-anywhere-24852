@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import color from '../utils/color';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import ImagePicker, { ImageOrVideo } from "react-native-image-crop-picker"
 
 export default function UploadImageView(props) {
     const [image, setImage] = useState(null);
@@ -15,18 +13,7 @@ export default function UploadImageView(props) {
     }, [props.value]);
 
     const pickPhoto = useCallback(() => {
-        ImagePicker.openPicker({
-            width: 400,
-            height: 400,
-            cropping: true
-        }).then(image => {
-            console.log("Image", image);
-            setImage(image.path);
-
-            if (props.onSelectImage) {
-                props.onSelectImage(image.path);
-            }
-        })
+        
     }, []);
 
     return (

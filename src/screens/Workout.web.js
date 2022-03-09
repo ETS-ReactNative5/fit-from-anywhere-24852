@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Dimensions,
     Image,
@@ -14,17 +14,24 @@ import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
-import VideoPlayer from '../components/VideoPlayer';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import _ from 'lodash';
 import LoadingIndicator from '../components/LoadingIndicator';
+import VideoPlayer from '../components/VideoPlayer';
+import StyleUtils from '../utils/StyleUtils';
+import Button from '../components/Button';
+import CircularProgress from '../components/CircularProgress';
 
 export default function Workout(props) {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     const [isLoading, setLoading] = useState(false);
     const [workoutCategories, setWorkoutCategories] = useState([]);
+
+    const bottomSheetRef = useRef(null);
+    const [bottomSheetIndex, setBottomSheetIndex] = useState(0);
+    const snapPoints = useMemo(() => [0, 200, '90%'], []);
 
     const workoutList = useMemo(() => {
         if (selectedCategory === null) {
@@ -35,6 +42,8 @@ export default function Workout(props) {
     }, [workoutCategories, selectedCategory]);
 
     useEffect(() => {
+        stopAllTimer();
+
         loadWorkoutVideos();
     }, []);
 
@@ -45,7 +54,7 @@ export default function Workout(props) {
             console.log("Result", res.data.results);
             let _allVideo = res.data.results;
 
-            var grouped = _.mapValues(_.groupBy(_allVideo, 'body_category'), clist => clist.map(vid => _.omit(vid, 'body_category')));
+            var grouped = _.mapValues(_.groupBy(_allVideo, 'workout_category'), clist => clist.map(vid => _.omit(vid, 'workout_category')));
             console.log("Grouped", grouped);
 
             setLoading(false);
@@ -61,7 +70,7 @@ export default function Workout(props) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="Resource Library" onLeftClick={() => {
+            <Header title="Workout Library" onLeftClick={() => {
                 props.navigation.openDrawer();
             }} />
             {isLoading && (
@@ -92,12 +101,21 @@ export default function Workout(props) {
                             return (
                                 <View key={selectedCategory + index} style={styles.item}>
 
+                                    {/* <View style={{ height: 300, width: '100%', backgroundColor: color.black }}>
+                                        <VideoPlayer uri={HttpUtils.normalizeUrl(item.video_file)} style={styles.video} />
+                                    </View> */}
                                     {/* <CustomVideoPlayer
                                         resizeMode="cover"
                                         source={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
                                         style={styles.video}
                                     /> */}
-
+                                    {/* <VideoPlayer
+                                        video={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
+                                        videoWidth={1600}
+                                        videoHeight={900}
+                                        disableControlsAutoHide={true}
+                                        thumbnail={{ uri: 'https://i.picsum.photos/id/866/1600/900.jpg' }}
+                                    /> */}
                                     <VideoPlayer source={{ uri: HttpUtils.normalizeUrl(item.video_file) }} style={styles.video} />
 
                                     <View style={styles.videoContent}>
@@ -135,6 +153,93 @@ export default function Workout(props) {
 }
 
 const styles = {
+    excSetTitle: {
+        fontSize: 14,
+        color: color.primary,
+    },
+    excRest: {
+        paddingVertical: 20,
+        // alignItems: 'center',
+        justifyContent: 'center',
+    },
+    excTimer: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: color.primary,
+        marginBottom: 20,
+    },
+
+    listSet: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    listSetNumber: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: color.primary,
+    },
+    listSetNumberRest: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: color.black + "88",
+    },
+    listSetNumberSkipped: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: color.danger,
+    },
+    listSetNumberText: {
+        color: color.white,
+        fontSize: 16,
+    },
+    listSetContent: {
+        flex: 1,
+        justifyContent: 'center',
+        marginLeft: 10,
+    },
+    listSetText: {
+        fontSize: 16,
+        color: color.primary
+    },
+    listRest: {
+        paddingVertical: 10,
+    },
+    listRestText: {
+        fontSize: 16,
+        color: color.primary,
+    },
+    badgeWrapper: {
+        flexDirection: 'row',
+    },
+    badgePrimary: {
+        backgroundColor: color.primary,
+        borderRadius: 4,
+        paddingHorizontal: 4,
+        paddingVertical: 2
+    },
+    badgeSecondary: {
+        backgroundColor: color.black + "88",
+        borderRadius: 4,
+        paddingHorizontal: 4,
+        paddingVertical: 2
+    },
+    badgeText: {
+        color: color.white,
+        fontSize: 12,
+    },
+
+
+
     container: {
         backgroundColor: color.white,
         flex: 1,
@@ -224,5 +329,17 @@ const styles = {
         width: 1,
         backgroundColor: color.text,
         marginHorizontal: 10,
+    },
+
+
+    bottomSheet: {
+        ...StyleUtils.regularShadow,
+        borderColor: color.border,
+        borderWidth: 1,
+        borderRadius: 10,
+    },
+    bottomSheetContainer: {
+        // flex: 1,
+        paddingHorizontal: 20,
     },
 };

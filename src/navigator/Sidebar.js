@@ -12,9 +12,10 @@ import color from "../utils/color";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfile, setUser } from "../store/actions";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import { font } from "../utils/font";
 import { HttpUtils } from "../utils/http";
+import ImageUtils from "../utils/ImageUtils";
 
 const userMenus = [
     {
@@ -74,7 +75,7 @@ export default function Sidebar(props) {
     const profile = useSelector(state => state.profile);
 
     const profileImage = useMemo(() => {
-        return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : require("../assets/images/profile.png");
+        return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : ImageUtils.profileImage;
     }, [profile]);
 
     const logout = useCallback(() => {

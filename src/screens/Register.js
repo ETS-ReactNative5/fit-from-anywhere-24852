@@ -1,7 +1,7 @@
 import React, { Component, useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import Toast from "../components/Toast";
@@ -9,6 +9,7 @@ import app from "../config/app";
 import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest, HttpResponse } from "../utils/http";
+import ImageUtils from "../utils/ImageUtils";
 
 export default function Register(props) {
     const [name, setName] = useState(__DEV__ ? app.EXAMPLE_FULL_NAME : "");
@@ -51,7 +52,7 @@ export default function Register(props) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topView}>
-                <Image source={require('../assets/images/logo-letter.png')} style={styles.logo} resizeMode='contain' />
+                <Image source={ImageUtils.logoLetter} style={styles.logo} resizeMode='contain' />
                 <Text style={styles.title}>Sign up</Text>
             </View>
             <ScrollView>

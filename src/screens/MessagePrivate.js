@@ -13,8 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import NoData from '../components/NoData';
 import TextInput from '../components/TextInput';
 import { usePubNub } from 'pubnub-react';
@@ -22,6 +22,7 @@ import Toast from '../components/Toast';
 import { useDispatch, useSelector } from 'react-redux';
 import CacheUtils from '../utils/CacheUtils';
 import { HttpUtils } from '../utils/http';
+import ImageUtils from '../utils/ImageUtils';
 
 export default function MessagePrivate(props) {
     const pubnub = usePubNub();
@@ -129,7 +130,7 @@ export default function MessagePrivate(props) {
             />
 
             <View style={styles.userProfile}>
-                {otherUser.profile_image == null && <Image source={require('../assets/images/no-image.png')} style={styles.userImage} resizeMode='cover' />}
+                {otherUser.profile_image == null && <Image source={ImageUtils.defaultImage} style={styles.userImage} resizeMode='cover' />}
                 {otherUser.profile_image != null && <Image source={{ uri: HttpUtils.normalizeUrl(otherUser.profile_image) }} style={styles.userImage} resizeMode='cover' />}
                 <View style={styles.userProfileContent}>
                     <Text style={styles.userProfileName}>{otherUser?.user.name}</Text>
@@ -151,14 +152,14 @@ export default function MessagePrivate(props) {
                                         <Text style={styles.time}>{moment(message.created_at).format('MMM DD, hh:mm a')}</Text>
                                     </View>
                                     <View style={{ width: 10 }} />
-                                    {image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                                    {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                                     {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
                                 </View>
                             );
                         } else {
                             return (
                                 <View style={styles.messageLeft} key={index}>
-                                    {image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                                    {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                                     {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
                                     <View style={{ width: 10 }} />
                                     <View style={styles.messageContent}>

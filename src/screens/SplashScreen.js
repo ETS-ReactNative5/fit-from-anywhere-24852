@@ -4,9 +4,7 @@ import { getUniqueId } from 'react-native-device-info';
 import { setSplash } from "../store/actions";
 import { useDispatch } from "react-redux";
 import color from "../utils/color";
-import AppConfig from '../config/app';
-import Pubnub from "pubnub";
-import { font } from "../utils/font";
+import ImageUtils from "../utils/ImageUtils";
 
 export default function SplashScreen(props) {
     const dispatch = useDispatch();
@@ -22,7 +20,7 @@ export default function SplashScreen(props) {
         <View style={styles.container}>
             <View style={styles.topSide}>
                 <StatusBar backgroundColor='transparent' translucent={true} />
-                <Image source={require('../assets/images/logo.png')} style={styles.logo} />
+                <Image source={ImageUtils.logo} style={styles.logo} />
             </View>
         </View>
     );

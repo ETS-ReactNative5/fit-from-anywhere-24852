@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/dist/MaterialIcons';
 import color from "../utils/color";
 
 class NoData extends Component {

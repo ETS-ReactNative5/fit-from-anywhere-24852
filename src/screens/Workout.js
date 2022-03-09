@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Dimensions,
     Image,
@@ -13,18 +13,39 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import _ from 'lodash';
 import LoadingIndicator from '../components/LoadingIndicator';
 import VideoPlayer from '../components/VideoPlayer';
+import BottomSheet from '@gorhom/bottom-sheet';
+import StyleUtils from '../utils/StyleUtils';
+import Button from '../components/Button';
+import CircularProgress from '../components/CircularProgress';
+import Timer from 'react-native-timer';
+
+let timerResting = 0;
+let timerSet = 0;
+
+const TIMER_EXCERCISE = 'timer_excersise';
+const TIMER_REST = 'timer_rest';
+
+const TYPE_EXCERCISE = 'excercise';
+const TYPE_REST = 'rest';
+const TYPE_SKIP = 'skip';
+
+const RESTING_TIME = 10;
 
 export default function Workout(props) {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     const [isLoading, setLoading] = useState(false);
     const [workoutCategories, setWorkoutCategories] = useState([]);
+
+    const bottomSheetRef = useRef(null);
+    const [bottomSheetIndex, setBottomSheetIndex] = useState(0);
+    const snapPoints = useMemo(() => [0, 200, '90%'], []);
 
     const workoutList = useMemo(() => {
         if (selectedCategory === null) {
@@ -34,7 +55,17 @@ export default function Workout(props) {
         return workoutCategories[selectedCategory];
     }, [workoutCategories, selectedCategory]);
 
+    const [excersizeRecords, setExcersizeRecords] = useState([]);
+    const [currentSet, setCurrentSet] = useState(1);
+    const [totalSet, setTotalSet] = useState(10);
+    const [isResting, setIsResting] = useState(false);
+    const [excerciseCount, setExcerciseCount] = useState(0);
+    const [restCounter, setRestCounter] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
+
     useEffect(() => {
+        stopAllTimer();
+
         loadWorkoutVideos();
     }, []);
 
@@ -58,6 +89,78 @@ export default function Workout(props) {
             setLoading(false);
         });
     }, []);
+
+    const handleSheetChanges = useCallback((index) => {
+        console.log('handleSheetChanges', index);
+        setBottomSheetIndex(index);
+    }, []);
+
+    const sheetStyle = useMemo(() => {
+        if (bottomSheetIndex == 0 || bottomSheetIndex == 1) {
+            return {
+                height: 200,
+            }
+        } else {
+            return { flex: 1 };
+        }
+    }, [bottomSheetIndex]);
+
+    const addToList = (type, timer, set = 0) => {
+        let _excRecs = [...excersizeRecords];
+        _excRecs.push({
+            type: type,
+            time: moment().format("YYYY-MM-DD HH:mm:ss"),
+            timer: timer,
+            set,
+        });
+        setExcersizeRecords(_excRecs);
+    };
+
+    const continueExercise = useCallback(() => {
+        setIsResting(false);
+
+        stopAllTimer();
+
+        timerSet = 0;
+
+        Timer.setInterval(TIMER_EXCERCISE, () => {
+            onExcersizeTimer();
+        }, 1000);
+
+        //add rest to list
+        addToList(TYPE_REST, moment.utc((RESTING_TIME - timerResting) * 1000).format('mm:ss'));
+
+        setCurrentSet(currentSet + 1);
+    }, [timerSet, timerResting, currentSet, excersizeRecords, addToList]);
+
+    const stopAllTimer = useCallback(() => {
+        //stop rest timer
+        if (Timer.intervalExists(TIMER_EXCERCISE)) {
+            Timer.clearInterval(TIMER_EXCERCISE);
+        }
+
+        if (Timer.intervalExists(TIMER_REST)) {
+            Timer.clearInterval(TIMER_REST);
+        }
+    }, []);
+
+    const onRestTimer = useCallback(() => {
+        timerResting--;
+        setRestCounter(timerResting);
+        console.log("Timer Counter", timerResting);
+
+        if (timerResting <= 0) {
+            console.log("Check value from", excersizeRecords);
+            timerResting = 0;
+            continueExercise();
+        }
+    }, [excersizeRecords, timerResting, continueExercise]);
+
+    const onExcersizeTimer = () => {
+        timerSet++;
+        setExcerciseCount(timerSet);
+        console.log("Timer Counter", timerSet);
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -129,6 +232,19 @@ export default function Workout(props) {
                                             <MaterialCommunityIcons name='weight-lifter' size={20} color={color.text} />
                                             <Text style={styles.sectionQty}>25 kg</Text>
                                         </View>
+                                        <Button style={{ marginTop: 20 }} onPress={() => {
+                                            stopAllTimer();
+
+                                            bottomSheetRef.current.snapTo(1);
+                                            setExcersizeRecords([]);
+                                            setCurrentSet(1);
+
+                                            timerSet = 0;
+
+                                            Timer.setInterval(TIMER_EXCERCISE, () => {
+                                                onExcersizeTimer();
+                                            }, 1000);
+                                        }}>Start Excercise</Button>
                                     </View>
                                 </View>
                             );
@@ -139,11 +255,245 @@ export default function Workout(props) {
                     </ScrollView>
                 </>
             )}
+
+            <BottomSheet
+                ref={bottomSheetRef}
+                index={0}
+                snapPoints={snapPoints}
+                onChange={handleSheetChanges}
+                style={styles.bottomSheet}
+            >
+                <View style={[styles.bottomSheetContainer, sheetStyle]}>
+                    <Text style={styles.excSetTitle}>Set {currentSet}/{totalSet}</Text>
+
+                    <ScrollView>
+                        {excersizeRecords.map((item, index) => {
+                            if (item.type == TYPE_EXCERCISE) {
+                                return (
+                                    <View style={styles.listSet} key={index}>
+                                        <View style={styles.listSetNumber}>
+                                            <Text style={styles.listSetNumberText}>{item.set}</Text>
+                                        </View>
+
+                                        <View style={styles.listSetContent}>
+                                            <View style={styles.badgeWrapper}>
+                                                <View style={styles.badgePrimary}>
+                                                    <Text style={styles.badgeText}>Excercise</Text>
+                                                </View>
+                                            </View>
+                                            <Text style={styles.listSetText}>{item.timer}</Text>
+                                        </View>
+                                    </View>
+                                );
+                            } else if (item.type == TYPE_REST) {
+                                return (
+                                    <View style={styles.listSet} key={index}>
+                                        <View style={styles.listSetNumberRest}>
+                                            <MaterialCommunityIcons name='timer' size={20} color={color.white} />
+                                        </View>
+
+                                        <View style={styles.listSetContent}>
+                                            <View style={styles.badgeWrapper}>
+                                                <View style={styles.badgeSecondary}>
+                                                    <Text style={styles.badgeText}>Rest</Text>
+                                                </View>
+                                            </View>
+                                            <Text style={styles.listSetText}>{item.timer}</Text>
+                                        </View>
+                                    </View>
+                                );
+                            } else {
+                                return (
+                                    <View style={styles.listSet} key={index}>
+                                        <View style={styles.listSetNumberSkipped}>
+                                            <MaterialCommunityIcons name='close' size={20} color={color.white} />
+                                        </View>
+
+                                        <View style={styles.listSetContent}>
+                                            <Text style={styles.listSetText}>SKIPPED</Text>
+                                        </View>
+                                    </View>
+                                );
+                            }
+                        })}
+                    </ScrollView>
+
+                    {isResting && (
+                        <View style={styles.excRest}>
+                            {/* <CircularProgress
+                                percent={40}
+                                bgRingWidth={5}
+
+                                bgColor={color.white}
+                                ringColor={color.primary}
+                                ringBgColor={color.gray}
+                                textFontSize={20}
+                                textFontColor={color.black}
+                                textFontWeight='bold'
+                                progressRingWidth={5}
+                                radius={50}
+                            /> */}
+
+                            <Text style={styles.excTimer}>{moment.utc(timerResting * 1000).format('mm:ss')}</Text>
+
+                            <View style={{ flexDirection: 'row', paddingTop: 30, }}>
+                                <Button
+                                    theme='secondary'
+                                    style={{ flex: 1 }} onPress={() => {
+                                        timerResting = RESTING_TIME;
+                                    }}>Restart Timer</Button>
+
+                                <View style={{ width: 10 }} />
+
+                                <Button
+                                    style={{ flex: 1 }}
+                                    onPress={() => {
+                                        continueExercise();
+                                    }}>Continue Excercise</Button>
+                            </View>
+                        </View>
+                    )}
+
+                    {!isResting && (
+                        <View style={styles.excRest}>
+                            <Text style={styles.excTimer}>{moment.utc(timerSet * 1000).format('mm:ss')}</Text>
+
+                            <View style={{ flexDirection: 'row', paddingTop: 30, }}>
+                                <Button
+                                    theme='secondary'
+                                    style={{ flex: 1 }} onPress={() => {
+                                        // if (currentSet >= totalSet) {
+                                        //     bottomSheetRef.current.snapTo(0);
+                                        //     Toast.showSuccess("You completed the excercise");
+                                        //     setCurrentSet(1);
+                                        // } else {
+                                        //     setCurrentSet(currentSet + 1);
+                                        // }
+
+                                        //add skip to list
+                                        addToList(TYPE_SKIP, "", currentSet);
+
+                                        setCurrentSet(currentSet + 1);
+                                    }}>Skip Set</Button>
+
+                                <View style={{ width: 10 }} />
+
+                                <Button
+                                    style={{ flex: 1 }}
+                                    onPress={() => {
+                                        setIsResting(true);
+
+                                        stopAllTimer();
+
+                                        //add set to list
+                                        addToList(TYPE_EXCERCISE, moment.utc(timerSet * 1000).format('mm:ss'), currentSet);
+
+                                        timerResting = RESTING_TIME;
+
+                                        Timer.setInterval(TIMER_REST, () => {
+                                            console.log(excersizeRecords);
+                                            onRestTimer();
+                                        }, 1000);
+                                    }}>End Set & Rest</Button>
+                            </View>
+                        </View>
+                    )}
+
+                    <View style={{ height: 50 }} />
+                </View>
+            </BottomSheet>
         </SafeAreaView>
     );
 }
 
 const styles = {
+    excSetTitle: {
+        fontSize: 14,
+        color: color.primary,
+    },
+    excRest: {
+        paddingVertical: 20,
+        // alignItems: 'center',
+        justifyContent: 'center',
+    },
+    excTimer: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: color.primary,
+        marginBottom: 20,
+    },
+
+    listSet: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    listSetNumber: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: color.primary,
+    },
+    listSetNumberRest: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: color.black + "88",
+    },
+    listSetNumberSkipped: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: color.danger,
+    },
+    listSetNumberText: {
+        color: color.white,
+        fontSize: 16,
+    },
+    listSetContent: {
+        flex: 1,
+        justifyContent: 'center',
+        marginLeft: 10,
+    },
+    listSetText: {
+        fontSize: 16,
+        color: color.primary
+    },
+    listRest: {
+        paddingVertical: 10,
+    },
+    listRestText: {
+        fontSize: 16,
+        color: color.primary,
+    },
+    badgeWrapper: {
+        flexDirection: 'row',
+    },
+    badgePrimary: {
+        backgroundColor: color.primary,
+        borderRadius: 4,
+        paddingHorizontal: 4,
+        paddingVertical: 2
+    },
+    badgeSecondary: {
+        backgroundColor: color.black + "88",
+        borderRadius: 4,
+        paddingHorizontal: 4,
+        paddingVertical: 2
+    },
+    badgeText: {
+        color: color.white,
+        fontSize: 12,
+    },
+
+
+
     container: {
         backgroundColor: color.white,
         flex: 1,
@@ -233,5 +583,17 @@ const styles = {
         width: 1,
         backgroundColor: color.text,
         marginHorizontal: 10,
+    },
+
+
+    bottomSheet: {
+        ...StyleUtils.regularShadow,
+        borderColor: color.border,
+        borderWidth: 1,
+        borderRadius: 10,
+    },
+    bottomSheetContainer: {
+        // flex: 1,
+        paddingHorizontal: 20,
     },
 };

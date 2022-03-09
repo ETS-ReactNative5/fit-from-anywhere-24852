@@ -13,8 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import Entypo from 'react-native-vector-icons/dist/Entypo';
 import NoData from '../components/NoData';
 import Toast from '../components/Toast';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
@@ -23,6 +23,7 @@ import Combobox from '../components/Combobox';
 import slugify from 'slugify';
 import { v4 as uuidv4 } from 'uuid';
 import { usePubNub } from 'pubnub-react';
+import ImageUtils from '../utils/ImageUtils';
 
 export default function MessageCreateGroup(props) {
     const profile = useSelector((state) => state.profile);
@@ -156,7 +157,7 @@ export default function MessageCreateGroup(props) {
                         <Text style={styles.title}>NAME</Text>
 
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                            {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                             {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
                             <Text style={styles.name}>{name != "" ? name : "(Insert Group Name)"}</Text>
                         </View>
@@ -201,7 +202,7 @@ export default function MessageCreateGroup(props) {
                         {members.map((member, index) => {
                             return (
                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }} key={index}>
-                                    {member.image == null && <Image source={require('../assets/images/no-image.png')} style={styles.image} resizeMode='cover' />}
+                                    {member.image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
                                     {member.image != null && <Image source={{ uri: member.image }} style={styles.image} resizeMode='cover' />}
                                     <Text style={styles.name}>{member.label}</Text>
                                 </View>
