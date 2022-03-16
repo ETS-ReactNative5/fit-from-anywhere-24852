@@ -28,6 +28,7 @@ import MessageCreateDirect from "../screens/MessageCreateDirect";
 import MessageEditGroupInfo from "../screens/MessageEditGroupInfo";
 import MessageDetail from "../screens/MessageDetail";
 import MessagePrivate from "../screens/MessagePrivate";
+import AppointmentSlot from "../screens/AppointmentSlot";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -70,6 +71,7 @@ const DashboardStack = () => {
         <Stack.Navigator initialRouteName="HomeStack" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeStack" component={HomeNavigator} />
             <Stack.Screen name="AppointmentEdit" component={AppointmentEdit} />
+            <Stack.Screen name="AppointmentSlot" component={AppointmentSlot} />
             <Stack.Screen name="MessageCreateGroup" component={MessageCreateGroup} />
             <Stack.Screen name="MessageCreateDirect" component={MessageCreateDirect} />
             <Stack.Screen name="MessageEditGroupInfo" component={MessageEditGroupInfo} />

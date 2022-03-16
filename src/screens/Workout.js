@@ -24,6 +24,7 @@ import StyleUtils from '../utils/StyleUtils';
 import Button from '../components/Button';
 import CircularProgress from '../components/CircularProgress';
 import Timer from 'react-native-timer';
+import useInterval from '../utils/useInterval';
 
 let timerResting = 0;
 let timerSet = 0;
@@ -36,6 +37,9 @@ const TYPE_REST = 'rest';
 const TYPE_SKIP = 'skip';
 
 const RESTING_TIME = 10;
+
+let timerExcercise = null;
+let timerRest = null;
 
 export default function Workout(props) {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -123,9 +127,7 @@ export default function Workout(props) {
 
         timerSet = 0;
 
-        Timer.setInterval(TIMER_EXCERCISE, () => {
-            onExcersizeTimer();
-        }, 1000);
+        //timerExcercise = setInterval(onExcersizeTimer, 1000);
 
         //add rest to list
         addToList(TYPE_REST, moment.utc((RESTING_TIME - timerResting) * 1000).format('mm:ss'));
@@ -135,19 +137,19 @@ export default function Workout(props) {
 
     const stopAllTimer = useCallback(() => {
         //stop rest timer
-        if (Timer.intervalExists(TIMER_EXCERCISE)) {
-            Timer.clearInterval(TIMER_EXCERCISE);
+        if (timerExcercise) {
+            clearInterval(timerExcercise);
         }
 
-        if (Timer.intervalExists(TIMER_REST)) {
-            Timer.clearInterval(TIMER_REST);
+        if (timerRest) {
+            clearInterval(timerRest);
         }
-    }, []);
+    }, [timerExcercise, timerRest]);
 
     const onRestTimer = useCallback(() => {
         timerResting--;
         setRestCounter(timerResting);
-        console.log("Timer Counter", timerResting);
+        //console.log("Timer Counter", timerResting);
 
         if (timerResting <= 0) {
             console.log("Check value from", excersizeRecords);
@@ -159,8 +161,16 @@ export default function Workout(props) {
     const onExcersizeTimer = () => {
         timerSet++;
         setExcerciseCount(timerSet);
-        console.log("Timer Counter", timerSet);
+        //console.log("Timer Counter", timerSet);
     }
+
+    useInterval(() => {
+        if (isResting) {
+            onRestTimer();
+        } else {
+            onExcersizeTimer();
+        }
+    }, 1000);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -241,9 +251,7 @@ export default function Workout(props) {
 
                                             timerSet = 0;
 
-                                            Timer.setInterval(TIMER_EXCERCISE, () => {
-                                                onExcersizeTimer();
-                                            }, 1000);
+                                            //timerExcercise = setInterval(onExcersizeTimer, 1000);
                                         }}>Start Excercise</Button>
                                     </View>
                                 </View>
@@ -390,10 +398,7 @@ export default function Workout(props) {
 
                                         timerResting = RESTING_TIME;
 
-                                        Timer.setInterval(TIMER_REST, () => {
-                                            console.log(excersizeRecords);
-                                            onRestTimer();
-                                        }, 1000);
+                                        //timerRest = setInterval(onRestTimer, 1000);
                                     }}>End Set & Rest</Button>
                             </View>
                         </View>

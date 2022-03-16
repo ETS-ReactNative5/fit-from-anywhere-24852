@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MenuView } from '@react-native-menu/menu';
 import CacheUtils from '../utils/CacheUtils';
 import ImageUtils from '../utils/ImageUtils';
+import PushNotificationUtils from '../utils/PushNotificationUtils';
 
 export default function Message(props) {
     const pubnub = usePubNub();
@@ -29,6 +30,26 @@ export default function Message(props) {
 
     const [channels, setChannels] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+
+    const [fcmToken, setFcmToken] = useState('');
+    const [channelIds, setChannelIds] = useState([]);
+
+    useEffect(() => {
+        PushNotificationUtils.getToken().then((token) => {
+            console.log("Token", token);
+
+            setFcmToken(token);
+        }).catch((err) => {
+            console.log("Token Err", err);
+        })
+    }, [profile]);
+
+    useEffect(() => {
+        if (fcmToken != '' && channelIds.length != 0) {
+            let _channelIds = [...channelIds];
+            PushNotificationUtils.registerDevice(pubnub, fcmToken, _channelIds);
+        }
+    }, [fcmToken, channelIds]);
 
     useFocusEffect(useCallback(() => {
         getMembership();
@@ -48,6 +69,8 @@ export default function Message(props) {
         }).then((res) => {
             console.log("getMembership", res);
 
+            let channelIds = ["chat-notification." + profile.user.id];
+
             let result = res.data.map((message) => {
                 if (message.channel.name == "[DIRECT]") {
                     let { member_1, member_2 } = message.channel.custom;
@@ -57,10 +80,13 @@ export default function Message(props) {
                     message.other_profile = profile.user.id + '' == member_1 ? member_2 : member_1;
                 }
 
+                channelIds.push(message.channel.id);
+
                 return message;
             })
 
             setChannels(result);
+            setChannelIds(channelIds);
             setIsLoading(false);
         })
     }, [pubnub, profile]);

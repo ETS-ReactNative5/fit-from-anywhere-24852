@@ -30,8 +30,7 @@ export default function AppointmentEdit(props) {
     const appointment = props.route.params?.appointment;
 
     const [zoom_link, setZoomLink] = useState("");
-    const [booked_date, setBookedDate] = useState(moment().format("YYYY-MM-DD"));
-    const [booked_time, setBookedTime] = useState(moment().format("HH:mm"));
+    const [dateTime, setDateTime] = useState(moment().format("YYYY-MM-DD HH:00"));
     const [apointment_type, setApointmentType] = useState("appointment");
     const [status, setStatus] = useState("pending");
     const [trainer, setTrainer] = useState(null);
@@ -41,8 +40,7 @@ export default function AppointmentEdit(props) {
 
     useEffect(() => {
         setZoomLink(appointment?.zoom_link);
-        setBookedDate(appointment?.booked_date);
-        setBookedTime(appointment?.booked_time);
+        setDateTime(appointment?.booked_date + " " + appointment?.booked_time);
         setApointmentType(appointment?.apointment_type);
         setStatus(appointment?.status);
         setTrainer(appointment?.trainer.id);
@@ -79,8 +77,8 @@ export default function AppointmentEdit(props) {
 
         let data = {
             zoom_link,
-            booked_date,
-            booked_time,
+            booked_date: moment(dateTime).format("YYYY-MM-DD"),
+            booked_time: moment(dateTime).format("HH:mm"),
             apointment_type,
             status,
             trainer,
@@ -91,7 +89,7 @@ export default function AppointmentEdit(props) {
 
         promise.then((res) => {
             Toast.showSuccess("Appointment saved successfully");
-            // props.navigation.goBack();
+            props.navigation.goBack();
             setIsLoading(false);
         }).catch((err) => {
             console.log("Err", err, err.response);
@@ -99,7 +97,7 @@ export default function AppointmentEdit(props) {
             setIsLoading(false);
         });
 
-    }, [appointment, profile, zoom_link, booked_date, booked_time, apointment_type, status, trainer]);
+    }, [appointment, profile, zoom_link, dateTime, apointment_type, status, trainer]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -121,7 +119,25 @@ export default function AppointmentEdit(props) {
                         }}
                     />
 
-                    <DatePicker
+                    {trainer != null && (
+                        <>
+                            <Text style={styles.chooserLabel}>Choose Time</Text>
+                            <TouchableOpacity style={styles.chooser} onPress={() => {
+                                props.navigation.navigate("AppointmentSlot", {
+                                    trainer: trainer,
+                                    onSelect: (dateTime) => {
+                                        console.log("onSelect", dateTime);
+                                        setDateTime(dateTime);
+                                    },
+                                });
+                            }}>
+                                <Text style={styles.chooserText}>{moment(dateTime).format("MMM DD, YYYY, hh:mm a")}</Text>
+                            </TouchableOpacity>
+
+                        </>
+                    )}
+
+                    {/* <DatePicker
                         label='Booking Date'
                         style={styles.input}
                         // style={{ borderWidth: 0, padding: 0, borderBottomWidth: 0, height: 30, paddingVertical: 0 }}
@@ -144,7 +160,7 @@ export default function AppointmentEdit(props) {
                         value={booked_time}
                         onChange={(val) => {
                             setBookedTime(val);
-                        }} />
+                        }} /> */}
 
                     <Combobox
                         label="Type"
@@ -194,5 +210,22 @@ const styles = {
         borderColor: color.primary,
         borderRadius: 10,
         paddingHorizontal: 15,
-    }
+    },
+
+    chooserLabel: {
+        marginBottom: 5,
+    },
+    chooser: {
+        borderWidth: 1,
+        paddingHorizontal: 15,
+        height: 50,
+        borderColor: color.primary,
+        marginBottom: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+    },
+    chooserText: {
+        fontSize: 14,
+        color: color.black,
+    },
 };

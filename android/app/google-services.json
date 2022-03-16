@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "846604436516",
+    "project_id": "fitfromanywhere-275b4",
+    "storage_bucket": "fitfromanywhere-275b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846604436516:android:749ef561dedef3cf4ec4b1",
+        "android_client_info": {
+          "package_name": "com.fitfromanywhere"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "846604436516-0j9p97itti11jpnpkac20sm2j0e3ncrl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxMmeM2a8yf4K86mCxrQA3N8GE4N7DzCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "846604436516-0j9p97itti11jpnpkac20sm2j0e3ncrl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
