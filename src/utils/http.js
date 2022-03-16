@@ -105,6 +105,9 @@ export const HttpRequest = {
         };
         return requestWithAuth().get("/appointment/?" + qs.stringify(data));
     },
+    getAppointmentByDate(date, trainer__id) {
+        return requestWithAuth().get("/appointment/?booked_date=" + date + "&trainer__id=" + trainer__id);
+    },
     getAppointment(id) {
         return requestWithAuth().get("/appointment/" + id + "/");
     },

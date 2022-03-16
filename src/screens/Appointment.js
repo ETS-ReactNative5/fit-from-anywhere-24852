@@ -76,13 +76,13 @@ export default function Appointment(props) {
                             return (
                                 <View style={styles.appointment} key={index}>
                                     <Text style={styles.appointmentLabel}>
-                                        {appointment.apointment_type == "appointment" && "Appointment with " + appointment.user?.name}
+                                        {appointment.apointment_type == "appointment" && "Appointment with " + appointment.trainer?.name}
                                         {appointment.apointment_type == "training" && "Training with " + appointment.trainer?.name}
                                     </Text>
                                     <Text style={styles.appointmentTime}>{moment(appointment.created_at).format("hh:mm a")}</Text>
 
                                     <View style={{ flexDirection: 'row', marginTop: 10, }}>
-                                        {appointment.zoom_link != "" && (
+                                        {appointment.zoom_link != null && (
                                             <TouchableOpacity style={styles.zoomButton} onPress={() => {
                                                 if (Linking.canOpenURL(appointment.zoom_link)) {
                                                     Linking.openURL(appointment.zoom_link);
@@ -95,7 +95,7 @@ export default function Appointment(props) {
                                             </TouchableOpacity>
                                         )}
 
-                                        {appointment.zoom_link == "" && (
+                                        {appointment.zoom_link == null && (
                                             <View style={styles.zoomButton}>
                                                 <Text style={styles.zoomButtonTextNa}>Zoom Link Not Available</Text>
                                             </View>
