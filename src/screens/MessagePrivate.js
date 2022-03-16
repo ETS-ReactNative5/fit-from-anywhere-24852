@@ -81,12 +81,16 @@ export default function MessagePrivate(props) {
 
     const sendMessage = useCallback(() => {
         setMessage("");
-        pubnub.publish({ channel: params.channel.id, message }).then((res) => {
+
+        let _message = PushNotificationUtils.getPushNotifObject(profile.name, message);
+        _message.text = params.channel.id;
+
+        pubnub.publish({ channel: params.channel.id, message: _message }).then((res) => {
             console.log("Message sent", res);
         }).catch((err) => {
 
         });
-    }, [params, message]);
+    }, [params, profile, message]);
 
     const deleteChannel = useCallback(() => {
         Alert.alert(

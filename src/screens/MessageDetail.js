@@ -23,15 +23,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import CacheUtils from '../utils/CacheUtils';
 import { HttpUtils } from '../utils/http';
 import ImageUtils from '../utils/ImageUtils';
+import PushNotificationUtils from '../utils/PushNotificationUtils';
 
 export default function MessageDetail(props) {
     const pubnub = usePubNub();
     const dispatch = useDispatch();
+    const profile = useSelector((state) => state.profile);
     const profiles = useSelector((state) => state.profiles);
 
     const params = props.route.params.message;
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
+
 
     useEffect(() => {
         const listener = { message: handleMessage };
@@ -80,12 +83,16 @@ export default function MessageDetail(props) {
 
     const sendMessage = useCallback(() => {
         setMessage("");
+
+        let _message = PushNotificationUtils.getPushNotifObject(profile.name, message);
+        _message.text = params.channel.id;
+
         pubnub.publish({ channel: params.channel.id, message }).then((res) => {
             console.log("Message sent", res);
         }).catch((err) => {
 
         });
-    }, [params, message]);
+    }, [params, profile, message]);
 
     const deleteChannel = useCallback(() => {
         Alert.alert(
