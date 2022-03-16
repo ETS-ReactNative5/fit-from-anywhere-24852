@@ -196,10 +196,6 @@ export default function AppointmentSlot(props) {
                                         let start = convertTimeToMinute(moment(item.date_and_time).format("HH:mm:ss"));
                                         let minute = 60;
 
-                                        if (item.service.estimated_time != null) {
-                                            minute = convertTimeToMinute(item.service.estimated_time);
-                                        }
-
                                         return (
                                             <View key={index} style={[styles.bookingSlot, {
                                                 width: SCREEN_WIDTH - 75,
