@@ -105,6 +105,14 @@ export const HttpRequest = {
         };
         return requestWithAuth().get("/appointment/?" + qs.stringify(data));
     },
+    getAppointmentListForTrainer() {
+        let user_id = store.getState().profile.user.id;
+        let data = {
+            trainer__id: user_id,
+            booked_date__gte: moment().format("YYYY-MM-DD"),
+        };
+        return requestWithAuth().get("/appointment/?" + qs.stringify(data));
+    },
     getAppointmentByDate(date, trainer__id) {
         return requestWithAuth().get("/appointment/?booked_date=" + date + "&trainer__id=" + trainer__id);
     },

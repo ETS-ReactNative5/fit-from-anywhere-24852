@@ -15,6 +15,7 @@ export default function Register(props) {
     const [name, setName] = useState(__DEV__ ? app.EXAMPLE_FULL_NAME : "");
     const [phoneNumber, setPhoneNumber] = useState(__DEV__ ? app.EXAMPLE_PHONE : "");
     const [email, setEmail] = useState(__DEV__ ? app.EXAMPLE_EMAIL : "");
+    const [gymCode, setGymCode] = useState("");
     const [password, setPassword] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
     const [passwordConfirm, setPasswordConfirm] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
     const [isLoading, setIsLoading] = useState(false);
@@ -89,6 +90,14 @@ export default function Register(props) {
                         placeholder="Confirm password"
                         value={passwordConfirm}
                         onChangeText={setPasswordConfirm}
+                        containerStyle={styles.input} />
+
+                    <TextInput
+                        // label='Email address'
+                        icon={<MaterialCommunityIcons name='numeric' size={20} color={color.gray} />}
+                        placeholder="Enter your gym code"
+                        value={gymCode}
+                        onChangeText={setGymCode}
                         containerStyle={styles.input} />
 
                     <TouchableOpacity style={styles.checkboxWrapper}

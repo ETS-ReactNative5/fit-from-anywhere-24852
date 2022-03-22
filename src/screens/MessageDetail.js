@@ -66,9 +66,15 @@ export default function MessageDetail(props) {
                     let _messages = response.channels[params.channel.id];
                     _messages = _messages.map(message => {
                         CacheUtils.findProfile(message.uuid, dispatch);
+
+                        let text = message.message;
+                        if (!(typeof text === 'string' || text instanceof String)) {
+                            text = text.text;
+                        }
+
                         return {
                             uuid: message.uuid,
-                            message: message.message,
+                            message: text,
                             created_at: moment(message.timetoken / 10000).format("YYYY-MM-DD HH:mm:ss"),
                         };
                     });

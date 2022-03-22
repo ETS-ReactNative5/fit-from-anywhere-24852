@@ -13,6 +13,11 @@ import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import NoData from '../components/NoData';
+import { usePubNub } from 'pubnub-react';
+import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import Toast from '../components/Toast';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 // const notifications = [
 //     {
@@ -43,7 +48,49 @@ import NoData from '../components/NoData';
 // ];
 
 export default function Notification(props) {
-    const [notifications, setNotifications] = useState([]);
+    const pubnub = usePubNub();
+    const profile = useSelector((state) => state.profile);
+
+    const [messages, setMessages] = useState([]);
+    const [isLoading, setLoading] = useState(false);
+
+    useFocusEffect(useCallback(() => {
+        loadNotification();
+    }, []));
+
+    const loadNotification = useCallback(() => {
+        setLoading(true);
+        let channelName = "notification." + profile.user.id;
+
+        pubnub.fetchMessages(
+            {
+                channels: [channelName],
+                count: 20
+            }, (status, response) => {
+                console.log({ status, response });
+                if (status.statusCode == 200) {
+                    let _messages = response.channels[channelName] ?? [];
+                    _messages = _messages.map(message => {
+                        let text = message.message;
+                        if (!(typeof text === 'string' || text instanceof String)) {
+                            text = text.text;
+                        }
+
+                        return {
+                            uuid: message.uuid,
+                            message: text,
+                            created_at: moment(message.timetoken / 10000).format("YYYY-MM-DD HH:mm:ss"),
+                        };
+                    });
+                    setMessages(_messages);
+                } else {
+                    Toast.showError(status.errorData.message);
+                }
+
+                setLoading(false);
+            }
+        );
+    }, [pubnub, profile]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -51,24 +98,31 @@ export default function Notification(props) {
                 props.navigation.openDrawer();
             }} />
             <ScrollView>
-                {notifications.length == 0 && <NoData>No Notifications Available</NoData>}
-                {notifications.map((notification, index) => {
+                {isLoading && (
+                    <LoadingIndicator />
+                )}
 
-                    return (
-                        <View key={index} style={styles.notification}>
-                            <View style={styles.checkbox}>
+                {!isLoading && (
+                    <>
+                        {messages.length == 0 && <NoData>No Notifications Available</NoData>}
+                        {messages.map((notification, index) => {
+                            return (
+                                <View key={index} style={styles.notification}>
+                                    <View style={styles.checkbox}>
 
-                            </View>
-                            <View style={styles.content}>
-                                <View style={styles.titleRow}>
-                                    <Text style={styles.title}>{notification.title}</Text>
-                                    <Text style={styles.time}>{moment(notification.created).fromNow()}</Text>
+                                    </View>
+                                    <View style={styles.content}>
+                                        <View style={styles.titleRow}>
+                                            <Text style={styles.title}>{notification.message}</Text>
+                                            <Text style={styles.time}>{moment(notification.created_at).fromNow()}</Text>
+                                        </View>
+                                        {/* <Text style={styles.description}>{notification.description}</Text> */}
+                                    </View>
                                 </View>
-                                <Text style={styles.description}>{notification.description}</Text>
-                            </View>
-                        </View>
-                    );
-                })}
+                            );
+                        })}
+                    </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );

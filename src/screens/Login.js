@@ -102,14 +102,14 @@ export default function Login(props) {
                             }}>Cancel</Button>
                     </View>
 
-                    <View style={styles.or}>
+                    {/* <View style={styles.or}>
                         <Text>OR</Text>
                     </View>
 
                     <Button style={{ marginTop: 20 }}
                         onPress={() => {
                             //props.navigation.navigate("Dashboard");
-                        }}>Trial Login</Button>
+                        }}>Trial Login</Button> */}
                 </View>
             </ScrollView>
         </SafeAreaView>

@@ -19,6 +19,7 @@ import Toast from '../components/Toast';
 import NoData from '../components/NoData';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ImageUtils from '../utils/ImageUtils';
+import { useSelector } from 'react-redux';
 
 // const appointments = [
 //     { label: "Practice online", time: "2022-01-01T09:30:00.000Z" },
@@ -29,6 +30,7 @@ import ImageUtils from '../utils/ImageUtils';
 // ];
 
 export default function Appointment(props) {
+    const profile = useSelector(state => state.profile);
     const [isLoading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState([]);
 
@@ -38,7 +40,15 @@ export default function Appointment(props) {
 
     const loadAppointments = useCallback(() => {
         setLoading(true);
-        HttpRequest.getAppointmentList().then((res) => {
+
+        let promise = null;
+        if (profile.is_trainer) {
+            promise = HttpRequest.getAppointmentListForTrainer();
+        } else {
+            promise = HttpRequest.getAppointmentList();
+        }
+
+        promise.then((res) => {
             console.log("getAppointmentList", res.data.results);
             setAppointments(res.data.results);
             setLoading(false);
@@ -47,7 +57,7 @@ export default function Appointment(props) {
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot load appointments data"));
             setLoading(false);
         });
-    }, []);
+    }, [profile]);
 
     return (
         <SafeAreaView style={styles.container}>

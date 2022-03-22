@@ -73,11 +73,11 @@ export default function Home(props) {
 
     useEffect(() => {
         console.log("Is onboarding", isOnboarding);
-        if (isOnboarding) {
+        if (isOnboarding && profile.is_trainer == false) {
             props.navigation.navigate("Onboarding");
             dispatch(setShowOnboard(false));
         }
-    }, [isOnboarding]);
+    }, [isOnboarding, profile]);
 
     return (
         <SafeAreaView style={styles.container}>

@@ -98,7 +98,7 @@ export default function AppContainer() {
         return null;
     }, [profile]);
 
-    console.log("User", { user, profile, splash });
+    //console.log("User", { user, profile, splash });
 
     // useEffect(() => {
     //     console.log("User changed", user);

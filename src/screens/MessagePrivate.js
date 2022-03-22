@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import CacheUtils from '../utils/CacheUtils';
 import { HttpUtils } from '../utils/http';
 import ImageUtils from '../utils/ImageUtils';
+import PushNotificationUtils from '../utils/PushNotificationUtils';
 
 export default function MessagePrivate(props) {
     const pubnub = usePubNub();
@@ -64,9 +65,15 @@ export default function MessagePrivate(props) {
                     let _messages = response.channels[params.channel.id];
                     _messages = _messages.map(message => {
                         CacheUtils.findProfile(message.uuid, dispatch);
+
+                        let text = message.message;
+                        if (!(typeof text === 'string' || text instanceof String)) {
+                            text = text.text;
+                        }
+
                         return {
                             uuid: message.uuid,
-                            message: message.message,
+                            message: text,
                             created_at: moment(message.timetoken / 10000).format("YYYY-MM-DD HH:mm:ss"),
                         };
                     });
@@ -83,7 +90,7 @@ export default function MessagePrivate(props) {
         setMessage("");
 
         let _message = PushNotificationUtils.getPushNotifObject(profile.name, message);
-        _message.text = params.channel.id;
+        _message.text = message;
 
         pubnub.publish({ channel: params.channel.id, message: _message }).then((res) => {
             console.log("Message sent", res);

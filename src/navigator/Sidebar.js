@@ -70,9 +70,58 @@ const userMenus = [
     },
 ];
 
+const trainerMenus = [
+    {
+        icon: <MaterialCommunityIcons name="home" size={30} color={color.text} />,
+        label: "Home",
+        target: "Home",
+    },
+    {
+        icon: <MaterialCommunityIcons name="message-text-outline" size={30} color={color.text} />,
+        label: "Message",
+        target: "Message",
+    },
+    {
+        icon: <MaterialCommunityIcons name="bell" size={30} color={color.text} />,
+        label: "Notifications",
+        target: "Notification",
+    },
+    {
+        icon: <MaterialCommunityIcons name="calendar-clock" size={30} color={color.text} />,
+        label: "Appointments",
+        target: "Appointment",
+    },
+    {
+        icon: <MaterialCommunityIcons name="shield-lock" size={30} color={color.text} />,
+        label: "Privacy policy",
+        target: "PrivacyPolicy",
+    },
+    {
+        icon: <MaterialCommunityIcons name="file-document-edit-outline" size={30} color={color.text} />,
+        label: "Terms and conditions",
+        target: "TermAndCondition",
+    },
+    {
+        icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
+        label: "Push notifications",
+        target: null,
+    },
+    {
+        icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
+        label: "Email notifications",
+        target: null,
+    },
+];
+
 export default function Sidebar(props) {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+
+    console.log("Profile", profile);
+
+    const menus = useMemo(() => {
+        return profile.is_trainer ? trainerMenus : userMenus;
+    }, [profile]);
 
     const profileImage = useMemo(() => {
         return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : ImageUtils.profileImage;
@@ -104,7 +153,7 @@ export default function Sidebar(props) {
 
                 <View style={styles.line} />
 
-                {userMenus.map((item, index) => {
+                {menus.map((item, index) => {
                     if (item == null) {
                         return <View style={styles.line} key={index} />
                     }

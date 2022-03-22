@@ -121,7 +121,7 @@ export default {
 
         pubnub.publish({
             message: messagePayload,
-            channel: 'chat-notification.' + targetId,
+            channel: 'notification.' + targetId,
         }, (status) => {
             console.log("publish", status);
         });
