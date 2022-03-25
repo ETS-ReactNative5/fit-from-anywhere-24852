@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from utils.models import BaseModel
+from plans.models import Plan
 
 
 class Program(BaseModel):
@@ -16,6 +17,11 @@ class Program(BaseModel):
         max_length=255,
         null=True,
         blank=True,
+    )
+    plans = models.ManyToManyField(
+        Plan,
+        blank=True,
+        related_name="program_plans",
     )
 
     class Meta:
