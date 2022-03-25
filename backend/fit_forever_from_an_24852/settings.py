@@ -60,6 +60,7 @@ LOCAL_APPS = [
     "programs",
     "workout_plans",
     "workouts",
+    "plans",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
