@@ -20,6 +20,16 @@ class WorkoutPlan(BaseModel):
         null=True,
         related_name="workout_plan_plan",
     )
+    sets = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="How many sets of this workout to be performed?",
+    )
+    repetitions = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="How many repetitions of this workout to be performed?",
+    )
 
     class Meta:
         verbose_name = "Workout Plans"
