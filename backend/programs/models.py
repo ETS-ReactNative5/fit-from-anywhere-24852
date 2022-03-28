@@ -30,10 +30,10 @@ class Program(BaseModel):
         verbose_name_plural = "Programs"
 
     def __unicode__(self):
-        return f"{self.user}"
+        return f"{self.name}"
 
     def __str__(self):
-        return f"{self.user}"
+        return f"{self.name}"
 
 
 class UserProgress(BaseModel):
