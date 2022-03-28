@@ -35,6 +35,10 @@ class WorkoutPlan(BaseModel):
         null=True,
         help_text="How many repetitions of this workout to be performed?",
     )
+    rest_period = models.DurationField(
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Workout Plans"

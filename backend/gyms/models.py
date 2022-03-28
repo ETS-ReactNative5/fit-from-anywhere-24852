@@ -36,8 +36,5 @@ class Gym(BaseModel):
         verbose_name = "Gym"
         verbose_name_plural = "Gyms"
 
-    def __unicode__(self):
-        return f"{self.owner}"
-
     def __str__(self):
         return f"{self.owner}"
