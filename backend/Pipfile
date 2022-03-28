@@ -10,13 +10,13 @@ python_version = "3.7"
 
 [packages]
 cryptography = "<3.4"
-django = "~=2.2.19"
+django = "~=2.2.24"
 "boto3" = "~=1.17.12"
 django-environ = "~=0.4.5"
 django-storages = "~=1.11"
 waitress = "~=1.4.4"
 whitenoise = "~=5.2.0"
-djangorestframework = "~=3.11.1"
+djangorestframework = "~=3.10"
 django-bootstrap4 = "~=2.3.1"
 django-allauth = "~=0.44.0"
 django-rest-auth = "~=0.9.5"
@@ -32,6 +32,9 @@ werkzeug = "*"
 psycopg2-binary = "~=2.8.6"
 black = "*"
 drf-writable-nested = "*"
+jinja2 = "~=3.0.3"
+drf-yasg2 = "*"
+markupsafe = "~=2.0.1"
 
 [pipenv]
 allow_prereleases = true
