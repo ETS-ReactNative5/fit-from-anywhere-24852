@@ -20,6 +20,11 @@ class WorkoutPlan(BaseModel):
         null=True,
         related_name="workout_plan_plan",
     )
+    plan_day = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="Day of this workout according to number of plan days.",
+    )
     sets = models.PositiveIntegerField(
         blank=True,
         null=True,

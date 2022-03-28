@@ -13,6 +13,11 @@ class Plan(BaseModel):
         blank=True,
         null=True,
     )
+    days = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="Number of days for this plan.",
+    )
 
     class Meta:
         verbose_name = "Plans"

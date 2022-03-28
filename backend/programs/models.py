@@ -3,6 +3,7 @@ from django.conf import settings
 
 from utils.models import BaseModel
 from plans.models import Plan
+from workout_plans.models import WorkoutPlan
 
 
 class Program(BaseModel):
@@ -30,6 +31,47 @@ class Program(BaseModel):
 
     def __unicode__(self):
         return f"{self.user}"
+
+    def __str__(self):
+        return f"{self.user}"
+
+
+class UserProgress(BaseModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="user_progress",
+    )
+    program = models.ForeignKey(
+        Program,
+        blank=True,
+        null=True,
+        related_name="user_progress_program",
+        on_delete=models.CASCADE,
+    )
+    workout_plan = models.ForeignKey(
+        WorkoutPlan,
+        blank=True,
+        null=True,
+        related_name="user_progress_workout_plan",
+        on_delete=models.CASCADE,
+    )
+    set = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="How many sets of this workout has been performed?",
+    )
+    repetition = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="How many repetitions of this workout has been performed?",
+    )
+
+    class Meta:
+        verbose_name = "User Progress"
+        verbose_name_plural = "User Progress"
 
     def __str__(self):
         return f"{self.user}"
