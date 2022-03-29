@@ -35,6 +35,7 @@ drf-writable-nested = "*"
 jinja2 = "~=3.0.3"
 drf-yasg2 = "*"
 markupsafe = "~=2.0.1"
+django-jet = "*"
 
 [pipenv]
 allow_prereleases = true
