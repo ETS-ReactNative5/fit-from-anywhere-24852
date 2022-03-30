@@ -45,6 +45,7 @@ urlpatterns = [
     path("", include("plans.urls")),
     path("", include("workouts.urls")),
     path("", include("workout_plans.urls")),
+    path("", include("resources_library.urls")),
 ]
 
 admin.site.site_header = "Fit From Anywhere"
