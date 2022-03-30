@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 
-# Create your views here.
+from .models import Plan
+from .serializers import PlanSerializer, GetPlanSerializer
+
+
+class PlanViewSet(viewsets.ModelViewSet):
+    queryset = Plan.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ("PUT", "POST", "PATCH"):
+            return PlanSerializer
+        else:
+            return GetPlanSerializer

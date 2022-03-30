@@ -7,3 +7,10 @@ class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = "__all__"
+
+
+class GetPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = "__all__"
+        depth = 1
