@@ -16,11 +16,16 @@ import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import { Calendar } from 'react-native-calendars';
 import { useDispatch, useSelector } from 'react-redux';
-import { HttpUtils } from '../utils/http';
+import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Button from '../components/Button';
 import { LineChart } from 'react-native-chart-kit';
 import { setShowOnboard } from '../store/actions';
 import ImageUtils from '../utils/ImageUtils';
+import Toast from '../components/Toast';
+import CacheUtils from '../utils/CacheUtils';
+import { useFocusEffect } from '@react-navigation/native';
+import ProgressBar from '../components/ProgressBar';
+import NoData from '../components/NoData';
 
 const rawData = [50, 10, 40, 95, 85, 91];
 
@@ -49,11 +54,21 @@ const promotions = [
 
 export default function Home(props) {
     const dispatch = useDispatch();
+    const workoutPlans = useSelector(state => state.workoutPlans);
     const profile = useSelector(state => state.profile);
     const isOnboarding = useSelector(state => state.isOnboarding);
     const [focusedDate, setFocusedDate] = useState(moment());
     const scrollRef = useRef();
     const calendarRef = useRef();
+    const [plans, setPlans] = useState([]);
+    const [program, setProgram] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
+    const [progressPercentage, setProgressPercentage] = useState(0);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [dailyWorkoutPlans, setDailyWorkoutPlans] = useState([]);
+    const [userPlanCreatedTime, setUserPlanCreatedTime] = useState(null);
+    const [dayNumber, setDayNumber] = useState(0);
 
     const profileImage = useMemo(() => {
         return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : ImageUtils.profileImage;
@@ -78,6 +93,84 @@ export default function Home(props) {
             dispatch(setShowOnboard(false));
         }
     }, [isOnboarding, profile]);
+
+    useEffect(() => {
+        console.log("Workoutplans", workoutPlans);
+    }, [workoutPlans]);
+
+    useFocusEffect(useCallback(() => {
+        loadProgram();
+        loadUserPlan();
+    }, []));
+
+    useEffect(() => {
+        console.log("Something changed..");
+        let startTime = userPlanCreatedTime ? moment(userPlanCreatedTime).format("YYYY-MM-DD") : moment().format("YYYY-MM-DD");
+        let _dayNumber = moment.duration(moment(selectedDate).diff(startTime)).asDays() + 1;
+        setDayNumber(_dayNumber);
+
+        //getworkout plan by day number
+        if (selectedPlan != null && userPlanCreatedTime != null) {
+            loadWorkoutPlan(selectedPlan.id, _dayNumber);
+        }
+    }, [selectedPlan, userPlanCreatedTime, selectedDate]);
+
+    const loadProgram = useCallback(() => {
+        HttpRequest.loadProgram(profile.fitness_goal).then((res) => {
+            console.log("loadProgram", res.data);
+            setProgram(res.data);
+            // let plans = res.data.plans;
+            // plans.forEach((plan) => {
+            //     CacheUtils.findWorkoutPlansByPlanId(plan.id, dispatch);
+            // });
+            // setPlans(res.data.plans);
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
+        });
+    }, [profile]);
+
+    const loadUserPlan = useCallback(() => {
+        HttpRequest.loadUserPlan(profile.user.id).then((res) => {
+            let userPlans = res.data.results;
+            console.log("loadUserPlan", userPlans);
+
+            if (userPlans.length > 0) {
+                // setUserPlanCreatedTime("2022-03-30");// 
+                setUserPlanCreatedTime(userPlans[0].created_at);
+                setSelectedPlan(userPlans[0].plan);
+            } else {
+                setUserPlanCreatedTime(null);
+                setSelectedPlan(null);
+            }
+
+            let plans = userPlans.map((userPlan) => {
+                return userPlan.plan;
+            });
+
+            plans.forEach((plan) => {
+                CacheUtils.findWorkoutPlansByPlanId(plan.id, dispatch);
+            });
+
+            setPlans(plans);
+            setIsLoading(false);
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get user plan"));
+            setIsLoading(false);
+        });
+    }, [profile]);
+
+    const loadWorkoutPlan = useCallback((plan_id, day) => {
+        setIsLoading(true);
+        HttpRequest.loadWorkoutPlan(plan_id, day).then((res) => {
+            console.log("loadWorkoutPlan", res.data.results);
+            setDailyWorkoutPlans(res.data.results);
+            setIsLoading(false);
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get workout plan"));
+            setIsLoading(false);
+        });
+    }, []);
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -143,8 +236,12 @@ export default function Home(props) {
                         dateNameStyle={{ color: color.primary, fontSize: 12 }}
                         highlightDateNameStyle={{ color: color.primary, fontSize: 12 }}
                         // iconContainer={{ flex: 0.1 }}
+                        onDateSelected={(date) => {
+                            setSelectedDate(date.format("YYYY-MM-DD"));
+                        }}
                         onWeekChanged={(start, end) => {
                             //console.log(start, end);
+                            // setSelectedDate(moment(start).format("YYYY-MM-DD"));
                             setFocusedDate(start);
                             //get month difference with today
                             let firstDate = moment().date(1)
@@ -157,7 +254,42 @@ export default function Home(props) {
 
                 <View style={styles.line} />
 
-                <Text style={styles.chartTitle}>Frequency Bar chart</Text>
+                <View style={styles.progressBar}>
+                    <Text style={styles.progressBarTitle}>Your progress: {progressPercentage}%</Text>
+                    <ProgressBar percentage={progressPercentage} />
+                </View>
+
+                <Text style={styles.chartTitle}>{moment(selectedDate).format("MMM DD, YYYY")} - Day #{dayNumber}</Text>
+
+                {selectedPlan != null && (
+                    <View style={styles.plan}>
+                        <Text style={styles.chartSubtitle}>{selectedPlan.name}</Text>
+
+                        {dailyWorkoutPlans.length == 0 && <NoData>No workout today</NoData>}
+
+                        {dailyWorkoutPlans.map((dailyWorkoutPlan, index) => {
+                            return (
+                                <TouchableOpacity key={index} style={styles.workout} onPress={() => {
+                                    props.navigation.navigate("HomeWorkout", {
+                                        workout: dailyWorkoutPlan.workout,
+                                        plan: selectedPlan,
+                                        program: program,
+                                        workoutPlan: dailyWorkoutPlan,
+                                        day: dayNumber,
+                                    });
+                                }}>
+                                    <Image source={ImageUtils.home1} style={styles.workoutImage} />
+                                    <View style={styles.workoutContent}>
+                                        <Text style={styles.workoutTitle}>{dailyWorkoutPlan.workout?.name}</Text>
+                                        <Text style={styles.workoutDesc}>{dailyWorkoutPlan.workout?.description}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                )}
+
+                {/* <Text style={styles.chartTitle}>Frequency Bar chart</Text>
                 <Text style={styles.chartSubtitle}>Days of workout</Text>
 
                 <LineChart
@@ -253,7 +385,7 @@ export default function Home(props) {
                         marginVertical: 8,
                         borderRadius: 16
                     }}
-                />
+                /> */}
 
                 <View style={styles.line} />
 
@@ -292,6 +424,10 @@ const styles = {
     line: {
         height: 1,
         backgroundColor: color.gray,
+    },
+    progressBar: {
+        paddingHorizontal: 20,
+        paddingVertical: 20,
     },
     profile: {
         flexDirection: 'row',
@@ -357,7 +493,7 @@ const styles = {
         fontSize: 16,
         fontWeight: '500',
         color: color.primary,
-        marginTop: 20,
+        // marginTop: 20,
         marginLeft: 20,
     },
     chartSubtitle: {
@@ -398,5 +534,35 @@ const styles = {
         fontSize: 14,
         fontFamily: font.sourceSansPro,
         color: color.text,
-    }
+    },
+
+    workout: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginBottom: 10,
+    },
+    workoutImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 5,
+    },
+    workoutTitle: {
+        fontSize: 16,
+        fontFamily: font.sourceSansProBold,
+        color: color.primary,
+    },
+    workoutDesc: {
+        fontSize: 13,
+        fontFamily: font.sourceSansPro,
+        color: color.primary,
+    },
+    workoutContent: {
+        flex: 1,
+        marginLeft: 8,
+        backgroundColor: 'rgba(229, 235, 238, 1)',
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        paddingVertical: 5,
+    },
 };

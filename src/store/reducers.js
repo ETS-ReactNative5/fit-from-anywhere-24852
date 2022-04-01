@@ -45,3 +45,11 @@ export function isOnboarding(state = true, action) {
 
     return state;
 }
+
+export function workoutPlans(state = {}, action) {
+    if (action.type == types.SET_WORKOUT_PLANS) {
+        return action.payload;
+    }
+
+    return state;
+}

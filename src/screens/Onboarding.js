@@ -10,18 +10,13 @@ import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest, HttpResponse } from "../utils/http";
 
-const goals = [
-    { id: "lose_weight", label: "Lose weight" },
-    { id: "build_muscle", label: "Build muscle" },
-    { id: "maintain", label: "Maintain" },
-];
-
 export default function Onboarding(props) {
     const dispatch = useDispatch();
     const user = useSelector(state => state.user);
 
     const profile = useSelector(state => state.profile);
     const [page, setPage] = useState(1);
+    const [goals, setGoals] = useState([]);
     const [goal, setGoal] = useState(user.profile?.fitness_goal ?? "lose_weight");
     const [weight, setWeight] = useState(user.profile?.weight ?? "0");
     const [height, setHeight] = useState(user.profile?.height ?? "0");
@@ -32,6 +27,7 @@ export default function Onboarding(props) {
 
     useEffect(() => {
         loadProfile();
+        loadPlan();
     }, []);
 
     const loadProfile = useCallback(() => {
@@ -42,9 +38,23 @@ export default function Onboarding(props) {
             setGoal(_profile.fitness_goal ?? "lose_weight");
             setWeight("" + (_profile.weight ?? "0"));
             setHeight("" + (_profile.height ?? "0"));
-            setAge("" + ( _profile.age ?? "0"));
+            setAge("" + (_profile.age ?? "0"));
             setWeightType(_profile.weight_metric ?? "LB");
             setHeightType(_profile.height_metric ?? "CM");
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
+        });
+    }, []);
+
+    const loadPlan = useCallback(() => {
+        HttpRequest.getProgramList().then((res) => {
+            console.log("getProgramList", res.data.results);
+            setGoals(res.data.results.map((item) => {
+                return {
+                    id: item.id + "",
+                    label: item.name,
+                };
+            }));
         }).catch((err) => {
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
         });

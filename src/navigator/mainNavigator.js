@@ -29,6 +29,8 @@ import MessageEditGroupInfo from "../screens/MessageEditGroupInfo";
 import MessageDetail from "../screens/MessageDetail";
 import MessagePrivate from "../screens/MessagePrivate";
 import AppointmentSlot from "../screens/AppointmentSlot";
+import ChoosePlan from "../screens/ChoosePlan";
+import HomeWorkout from "../screens/HomeWorkout";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -48,6 +50,7 @@ const HomeNavigator = () => {
             <Drawer.Screen name="Message" component={Message} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Notification" component={Notification} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Workout" component={Workout} options={() => ({ headerShown: false })} />
+            <Drawer.Screen name="ChoosePlan" component={ChoosePlan} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Resource" component={Resource} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="Appointment" component={Appointment} options={() => ({ headerShown: false })} />
             <Drawer.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={() => ({ headerShown: false })} />
@@ -77,6 +80,8 @@ const DashboardStack = () => {
             <Stack.Screen name="MessageEditGroupInfo" component={MessageEditGroupInfo} />
             <Stack.Screen name="MessageDetail" component={MessageDetail} />
             <Stack.Screen name="MessagePrivate" component={MessagePrivate} />
+            {/* <Stack.Screen name="ChoosePlan" component={ChoosePlan} /> */}
+            <Stack.Screen name="HomeWorkout" component={HomeWorkout} />
         </Stack.Navigator>
     );
 }

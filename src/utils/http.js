@@ -148,6 +148,35 @@ export const HttpRequest = {
         return requestWithAuth().get("/workout-video/");
     },
 
+    getPlanList() {
+        return requestWithAuth().get("/plans/");
+    },
+    getProgramList() {
+        return requestWithAuth().get("/program/");
+    },
+    loadProgram(id) {
+        return requestWithAuth().get("/program/" + id + "/");
+    },
+    getWorkoutPlansByPlanId(id) {
+        return requestWithAuth().get("/workout-plans/?plan__id=" + id);
+    },
+
+    loadUserPlan(user_id) {
+        return requestWithAuth().get("/user-plan/?user__id=" + user_id);
+    },
+    addUserPlan(data) {
+        return requestWithAuth().post("/user-plan/", data);
+    },
+    deleteUserPlan(id) {
+        return requestWithAuth().delete("/user-plan/" + id + "/");
+    },
+
+    loadWorkoutPlan(plan_id, day) {
+        return requestWithAuth().get("/workout-plans/?plan__id=" + plan_id + "&plan_day=" + day);
+    },
+    addProgress(data) {
+        return requestWithAuth().post("/user-progress/", data);
+    },
 
     //Messages
     getMessages(customer_id, provider_id) {

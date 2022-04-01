@@ -35,3 +35,12 @@ export const setShowOnboard = (payload) => (dispatch) => {
     });
 };
 
+export const setWorkoutPlans = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_WORKOUT_PLANS,
+        payload,
+    });
+};
+
+
+

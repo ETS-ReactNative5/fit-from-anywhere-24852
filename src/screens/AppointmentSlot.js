@@ -256,7 +256,6 @@ const styles = {
     },
     hourText: {
         fontSize: 14,
-        fontFamily: fonts.workSansMedium,
     },
     hourContentItem: {
         flex: 1,

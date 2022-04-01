@@ -2,7 +2,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { persistCombineReducers } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { user, splash, profile, isOnboarding, profiles } from './reducers';
+import { user, splash, profile, isOnboarding, profiles, workoutPlans } from './reducers';
 
 const config = {
     key: 'primary',
@@ -11,7 +11,7 @@ const config = {
 };
 
 const store = createStore(
-    persistCombineReducers(config, { user, splash, isOnboarding, profile, profiles }),
+    persistCombineReducers(config, { user, splash, isOnboarding, profile, profiles, workoutPlans }),
     undefined,
     compose(applyMiddleware(thunk)),
 );

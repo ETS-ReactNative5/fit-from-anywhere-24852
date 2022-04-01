@@ -36,7 +36,7 @@ const userMenus = [
     {
         icon: <MaterialCommunityIcons name="dumbbell" size={30} color={color.text} />,
         label: "Workout Library",
-        target: "Workout",
+        target: "ChoosePlan",
     },
     {
         icon: <MaterialCommunityIcons name="book-multiple" size={30} color={color.text} />,
