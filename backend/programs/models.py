@@ -4,6 +4,7 @@ from django.conf import settings
 from utils.models import BaseModel
 from plans.models import Plan
 from workout_plans.models import WorkoutPlan
+from workouts.models import Workout
 
 
 class Program(BaseModel):
@@ -51,6 +52,13 @@ class UserProgress(BaseModel):
         related_name="user_progress_program",
         on_delete=models.CASCADE,
     )
+    workout = models.ForeignKey(
+        Workout,
+        blank=True,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="user_progress_workout",
+    )
     workout_plan = models.ForeignKey(
         WorkoutPlan,
         blank=True,
@@ -72,6 +80,30 @@ class UserProgress(BaseModel):
     class Meta:
         verbose_name = "User Progress"
         verbose_name_plural = "User Progress"
+
+    def __str__(self):
+        return f"{self.user}"
+
+
+class UserPlan(BaseModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="user_plan",
+    )
+    plan = models.ForeignKey(
+        Plan,
+        blank=True,
+        null=True,
+        related_name="user_plan_plan",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name = "User Plan"
+        verbose_name_plural = "User Plan"
 
     def __str__(self):
         return f"{self.user}"

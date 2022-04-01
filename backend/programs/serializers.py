@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
-from .models import Program, UserProgress
+from .models import Program, UserPlan, UserProgress
 from plans.serializers import PlanSerializer
 
 
@@ -32,5 +32,19 @@ class UserProgressSerializer(WritableNestedModelSerializer):
 class GetUserProgressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProgress
+        fields = "__all__"
+        depth = 1
+
+
+# UserPlan serializer
+class UserPlanSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = UserPlan
+        fields = "__all__"
+
+
+class GetUserPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPlan
         fields = "__all__"
         depth = 1
