@@ -1,6 +1,7 @@
 from django.db import models
 
 from utils.models import BaseModel
+from utils import generate_file_name
 
 
 class Plan(BaseModel):
@@ -17,6 +18,11 @@ class Plan(BaseModel):
         blank=True,
         null=True,
         help_text="Number of days for this plan.",
+    )
+    image = models.ImageField(
+        upload_to=generate_file_name,
+        null=True,
+        blank=True,
     )
 
     class Meta:
