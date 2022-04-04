@@ -19,40 +19,30 @@ import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import _ from 'lodash';
 import LoadingIndicator from '../components/LoadingIndicator';
+import ImageUtils from '../utils/ImageUtils';
+import CacheUtils from '../utils/CacheUtils';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function Workout(props) {
-    const [selectedCategory, setSelectedCategory] = useState(null);
-
+    const dispatch = useDispatch();
+    const profiles = useSelector((state) => state.profiles);
     const [isLoading, setLoading] = useState(false);
-    const [workoutCategories, setWorkoutCategories] = useState([]);
-
-    const workoutList = useMemo(() => {
-        if (selectedCategory === null) {
-            return [];
-        }
-
-        return workoutCategories[selectedCategory];
-    }, [workoutCategories, selectedCategory]);
+    const [resources, setResources] = useState([]);
 
     useEffect(() => {
-        loadWorkoutVideos();
+        loadResourceLibrary();
     }, []);
 
-    const loadWorkoutVideos = useCallback(() => {
+    const loadResourceLibrary = useCallback(() => {
         setLoading(true);
 
-        HttpRequest.getWorkoutVideoList().then((res) => {
+        HttpRequest.getResourceLibrary().then((res) => {
             console.log("Result", res.data.results);
-            let _allVideo = res.data.results;
-
-            var grouped = _.mapValues(_.groupBy(_allVideo, 'body_category'), clist => clist.map(vid => _.omit(vid, 'body_category')));
-            console.log("Grouped", grouped);
-
+            res.data.results.forEach((item) => {
+                CacheUtils.findProfile(item.user, dispatch);
+            });
+            setResources(res.data.results);
             setLoading(false);
-            setWorkoutCategories(grouped);
-            if (Object.keys(grouped).length > 0) {
-                setSelectedCategory(Object.keys(grouped)[0]);
-            }
         }).catch((err) => {
             Toast.showError(HttpResponse.processMessage(err.response, "Failed to load workout videos"));
             setLoading(false);
@@ -70,61 +60,27 @@ export default function Workout(props) {
 
             {!isLoading && (
                 <>
-                    <View style={styles.categoriesWrap}>
-                        <ScrollView horizontal>
-                            <View style={styles.categories}>
-                                {Object.keys(workoutCategories).map((item, index) => {
-                                    return (
-                                        <TouchableOpacity key={index} style={[styles.category, item == selectedCategory ? styles.categoryActive : null]} onPress={() => {
-                                            setSelectedCategory(item);
-                                        }}>
-                                            <Text style={styles.categoryText}>{item}</Text>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </View>
-                        </ScrollView>
-                    </View>
                     <ScrollView refreshControl={
-                        <RefreshControl refreshing={isLoading} onRefresh={loadWorkoutVideos} />
+                        <RefreshControl refreshing={isLoading} onRefresh={loadResourceLibrary} />
                     }>
-                        {workoutList.map((item, index) => {
+                        {resources.map((item, index) => {
+                            let user = profiles[item.user];
                             return (
-                                <View key={selectedCategory + index} style={styles.item}>
-
-                                    {/* <CustomVideoPlayer
-                                        resizeMode="cover"
-                                        source={{ uri: HttpUtils.normalizeUrl(item.video_file) }}
-                                        style={styles.video}
-                                    /> */}
-
-                                    <VideoPlayer source={{ uri: HttpUtils.normalizeUrl(item.video_file) }} style={styles.video} />
-
-                                    <View style={styles.videoContent}>
-                                        <Text style={styles.videoLabel}>{item.name}</Text>
-                                        <Text style={styles.videoDescription}>{item.description}</Text>
+                                <TouchableOpacity key={index} style={styles.item} onPress={() => {
+                                    props.navigation.navigate("ResourceDetail", {
+                                        resource: item
+                                    });
+                                }}>
+                                    {item.image == null && <Image source={ImageUtils.home1} style={styles.itemThumbnail} />}
+                                    {item.image != null && <Image source={{ uri: HttpUtils.normalizeUrl(item.image) }} style={styles.itemThumbnail} />}
+                                    <View style={styles.itemContent}>
+                                        <Text style={styles.itemLabel}>{item.title}</Text>
+                                        <Text style={styles.itemAuthor}>by {user?.user?.name}</Text>
+                                        <Text style={styles.itemTime}>{moment(item.created_at).format("MMM DD, YYYY")}</Text>
                                     </View>
-
-                                    <View style={styles.section} key={index}>
-                                        <View style={styles.sectionRow}>
-                                            <Text style={styles.sectionLabel}>Excercise instruction</Text>
-                                            <Text style={styles.sectionTime}>11 JAN - 15 JAN</Text>
-                                        </View>
-                                        <View style={styles.sectionValue}>
-                                            <MaterialCommunityIcons name='yoga' size={20} color={color.text} />
-                                            <Text style={styles.sectionQty}>7</Text>
-                                            <View style={styles.sectionSeparator} />
-                                            <MaterialCommunityIcons name='dumbbell' size={20} color={color.text} />
-                                            <Text style={styles.sectionQty}>14</Text>
-                                            <View style={styles.sectionSeparator} />
-                                            <MaterialCommunityIcons name='weight-lifter' size={20} color={color.text} />
-                                            <Text style={styles.sectionQty}>25 kg</Text>
-                                        </View>
-                                    </View>
-                                </View>
+                                </TouchableOpacity>
                             );
                         })}
-
 
                         <View style={styles.line} />
                     </ScrollView>
@@ -139,90 +95,37 @@ const styles = {
         backgroundColor: color.white,
         flex: 1,
     },
-    categoriesWrap: {
-        height: 55,
-    },
-    categories: {
+    item: {
         flexDirection: 'row',
-        paddingVertical: 10,
+        // alignItems: 'center',
         paddingHorizontal: 20,
+        paddingTop: 20,
     },
-    category: {
-        backgroundColor: color.white,
+    itemThumbnail: {
+        width: 80,
+        height: 60,
         borderRadius: 10,
-        marginRight: 10,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
-    categoryActive: {
-        backgroundColor: "#E5EBEE",
+    itemContent: {
+        flex: 1,
+        marginLeft: 10,
     },
-    categoryText: {
-        fontSize: 14,
-        fontFamily: font.sourceSansPro,
-        color: color.text,
-    },
-    video: {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').width * 0.6,
-        backgroundColor: color.black,
-    },
-    videoContent: {
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-    },
-    videoLabel: {
-        fontSize: 16,
+    itemLabel: {
+        fontSize: 17,
         fontFamily: font.sourceSansProBold,
         color: color.primary,
-        marginBottom: 10,
+        marginBottom: 2,
     },
-    videoDescription: {
+    itemAuthor: {
         fontSize: 14,
         fontFamily: font.sourceSansPro,
-        color: color.text,
+        color: color.black,
+        // marginBottom: 5,
     },
-
-
-
-    section: {
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        backgroundColor: "rgba(229, 235, 238, 1)"
-    },
-    sectionRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    sectionValue: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 5,
-        justifyContent: 'center',
-    },
-    sectionLabel: {
-        fontSize: 16,
+    itemTime: {
+        fontSize: 12,
         fontFamily: font.sourceSansPro,
         color: color.text,
-        flex: 1,
-    },
-    sectionTime: {
-        fontSize: 14,
-        fontFamily: font.sourceSansPro,
-        color: color.text,
-    },
-    sectionQty: {
-        fontSize: 20,
-        fontFamily: font.sourceSansPro,
-        color: color.text,
-        marginHorizontal: 10,
-    },
-    sectionSeparator: {
-        height: 30,
-        width: 1,
-        backgroundColor: color.text,
-        marginHorizontal: 10,
+        // marginBottom: 5,
     },
 };

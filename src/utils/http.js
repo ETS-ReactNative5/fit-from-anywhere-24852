@@ -147,6 +147,9 @@ export const HttpRequest = {
     getWorkoutVideoList() {
         return requestWithAuth().get("/workout-video/");
     },
+    getResourceLibrary(){
+        return requestWithAuth().get("/resource-libraries/");
+    },
 
     getPlanList() {
         return requestWithAuth().get("/plans/");

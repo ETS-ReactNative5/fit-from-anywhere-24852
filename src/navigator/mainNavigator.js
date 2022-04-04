@@ -31,6 +31,7 @@ import MessagePrivate from "../screens/MessagePrivate";
 import AppointmentSlot from "../screens/AppointmentSlot";
 import ChoosePlan from "../screens/ChoosePlan";
 import HomeWorkout from "../screens/HomeWorkout";
+import ResourceDetail from "../screens/ResourceDetail";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -82,6 +83,7 @@ const DashboardStack = () => {
             <Stack.Screen name="MessagePrivate" component={MessagePrivate} />
             {/* <Stack.Screen name="ChoosePlan" component={ChoosePlan} /> */}
             <Stack.Screen name="HomeWorkout" component={HomeWorkout} />
+            <Stack.Screen name="ResourceDetail" component={ResourceDetail} />
         </Stack.Navigator>
     );
 }
