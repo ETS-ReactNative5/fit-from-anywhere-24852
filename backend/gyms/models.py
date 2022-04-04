@@ -40,4 +40,4 @@ class Gym(BaseModel):
         verbose_name_plural = "Gyms"
 
     def __str__(self):
-        return f"{self.owner}"
+        return f"{self.owner} | {self.name}"
