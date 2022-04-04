@@ -19,11 +19,9 @@ class Gym(BaseModel):
         null=True,
         blank=True,
     )
-    program = models.ForeignKey(
+    program = models.ManyToManyField(
         Program,
-        on_delete=models.CASCADE,
         blank=True,
-        null=True,
         related_name="gym_program",
     )
     gym_image = models.ImageField(
