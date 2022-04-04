@@ -109,6 +109,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "weight_metric",
             "weight",
             "height",
+            "trial_code",
         ]
 
     def create(self, validated_data):
