@@ -50,4 +50,4 @@ class WorkoutPlan(BaseModel):
         verbose_name_plural = "Workout Plans"
 
     def __str__(self) -> str:
-        return f"Plan: {self.plan} | Workout: {self.workout}"
+        return f"Plan: {self.plan} | Workout: {self.workout} | Plan day: {self.plan_day} | Workout Order: {self.order_number}"
