@@ -56,6 +56,7 @@ export default function Home(props) {
     const dispatch = useDispatch();
     const workoutPlans = useSelector(state => state.workoutPlans);
     const profile = useSelector(state => state.profile);
+    // console.log("Profile", profile);
     const isOnboarding = useSelector(state => state.isOnboarding);
     const [focusedDate, setFocusedDate] = useState(moment());
     const scrollRef = useRef();
@@ -88,7 +89,7 @@ export default function Home(props) {
 
     useEffect(() => {
         console.log("Is onboarding", isOnboarding);
-        if (isOnboarding && profile.is_trainer == false) {
+        if (isOnboarding && (profile.is_trainer == false || profile.is_trainer == null)) {
             props.navigation.navigate("Onboarding");
             dispatch(setShowOnboard(false));
         }
@@ -116,28 +117,31 @@ export default function Home(props) {
     }, [selectedPlan, userPlanCreatedTime, selectedDate]);
 
     const loadProgram = useCallback(() => {
-        HttpRequest.loadProgram(profile.fitness_goal).then((res) => {
-            console.log("loadProgram", res.data);
-            setProgram(res.data);
-            // let plans = res.data.plans;
-            // plans.forEach((plan) => {
-            //     CacheUtils.findWorkoutPlansByPlanId(plan.id, dispatch);
-            // });
-            // setPlans(res.data.plans);
-        }).catch((err) => {
-            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
-        });
+        if (profile.fitness_goal != "" && profile.fitness_goal != null) {
+            HttpRequest.loadProgram(profile.fitness_goal).then((res) => {
+                console.log("loadProgram", res.data);
+                setProgram(res.data);
+                // let plans = res.data.plans;
+                // plans.forEach((plan) => {
+                //     CacheUtils.findWorkoutPlansByPlanId(plan.id, dispatch);
+                // });
+                // setPlans(res.data.plans);
+            }).catch((err) => {
+                Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
+            });
+        }
     }, [profile]);
 
     const loadUserPlan = useCallback(() => {
+        console.log("LoadUserPlan");
         HttpRequest.loadUserPlan(profile.user.id).then((res) => {
             let userPlans = res.data.results;
             console.log("loadUserPlan", userPlans);
 
             if (userPlans.length > 0) {
                 // setUserPlanCreatedTime("2022-03-30");// 
-                setUserPlanCreatedTime(userPlans[0].created_at);
-                setSelectedPlan(userPlans[0].plan);
+                setUserPlanCreatedTime(userPlans[userPlans.length - 1].created_at);
+                setSelectedPlan(userPlans[userPlans.length - 1].plan);
             } else {
                 setUserPlanCreatedTime(null);
                 setSelectedPlan(null);
@@ -171,6 +175,16 @@ export default function Home(props) {
         });
     }, []);
 
+    const [trialDay, setTrialDay] = useState(10); //10 means no trial
+
+    useEffect(() => {
+        let day = 10;
+        if (profile.trial_code == null || profile.trial_code == "") {
+            day = 7 - moment().diff(moment(profile.created_at), 'days');
+        }
+        setTrialDay(day);
+    }, [profile]);
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -183,8 +197,28 @@ export default function Home(props) {
                     <View style={styles.profileContent}>
                         <Text style={styles.profileName}>{profile?.user?.name}</Text>
                         <View style={styles.profileInfo}>
-                            <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
-                            <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text>
+                            {trialDay != 10 && (
+                                <>
+                                    {trialDay >= 0 && (
+                                        <View style={styles.trialBadge}>
+                                            <Text style={styles.trialBadgeText}>Trial for {trialDay} day{trialDay != 1 && "s"}</Text>
+                                        </View>
+                                    )}
+                                    {trialDay < 0 && (
+                                        <View style={styles.trialBadge}>
+                                            <Text style={styles.trialBadgeText}>Trial Expired</Text>
+                                        </View>
+                                    )}
+                                </>
+                            )}
+
+                            {trialDay == 10 && (
+                                <View style={styles.trialBadgeOk}>
+                                    <Text style={styles.trialBadgeText}>Gym Code: {profile.trial_code}</Text>
+                                </View>
+                            )}
+                            {/* <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
+                            <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text> */}
                         </View>
                     </View>
                 </View>
@@ -231,8 +265,8 @@ export default function Home(props) {
                         calendarHeaderStyle={{ color: color.primary }}
                         // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
                         // dateContainerStyle={{ backgroundColor: 'blue',  }}
-                        dateNumberStyle={{ color: color.primary, marginTop: 10, fontSize: 16 }}
-                        highlightDateNumberStyle={{ color: color.primary, marginTop: 10, fontSize: 16 }}
+                        dateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
+                        highlightDateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
                         dateNameStyle={{ color: color.primary, fontSize: 12 }}
                         highlightDateNameStyle={{ color: color.primary, fontSize: 12 }}
                         // iconContainer={{ flex: 0.1 }}
@@ -249,6 +283,19 @@ export default function Home(props) {
                             console.log("Difference: ", difference);
                             scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
                         }}
+                        customDatesStyles={[
+                            {
+                                startDate: moment(selectedDate), // Single date since no endDate provided
+                                // dateNameStyle: styles.dateNameStyle,
+                                // dateNumberStyle: styles.dateNumberStyle,
+                                // // Random color...
+                                dateContainerStyle: {
+                                    // backgroundColor: 'red',
+                                    borderWidth: 1,
+                                    borderColor: color.primary,
+                                },
+                            }
+                        ]}
                     />
                 </View>
 
@@ -286,6 +333,16 @@ export default function Home(props) {
                                 </TouchableOpacity>
                             );
                         })}
+                    </View>
+                )}
+
+                {selectedPlan == null && (
+                    <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                        <NoData>No selected plan</NoData>
+
+                        <Button onPress={() => {
+                            props.navigation.navigate("ChoosePlan");
+                        }}>Click here to select plan</Button>
                     </View>
                 )}
 
@@ -416,6 +473,23 @@ const styles = {
         backgroundColor: color.white,
         flex: 1,
     },
+    trialBadge: {
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        backgroundColor: color.danger,
+        borderRadius: 5,
+    },
+    trialBadgeOk: {
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        backgroundColor: color.success,
+        borderRadius: 5,
+    },
+    trialBadgeText: {
+        color: color.white,
+        fontSize: 12,
+    },
+
     button: {
         backgroundColor: '#00FF00',
         padding: 10,

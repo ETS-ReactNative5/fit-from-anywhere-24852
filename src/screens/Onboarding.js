@@ -17,7 +17,7 @@ export default function Onboarding(props) {
     const profile = useSelector(state => state.profile);
     const [page, setPage] = useState(1);
     const [goals, setGoals] = useState([]);
-    const [goal, setGoal] = useState(user.profile?.fitness_goal ?? "lose_weight");
+    const [goal, setGoal] = useState(user.profile?.fitness_goal ?? "");
     const [weight, setWeight] = useState(user.profile?.weight ?? "0");
     const [height, setHeight] = useState(user.profile?.height ?? "0");
     const [age, setAge] = useState(user.profile?.age ?? "0");
@@ -35,7 +35,7 @@ export default function Onboarding(props) {
             console.log("getProfile", res.data);
             let _profile = res.data;
             dispatch(setProfile(_profile));
-            setGoal(_profile.fitness_goal ?? "lose_weight");
+            setGoal(_profile.fitness_goal ?? "");
             setWeight("" + (_profile.weight ?? "0"));
             setHeight("" + (_profile.height ?? "0"));
             setAge("" + (_profile.age ?? "0"));

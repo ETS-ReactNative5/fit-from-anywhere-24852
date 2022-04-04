@@ -1,17 +1,22 @@
 import React, { Component, useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import { useDispatch, useSelector } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import Toast from "../components/Toast";
 import app from "../config/app";
+import { setProfile, setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest, HttpResponse } from "../utils/http";
 import ImageUtils from "../utils/ImageUtils";
 
 export default function Register(props) {
+    const dispatch = useDispatch();
+    const profile = useSelector(state => state.profile);
+
     const [name, setName] = useState(__DEV__ ? app.EXAMPLE_FULL_NAME : "");
     const [phoneNumber, setPhoneNumber] = useState(__DEV__ ? app.EXAMPLE_PHONE : "");
     const [email, setEmail] = useState(__DEV__ ? app.EXAMPLE_EMAIL : "");
@@ -20,6 +25,10 @@ export default function Register(props) {
     const [passwordConfirm, setPasswordConfirm] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
     const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+
+    useEffect(() => {
+
+    }, [profile]);
 
     const register = useCallback(() => {
         //validate password
@@ -41,14 +50,26 @@ export default function Register(props) {
         };
         HttpRequest.signup(data).then((res) => {
             console.log("Res", res.data);
-            Toast.showSuccess("Register Success, Please Login");
+            Toast.showSuccess("Register Successfully");
             setIsLoading(false);
-            props.navigation.navigate("Login");
+            dispatch(setUser(res.data));
+            dispatch(setProfile(res.data.profile));
+
+            if (gymCode != '') {
+                let data = { trial_code: gymCode, is_trainer: false };
+                HttpRequest.patchUserProfile(data).then((res) => {
+
+                }).catch((err) => {
+                    Toast.showError(HttpResponse.processMessage(err.response, "Cannot update profile"));
+                });
+            }
+
+            //props.navigation.navigate("Login");
         }).catch((err) => {
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot login"));
             setIsLoading(false);
         });
-    }, [name, email, password, passwordConfirm]);
+    }, [name, email, password, passwordConfirm, gymCode]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -116,7 +137,23 @@ export default function Register(props) {
                             style={{ flex: 1, backgroundColor: isChecked ? color.primary : 'rgba(0, 51, 88, 0.4)' }}
                             onPress={() => {
                                 if (isChecked) {
-                                    register();
+                                    if (gymCode == "") {
+                                        Alert.alert(
+                                            'Information',
+                                            'By not entering gym code will only give you trial access for 7 days, are you sure to continue ?',
+                                            [
+                                                { text: 'No', onPress: () => { }, style: 'cancel' },
+                                                {
+                                                    text: 'Yes', onPress: () => {
+                                                        register();
+                                                    }
+                                                },
+                                            ],
+                                            { cancelable: false }
+                                        );
+                                    } else {
+                                        register();
+                                    }
                                 }
                             }}>Sign up</Button>
 
