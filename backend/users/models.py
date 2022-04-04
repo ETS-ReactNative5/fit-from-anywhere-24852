@@ -78,6 +78,11 @@ class Profile(BaseModel):
         blank=True,
         null=True,
     )
+    trial_code = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Profile"

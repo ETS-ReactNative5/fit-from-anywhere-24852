@@ -31,6 +31,11 @@ class Gym(BaseModel):
         null=True,
         blank=True,
     )
+    trial_code = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Gym"
