@@ -25,6 +25,11 @@ class WorkoutPlan(BaseModel):
         null=True,
         help_text="Day of this workout according to number of plan days.",
     )
+    order_number = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text="Order number of the exercise.",
+    )
     sets = models.PositiveIntegerField(
         blank=True,
         null=True,

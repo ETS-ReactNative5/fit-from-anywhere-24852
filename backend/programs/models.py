@@ -25,6 +25,11 @@ class Program(BaseModel):
         blank=True,
         related_name="program_plans",
     )
+    workout_plans = models.ManyToManyField(
+        WorkoutPlan,
+        blank=True,
+        related_name="program_workout_plans",
+    )
 
     class Meta:
         verbose_name = "Program"
