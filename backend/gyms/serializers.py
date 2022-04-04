@@ -1,9 +1,10 @@
 from rest_framework import serializers
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 from .models import Gym
 
 
-class GymSerializer(serializers.ModelSerializer):
+class GymSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Gym
         fields = "__all__"
