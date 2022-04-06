@@ -147,7 +147,7 @@ export const HttpRequest = {
     getWorkoutVideoList() {
         return requestWithAuth().get("/workout-video/");
     },
-    getResourceLibrary(){
+    getResourceLibrary() {
         return requestWithAuth().get("/resource-libraries/");
     },
 
@@ -174,11 +174,25 @@ export const HttpRequest = {
         return requestWithAuth().delete("/user-plan/" + id + "/");
     },
 
-    loadWorkoutPlan(plan_id, day) {
-        return requestWithAuth().get("/workout-plans/?plan__id=" + plan_id + "&plan_day=" + day);
+    loadWorkoutPlan(plan_id, day = null) {
+        if (day) {
+            return requestWithAuth().get("/workout-plans/?plan__id=" + plan_id + "&plan_day=" + day);
+        } else {
+            return requestWithAuth().get("/workout-plans/?plan__id=" + plan_id);
+        }
+    },
+    loadUserProgress(program__id, user_id) {
+        return requestWithAuth().get("/user-progress/?program__id=" + program__id + "&user__id=" + user_id);
     },
     addProgress(data) {
         return requestWithAuth().post("/user-progress/", data);
+    },
+
+    searchGymCode(code) {
+        return requestWithAuth().get("/gym/?code=" + code);
+    },
+    getAllGym() {
+        return requestWithAuth().get("/gym/");
     },
 
     //Messages

@@ -53,3 +53,27 @@ export function workoutPlans(state = {}, action) {
 
     return state;
 }
+
+export function gym(state = null, action) {
+    if (action.type == types.SET_GYM) {
+        return action.payload;
+    }
+
+    return state;
+}
+
+export function programs(state = [], action) {
+    if (action.type == types.SET_PROGRAMS) {
+        return action.payload;
+    }
+
+    return state;
+}
+
+export function isNextExercise(state = false, action) {
+    if (action.type == types.SET_NEXT_EXERCISE) {
+        return action.payload;
+    }
+
+    return state;
+}

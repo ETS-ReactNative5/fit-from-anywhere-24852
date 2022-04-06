@@ -29,7 +29,7 @@ const styles = {
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.1)'
+        backgroundColor: 'rgba(0,0,0,0.5)'
     },
     modalContent: {
         width: 300,

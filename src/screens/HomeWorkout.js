@@ -1,6 +1,7 @@
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+    Alert,
     Dimensions,
     Image,
     RefreshControl,
@@ -26,7 +27,8 @@ import CircularProgress from '../components/CircularProgress';
 import Timer from 'react-native-timer';
 import useInterval from '../utils/useInterval';
 import YoutubePlayer from "react-native-youtube-iframe";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setNextExercise } from '../store/actions';
 
 let timerResting = 0;
 let timerSet = 0;
@@ -46,7 +48,9 @@ let timerExcercise = null;
 let timerRest = null;
 
 export default function HomeWorkout(props) {
-    const { plan, workout, program, workoutPlan, day } = props.route.params;
+    const { plan, workout, program, workoutPlan, day, shouldSave } = props.route.params;
+
+    const dispatch = useDispatch();
 
     const profile = useSelector(state => state.profile);
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -120,7 +124,7 @@ export default function HomeWorkout(props) {
         //add rest to list
         addToList(TYPE_REST, moment.utc((RESTING_TIME - timerResting) * 1000).format('mm:ss'));
 
-        if (currentSet + 1 >= totalSet) {
+        if (currentSet >= totalSet) {
             saveProgress();
         } else {
             setCurrentSet(currentSet + 1);
@@ -164,22 +168,52 @@ export default function HomeWorkout(props) {
         }
     }, 1000);
 
+    const nextWorkout = useCallback(() => {
+        setTimeout(() => {
+            dispatch(setNextExercise(true));
+        }, 1000);
+    }, []);
+
     const saveProgress = useCallback(() => {
-        let data = {
-            set: currentSet,
-            repetition: 1,
-            user: profile.user.id,
-            program: program.id,
-            workout: workout.id,
-            workout_plan: workoutPlan.id,
-        };
-        HttpRequest.addProgress(data).then((res) => {
-            console.log("loadWorkoutPlan", res.data.results);
+        if (shouldSave) {
+            let data = {
+                set: currentSet,
+                repetition: 1,
+                user: profile.user.id,
+                program: program.id,
+                workout: workout.id,
+                workout_plan: workoutPlan.id,
+            };
+            HttpRequest.addProgress(data).then((res) => {
+                console.log("loadWorkoutPlan", res.data.results);
+                Toast.showSuccess("Save progress success");
+
+                Alert.alert(
+                    'Information',
+                    'Do you want to move to another excercise ?',
+                    [
+                        {
+                            text: 'Go to Home Screen', onPress: () => {
+                                props.navigation.goBack();
+                            }
+                        },
+                        {
+                            text: 'Yes', onPress: () => {
+                                nextWorkout();
+                                props.navigation.goBack();
+                            }
+                        },
+                    ],
+                    { cancelable: false }
+                );
+            }).catch((err) => {
+                Toast.showError(HttpResponse.processMessage(err.response, "Cannot save progress"));
+            });
+        } else {
             Toast.showSuccess("Save progress success");
-        }).catch((err) => {
-            Toast.showError(HttpResponse.processMessage(err.response, "Cannot save progress"));
-        });
-    }, [currentSet, profile, plan, workout, program, workoutPlan, day]);
+            props.navigation.goBack();
+        }
+    }, [currentSet, profile, plan, workout, program, workoutPlan, day, shouldSave]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -216,9 +250,11 @@ export default function HomeWorkout(props) {
                                     {/* <Text style={styles.sectionTime}>11 JAN - 15 JAN</Text> */}
                                 </View>
                                 <View style={styles.sectionValue}>
-                                    <Text style={styles.sectionQty}>Sets: {workoutPlan.sets}</Text>
+                                    <Text style={styles.sectionQty}>Sets: {workoutPlan.sets ?? "N/A"}</Text>
                                     <View style={styles.sectionSeparator} />
-                                    <Text style={styles.sectionQty}>Repetition: {workoutPlan.repetitions}</Text>
+                                    <Text style={styles.sectionQty}>Repetition: {workoutPlan.repetitions ?? "N/A"}</Text>
+                                    <View style={styles.sectionSeparator} />
+                                    <Text style={styles.sectionQty}>Rest Period: {workoutPlan.rest_period ?? "N/A"}</Text>
                                     {/* <MaterialCommunityIcons name='yoga' size={20} color={color.text} />
                                     <Text style={styles.sectionQty}>7</Text>
                                     <View style={styles.sectionSeparator} />
@@ -239,6 +275,12 @@ export default function HomeWorkout(props) {
 
                                     //timerExcercise = setInterval(onExcersizeTimer, 1000);
                                 }}>Start Excercise</Button>
+
+                                <Button
+                                    style={{ marginTop: 20 }}
+                                    onPress={() => {
+                                        saveProgress();
+                                    }}>Shortcut</Button>
                             </View>
                         </View>
 
@@ -571,7 +613,7 @@ const styles = {
         color: color.text,
     },
     sectionQty: {
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: font.sourceSansPro,
         color: color.text,
         marginHorizontal: 10,
@@ -580,7 +622,7 @@ const styles = {
         height: 30,
         width: 1,
         backgroundColor: color.text,
-        marginHorizontal: 10,
+        marginHorizontal: 5,
     },
 
 

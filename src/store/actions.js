@@ -42,5 +42,27 @@ export const setWorkoutPlans = (payload) => (dispatch) => {
     });
 };
 
+export const setGym = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_GYM,
+        payload,
+    });
+};
+
+
+export const setPrograms = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_PROGRAMS,
+        payload,
+    });
+};
+
+export const setNextExercise = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_NEXT_EXERCISE,
+        payload,
+    });
+};
+
 
 

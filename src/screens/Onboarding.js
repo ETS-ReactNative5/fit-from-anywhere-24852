@@ -4,10 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "../components/Button";
 import Combobox from "../components/Combobox";
+import LoadingIndicator from "../components/LoadingIndicator";
 import Toast from "../components/Toast";
 import { setProfile } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
+import GymUtils from "../utils/GymUtils";
 import { HttpRequest, HttpResponse } from "../utils/http";
 
 export default function Onboarding(props) {
@@ -15,6 +17,8 @@ export default function Onboarding(props) {
     const user = useSelector(state => state.user);
 
     const profile = useSelector(state => state.profile);
+    const programs = useSelector(state => state.programs);
+
     const [page, setPage] = useState(1);
     const [goals, setGoals] = useState([]);
     const [goal, setGoal] = useState(user.profile?.fitness_goal ?? "");
@@ -24,11 +28,26 @@ export default function Onboarding(props) {
     const [weightType, setWeightType] = useState(user.profile?.weight_metric ?? "LB");
     const [heightType, setHeightType] = useState(user.profile?.height_metric ?? "CM");
     const [isLoading, setLoading] = useState(false);
+    const [isReady, setReady] = useState(false);
 
     useEffect(() => {
         loadProfile();
-        loadPlan();
+        //loadPlan();
     }, []);
+
+    useEffect(() => {
+        if (programs.length > 0) {
+            setGoals(programs.map(p => {
+                return {
+                    id: p.id,
+                    label: p.name,
+                };
+            }));
+            setReady(true);
+        } else {
+            setReady(false);
+        }
+    }, [programs]);
 
     const loadProfile = useCallback(() => {
         HttpRequest.getProfile().then((res) => {
@@ -41,6 +60,8 @@ export default function Onboarding(props) {
             setAge("" + (_profile.age ?? "0"));
             setWeightType(_profile.weight_metric ?? "LB");
             setHeightType(_profile.height_metric ?? "CM");
+
+            GymUtils.getProgramByGymCode(_profile.trial_code ?? "", dispatch);
         }).catch((err) => {
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
         });
@@ -82,146 +103,155 @@ export default function Onboarding(props) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
-                <View style={styles.progressView}>
-                    <View style={[styles.progressBar, { width: (page / 3 * 100) + "%" }]} />
-                </View>
-
-                {page == 1 && (
-                    <>
-                        <Text style={styles.question}>What is your fitness goal?</Text>
-
-                        <Combobox
-                            // label="Select your specialization"
-                            selectedValue={goal}
-                            data={goals}
-                            onValueChange={(val, itemIndex) => {
-                                setGoal(val);
-                            }}
-                        />
-
-                        <Button loading={isLoading} style={{ marginTop: 30, }} onPress={() => {
-                            patchProfile({ fitness_goal: goal, is_trainer: false });
-                        }}>Next</Button>
-                    </>
+                {!isReady && (
+                    <LoadingIndicator />
                 )}
 
-                {page == 2 && (
+                {isReady && (
                     <>
-                        <Text style={styles.question}>What is your weight?</Text>
-
-                        <TextInput
-                            placeholder="90"
-                            keyboardType="numeric"
-                            maxLength={3}
-                            value={weight}
-                            onChangeText={setWeight}
-                            style={styles.bigNumber} />
-
-                        <View style={styles.weightTypeView}>
-                            <Button theme={weightType == 'LB' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
-                                setWeightType('LB');
-                            }}>lbs</Button>
-
-                            <Button theme={weightType == 'KG' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
-                                setWeightType('KG');
-                            }}>kg</Button>
+                        <View style={styles.progressView}>
+                            <View style={[styles.progressBar, { width: (page / 3 * 100) + "%" }]} />
                         </View>
 
-                        <View style={styles.inputView}>
-                            <Button loading={isLoading} style={{ flex: 1 }}
-                                onPress={() => {
-                                    patchProfile({
-                                        weight: weight,
-                                        weight_metric: weightType
-                                    });
-                                }}>NEXT</Button>
+                        {page == 1 && (
+                            <>
+                                <Text style={styles.question}>What is your fitness goal?</Text>
 
-                            <View style={{ width: 20 }} />
+                                <Combobox
+                                    // label="Select your specialization"
+                                    selectedValue={goal}
+                                    data={goals}
+                                    onValueChange={(val, itemIndex) => {
+                                        setGoal(val);
+                                    }}
+                                />
 
-                            <Button theme='secondary' style={{ flex: 1 }}
-                                onPress={() => {
-                                    props.navigation.navigate("Home");
-                                }}>SKIP</Button>
-                        </View>
-                    </>
-                )}
+                                <Button loading={isLoading} style={{ marginTop: 30, }} onPress={() => {
+                                    patchProfile({ fitness_goal: goal, is_trainer: false });
+                                }}>Next</Button>
+                            </>
+                        )}
 
-                {page == 3 && (
-                    <>
-                        <Text style={styles.question}>What is your height?</Text>
+                        {page == 2 && (
+                            <>
+                                <Text style={styles.question}>What is your weight?</Text>
 
-                        <TextInput
-                            placeholder="90"
-                            keyboardType="numeric"
-                            maxLength={3}
-                            value={height}
-                            onChangeText={setHeight}
-                            style={styles.bigNumber} />
+                                <TextInput
+                                    placeholder="90"
+                                    keyboardType="numeric"
+                                    maxLength={3}
+                                    value={weight}
+                                    onChangeText={setWeight}
+                                    style={styles.bigNumber} />
 
-                        <View style={styles.weightTypeView}>
-                            <Button theme={heightType == 'FEET' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
-                                setHeightType('FEET');
-                            }}>feet</Button>
+                                <View style={styles.weightTypeView}>
+                                    <Button theme={weightType == 'LB' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
+                                        setWeightType('LB');
+                                    }}>lbs</Button>
 
-                            <Button theme={heightType == 'CM' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
-                                setHeightType('CM');
-                            }}>cm</Button>
-                        </View>
+                                    <Button theme={weightType == 'KG' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
+                                        setWeightType('KG');
+                                    }}>kg</Button>
+                                </View>
 
-                        <View style={styles.inputView}>
-                            <Button loading={isLoading} style={{ flex: 1 }}
-                                onPress={() => {
-                                    patchProfile({
-                                        height: height,
-                                        height_metric: heightType
-                                    })
-                                }}>NEXT</Button>
+                                <View style={styles.inputView}>
+                                    <Button loading={isLoading} style={{ flex: 1 }}
+                                        onPress={() => {
+                                            patchProfile({
+                                                weight: weight,
+                                                weight_metric: weightType
+                                            });
+                                        }}>NEXT</Button>
 
-                            <View style={{ width: 20 }} />
+                                    <View style={{ width: 20 }} />
 
-                            <Button theme='secondary' style={{ flex: 1 }}
-                                onPress={() => {
-                                    props.navigation.navigate("Home");
-                                }}>SKIP</Button>
-                        </View>
-                    </>
-                )}
+                                    <Button theme='secondary' style={{ flex: 1 }}
+                                        onPress={() => {
+                                            props.navigation.navigate("Home");
+                                        }}>SKIP</Button>
+                                </View>
+                            </>
+                        )}
 
-                {page == 4 && (
-                    <>
-                        <Text style={styles.question}>What is your age?</Text>
+                        {page == 3 && (
+                            <>
+                                <Text style={styles.question}>What is your height?</Text>
 
-                        <TextInput
-                            placeholder="90"
-                            keyboardType="numeric"
-                            maxLength={3}
-                            value={age}
-                            onChangeText={setAge}
-                            style={styles.bigNumber} />
+                                <TextInput
+                                    placeholder="90"
+                                    keyboardType="numeric"
+                                    maxLength={3}
+                                    value={height}
+                                    onChangeText={setHeight}
+                                    style={styles.bigNumber} />
 
-                        <View style={styles.inputView}>
-                            <Button loading={isLoading} style={{ flex: 1 }}
-                                onPress={() => {
-                                    patchProfile({
-                                        age: age
-                                    })
-                                }}>NEXT</Button>
+                                <View style={styles.weightTypeView}>
+                                    <Button theme={heightType == 'FEET' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
+                                        setHeightType('FEET');
+                                    }}>feet</Button>
 
-                            <View style={{ width: 20 }} />
+                                    <Button theme={heightType == 'CM' ? 'primary' : 'secondary'} style={styles.chooseBtn} onPress={() => {
+                                        setHeightType('CM');
+                                    }}>cm</Button>
+                                </View>
 
-                            <Button theme='secondary' style={{ flex: 1 }}
-                                onPress={() => {
-                                    props.navigation.navigate("Home");
-                                }}>SKIP</Button>
-                        </View>
-                    </>
-                )}
+                                <View style={styles.inputView}>
+                                    <Button loading={isLoading} style={{ flex: 1 }}
+                                        onPress={() => {
+                                            patchProfile({
+                                                height: height,
+                                                height_metric: heightType
+                                            })
+                                        }}>NEXT</Button>
 
-                {/* <Button
+                                    <View style={{ width: 20 }} />
+
+                                    <Button theme='secondary' style={{ flex: 1 }}
+                                        onPress={() => {
+                                            props.navigation.navigate("Home");
+                                        }}>SKIP</Button>
+                                </View>
+                            </>
+                        )}
+
+                        {page == 4 && (
+                            <>
+                                <Text style={styles.question}>What is your age?</Text>
+
+                                <TextInput
+                                    placeholder="90"
+                                    keyboardType="numeric"
+                                    maxLength={3}
+                                    value={age}
+                                    onChangeText={setAge}
+                                    style={styles.bigNumber} />
+
+                                <View style={styles.inputView}>
+                                    <Button loading={isLoading} style={{ flex: 1 }}
+                                        onPress={() => {
+                                            patchProfile({
+                                                age: age
+                                            })
+                                        }}>NEXT</Button>
+
+                                    <View style={{ width: 20 }} />
+
+                                    <Button theme='secondary' style={{ flex: 1 }}
+                                        onPress={() => {
+                                            props.navigation.navigate("Home");
+                                        }}>SKIP</Button>
+                                </View>
+                            </>
+                        )}
+
+                        {/* <Button
                     style={{ marginTop: 20 }}
                     onPress={() => {
                         setPage(page - 1);
                     }}>PREV</Button> */}
+
+                    </>
+                )}
             </View>
             <View style={styles.bottomWhite} />
         </SafeAreaView>

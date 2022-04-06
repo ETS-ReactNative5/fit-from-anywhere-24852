@@ -1,6 +1,7 @@
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+    Alert,
     Image,
     ScrollView,
     Text,
@@ -16,10 +17,14 @@ import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommu
 import UploadImageView from '../components/UploadImageView';
 import { FormDataConverter, HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
+import CustomTextInput from '../components/TextInput';
 import Button from '../components/Button';
 import DatePicker from '../components/DatePicker';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProfile } from '../store/actions';
+import SimpleModal from '../components/SimpleModal';
+import ImageUtils from '../utils/ImageUtils';
+import GymUtils from '../utils/GymUtils';
 
 const analytics = [
     { label: "Jump Squats" },
@@ -30,15 +35,19 @@ const analytics = [
 export default function Profile(props) {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+    const gym = useSelector(state => state.gym);
     const [image, setImage] = useState(null);
     const [name, setName] = useState('Tim Castle');
     const [email, setEmail] = useState('');
     const [dob, setDob] = useState('');
     const [gender, setGender] = useState('M');
     const [address, setAddress] = useState('Los Angeles, CA');
+    const [gymCode, setGymCode] = useState('');
     const [isLoading, setLoading] = useState(false);
     const [isSaving, setSaving] = useState(false);
     const [isImageChange, setImageChange] = useState(false);
+    const [gymCodeVisible, setGymCodeVisible] = useState(false);
+    const [isSavingGymCode, setSavingGymCode] = useState(false);
 
     useEffect(() => {
         loadProfile();
@@ -58,6 +67,9 @@ export default function Profile(props) {
             setGender(_profile.gender);
             setImage(HttpUtils.normalizeUrl(_profile.profile_image));
             setAddress(_profile.student_campus_residential_address ?? "");
+            setGymCode(_profile.trial_code ?? "");
+
+            GymUtils.searchGymCode(_profile.trial_code ?? "", dispatch);
 
             dispatch(setProfile(_profile));
         }).catch((err) => {
@@ -109,6 +121,48 @@ export default function Profile(props) {
             setSaving(false);
         });
     }, [image, name, email, dob, gender, address, isImageChange]);
+
+    const updateGymCode = useCallback(async () => {
+        setSavingGymCode(true);
+
+        if (gymCode != "") {
+            let res = await HttpRequest.searchGymCode(gymCode);
+            let result = res.data.results;
+            if (result.length > 0) {
+                let exist = false;
+                result.forEach((item) => {
+                    if (item.code == gymCode) {
+                        exist = true;
+                    }
+                });
+                if (exist == false) {
+                    Alert.alert("Error", "Gym code not found");
+                    setSavingGymCode(false);
+                    return;
+                }
+            } else {
+                Alert.alert("Error", "Gym code not found");
+                setSavingGymCode(false);
+                return;
+            }
+        }
+
+        let data = {
+            trial_code: gymCode,
+        };
+
+        HttpRequest.patchUserProfile(data, false).then((res) => {
+            Toast.showSuccess("Gym code updated successfully");
+            setSavingGymCode(false);
+            setGymCodeVisible(false);
+
+            loadProfile();
+        }).catch((err) => {
+            console.log(err, err.response);
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot update gym code"));
+            setSavingGymCode(false);
+        });
+    }, [gymCode, profile]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -208,6 +262,49 @@ export default function Profile(props) {
 
                 <View style={styles.line} />
 
+                <View style={{ padding: 20 }}>
+                    {gym != null && (
+                        <View style={styles.gym}>
+                            {gym.gym_image == null && <Image source={ImageUtils.defaultImage} style={styles.gymImage} />}
+                            {gym.gym_image != null && <Image source={{ uri: HttpUtils.normalizeUrl(gym.gym_image) }} style={styles.gymImage} />}
+                            <View style={styles.gymInfo}>
+                                <Text style={styles.gymName}>{gym.name}</Text>
+                                <Text style={styles.gymText}>Gym Code: {gym.code}</Text>
+                            </View>
+                        </View>
+                    )}
+
+                    <Button
+                        onPress={() => {
+                            setGymCodeVisible(true);
+                        }}>Click here to Update Gym Code</Button>
+                </View>
+
+                <SimpleModal
+                    visible={gymCodeVisible}
+                    onRequestClose={() => {
+                        setGymCodeVisible(false);
+                    }}>
+                    <CustomTextInput
+                        label='Gym Code'
+                        style={styles.input}
+                        placeholder="Enter your Gym Code"
+                        placeholderTextColor={color.gray}
+                        value={gymCode}
+                        onChangeText={(text) => {
+                            setGymCode(text);
+                        }} />
+
+                    <Button
+                        loading={isSavingGymCode}
+                        style={{ marginTop: 20 }}
+                        onPress={() => {
+                            updateGymCode();
+                        }}>Update Code</Button>
+                </SimpleModal>
+
+                {/* <View style={styles.line} />
+
                 <View style={styles.row}>
                     <Text style={styles.sectionTitle}>Workout analytics chart</Text>
                 </View>
@@ -231,13 +328,41 @@ export default function Profile(props) {
                             </View>
                         </View>
                     );
-                })}
+                })} */}
             </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = {
+    gym: {
+        flexDirection: "row",
+        padding: 10,
+        borderRadius: 10,
+        backgroundColor: color.primary + "22",
+        marginBottom: 20,
+    },
+    gymImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+    },
+    gymInfo: {
+        marginLeft: 10,
+        flex: 1,
+        justifyContent: 'center',
+    },
+    gymName: {
+        fontSize: 18,
+        fontFamily: font.sourceSansProBold,
+        color: color.primary,
+    },
+    gymCode: {
+        fontSize: 13,
+        fontFamily: font.sourceSansPro,
+        color: color.black,
+    },
+
     container: {
         backgroundColor: color.white,
         flex: 1,

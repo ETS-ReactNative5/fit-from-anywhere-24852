@@ -19,13 +19,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Button from '../components/Button';
 import { LineChart } from 'react-native-chart-kit';
-import { setShowOnboard } from '../store/actions';
+import { setNextExercise, setShowOnboard } from '../store/actions';
 import ImageUtils from '../utils/ImageUtils';
 import Toast from '../components/Toast';
 import CacheUtils from '../utils/CacheUtils';
 import { useFocusEffect } from '@react-navigation/native';
 import ProgressBar from '../components/ProgressBar';
 import NoData from '../components/NoData';
+import GymUtils from '../utils/GymUtils';
 
 const rawData = [50, 10, 40, 95, 85, 91];
 
@@ -54,8 +55,11 @@ const promotions = [
 
 export default function Home(props) {
     const dispatch = useDispatch();
+    const gym = useSelector(state => state.gym);
     const workoutPlans = useSelector(state => state.workoutPlans);
     const profile = useSelector(state => state.profile);
+    const isNextExercise = useSelector(state => state.isNextExercise);
+
     // console.log("Profile", profile);
     const isOnboarding = useSelector(state => state.isOnboarding);
     const [focusedDate, setFocusedDate] = useState(moment());
@@ -70,6 +74,10 @@ export default function Home(props) {
     const [dailyWorkoutPlans, setDailyWorkoutPlans] = useState([]);
     const [userPlanCreatedTime, setUserPlanCreatedTime] = useState(null);
     const [dayNumber, setDayNumber] = useState(0);
+    const [allWorkoutPlans, setAllWorkoutPlans] = useState([]);
+    const [markedDates, setMarkedDates] = useState([]);
+    const [userProgress, setUserProgress] = useState([]);
+    const [userWoPlanIds, setUserWoPlanIds] = useState([]);
 
     const profileImage = useMemo(() => {
         return profile?.profile_image ? { uri: HttpUtils.normalizeUrl(profile.profile_image) } : ImageUtils.profileImage;
@@ -88,6 +96,10 @@ export default function Home(props) {
     }, [focusedDate]);
 
     useEffect(() => {
+        GymUtils.searchGymCode(profile.trial_code ?? '', dispatch);
+    }, [profile]);
+
+    useEffect(() => {
         console.log("Is onboarding", isOnboarding);
         if (isOnboarding && (profile.is_trainer == false || profile.is_trainer == null)) {
             props.navigation.navigate("Onboarding");
@@ -103,6 +115,106 @@ export default function Home(props) {
         loadProgram();
         loadUserPlan();
     }, []));
+
+    useEffect(() => {
+        if (program && selectedPlan) {
+            loadEntireWorkoutPlan(selectedPlan.id);
+            loadEntireUserProgress(program.id);
+        }
+    }, [program, selectedPlan]);
+
+    //triggered when HomeWorkout screen set isNextExercise to true
+    useEffect(() => {
+        if (selectedPlan != null && program != null &&
+            dailyWorkoutPlans.length != 0 && isNextExercise == true && userWoPlanIds.length != 0) {
+            dispatch(setNextExercise(false));
+
+            let isThere = false;
+
+            for (let i = 0; i < dailyWorkoutPlans.length; i++) {
+                let dailyWorkoutPlan = dailyWorkoutPlans[i];
+
+                let exist = userWoPlanIds.includes(dailyWorkoutPlan.id);
+
+                if (!exist) {
+                    isThere = true;
+
+                    props.navigation.navigate("HomeWorkout", {
+                        workout: dailyWorkoutPlan.workout,
+                        plan: selectedPlan,
+                        program: program,
+                        workoutPlan: dailyWorkoutPlan,
+                        day: dayNumber,
+                        shouldSave: !exist,
+                    });
+
+                    break;
+                }
+            }
+
+            if (isThere == false) {
+                Toast.showError("You don't have another exercise for today");
+            }
+        }
+    }, [isNextExercise, userWoPlanIds, dailyWorkoutPlans, selectedPlan, program, dayNumber]);
+
+    useEffect(() => {
+        if (userPlanCreatedTime != null && allWorkoutPlans.length != 0 && userProgress.length != 0) {
+            let userProgressObj = [];
+            userProgress.forEach((progress) => {
+                userProgressObj.push(progress.workout_plan.id);
+            });
+
+            let markedDates = {};
+            allWorkoutPlans.forEach((woPlan) => {
+                let date = moment(userPlanCreatedTime).add(woPlan.plan_day - 1, 'days').format("YYYY-MM-DD");
+
+                if (markedDates.hasOwnProperty(date)) {
+                    markedDates[date].woPlanIds.push(woPlan.id);
+                } else {
+                    markedDates[date] = {
+                        woPlanIds: [woPlan.id],
+                        date: date,
+                        dots: [
+                            {
+                                color: 'red',
+                                selectedColor: 'red',
+                            },
+                        ],
+                    };
+                }
+            });
+            let arrMarkedDates = [];
+            let doneCount = 0;
+            let totalCount = 0;
+            Object.keys(markedDates).forEach((date) => {
+                let element = markedDates[date];
+                let existNum = 0;
+                let totalNum = element.woPlanIds.length;
+                element.woPlanIds.forEach((woPlanId) => {
+                    if (userProgressObj.includes(woPlanId)) {
+                        existNum++;
+                    }
+                });
+
+                if (existNum >= totalNum) {
+                    element.dots[0].color = 'green';
+                    element.dots[0].selectedColor = 'green';
+                } else if (existNum != 0) {
+                    element.dots[0].color = '#f39c12';
+                    element.dots[0].selectedColor = '#f39c12';
+                }
+
+                arrMarkedDates.push(element);
+
+                doneCount += existNum;
+                totalCount += totalNum;
+            });
+            setMarkedDates(arrMarkedDates);
+            setUserWoPlanIds(userProgressObj);
+            setProgressPercentage(Math.round((doneCount / totalCount) * 100));
+        }
+    }, [allWorkoutPlans, userPlanCreatedTime, userProgress]);
 
     useEffect(() => {
         console.log("Something changed..");
@@ -127,7 +239,7 @@ export default function Home(props) {
                 // });
                 // setPlans(res.data.plans);
             }).catch((err) => {
-                Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
+                Toast.showError(">" + HttpResponse.processMessage(err.response, "Cannot get profile"));
             });
         }
     }, [profile]);
@@ -158,8 +270,27 @@ export default function Home(props) {
             setPlans(plans);
             setIsLoading(false);
         }).catch((err) => {
-            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get user plan"));
+            Toast.showError("=>" + HttpResponse.processMessage(err.response, "Cannot get user plan"));
             setIsLoading(false);
+        });
+    }, [profile]);
+
+    const loadEntireWorkoutPlan = useCallback((plan_id) => {
+        setIsLoading(true);
+        HttpRequest.loadWorkoutPlan(plan_id).then((res) => {
+            console.log("loadEntireWorkoutPlan", res.data.results);
+            setAllWorkoutPlans(res.data.results);
+        }).catch((err) => {
+            Toast.showError(">>>>" + HttpResponse.processMessage(err.response, "Cannot get workout plan"));
+        });
+    }, []);
+
+    const loadEntireUserProgress = useCallback((program__id) => {
+        HttpRequest.loadUserProgress(program__id, profile.user.id).then((res) => {
+            console.log("loadEntireUserProgress", res.data.results);
+            setUserProgress(res.data.results);
+        }).catch((err) => {
+            Toast.showError(">>>" + HttpResponse.processMessage(err.response, "Cannot get user progress"));
         });
     }, [profile]);
 
@@ -170,7 +301,7 @@ export default function Home(props) {
             setDailyWorkoutPlans(res.data.results);
             setIsLoading(false);
         }).catch((err) => {
-            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get workout plan"));
+            Toast.showError(">>" + HttpResponse.processMessage(err.response, "Cannot get workout plan"));
             setIsLoading(false);
         });
     }, []);
@@ -214,7 +345,7 @@ export default function Home(props) {
 
                             {trialDay == 10 && (
                                 <View style={styles.trialBadgeOk}>
-                                    <Text style={styles.trialBadgeText}>Gym Code: {profile.trial_code}</Text>
+                                    <Text style={styles.trialBadgeText}>Gym: {gym?.name}</Text>
                                 </View>
                             )}
                             {/* <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
@@ -236,117 +367,139 @@ export default function Home(props) {
 
                 <View style={styles.line} />
 
-                <View style={styles.calendar}>
-                    <View style={styles.calendarHeader}>
-                        <ScrollView ref={scrollRef} horizontal={true} showsHorizontalScrollIndicator={false}>
-                            <View style={{ width: 20 }} />
-                            {months.map((month, index) => {
-                                let focusedMonth = month.monthMoment.isSame(focusedDate, 'month');
-                                return (
-                                    <TouchableOpacity key={index} style={styles.monthButton} onPress={() => {
-                                        // let date = month.monthMoment.format("YYYY-MM-DD");
-                                        //scrollRef.current.scrollTo({ x: 100 * index + 20, animated: true });
-                                        calendarRef.current.setSelectedDate(month.monthMoment);
-                                    }}>
-                                        <Text style={[styles.monthButtonText, focusedMonth ? { color: color.primary } : {}]}>{month.monthMoment.format("MMMM")}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-                    </View>
-
-                    <CalendarStrip
-                        ref={calendarRef}
-                        scrollable
-                        // style={{ height: 100 }}
-                        upperCaseDays={false}
-                        showMonth={false}
-                        calendarColor={color.white}
-                        calendarHeaderStyle={{ color: color.primary }}
-                        // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
-                        // dateContainerStyle={{ backgroundColor: 'blue',  }}
-                        dateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
-                        highlightDateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
-                        dateNameStyle={{ color: color.primary, fontSize: 12 }}
-                        highlightDateNameStyle={{ color: color.primary, fontSize: 12 }}
-                        // iconContainer={{ flex: 0.1 }}
-                        onDateSelected={(date) => {
-                            setSelectedDate(date.format("YYYY-MM-DD"));
-                        }}
-                        onWeekChanged={(start, end) => {
-                            //console.log(start, end);
-                            // setSelectedDate(moment(start).format("YYYY-MM-DD"));
-                            setFocusedDate(start);
-                            //get month difference with today
-                            let firstDate = moment().date(1)
-                            let difference = start.diff(firstDate, 'month');
-                            console.log("Difference: ", difference);
-                            scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
-                        }}
-                        customDatesStyles={[
-                            {
-                                startDate: moment(selectedDate), // Single date since no endDate provided
-                                // dateNameStyle: styles.dateNameStyle,
-                                // dateNumberStyle: styles.dateNumberStyle,
-                                // // Random color...
-                                dateContainerStyle: {
-                                    // backgroundColor: 'red',
-                                    borderWidth: 1,
-                                    borderColor: color.primary,
-                                },
-                            }
-                        ]}
-                    />
-                </View>
-
-                <View style={styles.line} />
-
-                <View style={styles.progressBar}>
-                    <Text style={styles.progressBarTitle}>Your progress: {progressPercentage}%</Text>
-                    <ProgressBar percentage={progressPercentage} />
-                </View>
-
-                <Text style={styles.chartTitle}>{moment(selectedDate).format("MMM DD, YYYY")} - Day #{dayNumber}</Text>
-
-                {selectedPlan != null && (
-                    <View style={styles.plan}>
-                        <Text style={styles.chartSubtitle}>{selectedPlan.name}</Text>
-
-                        {dailyWorkoutPlans.length == 0 && <NoData>No workout today</NoData>}
-
-                        {dailyWorkoutPlans.map((dailyWorkoutPlan, index) => {
-                            return (
-                                <TouchableOpacity key={index} style={styles.workout} onPress={() => {
-                                    props.navigation.navigate("HomeWorkout", {
-                                        workout: dailyWorkoutPlan.workout,
-                                        plan: selectedPlan,
-                                        program: program,
-                                        workoutPlan: dailyWorkoutPlan,
-                                        day: dayNumber,
-                                    });
-                                }}>
-                                    <Image source={ImageUtils.home1} style={styles.workoutImage} />
-                                    <View style={styles.workoutContent}>
-                                        <Text style={styles.workoutTitle}>{dailyWorkoutPlan.workout?.name}</Text>
-                                        <Text style={styles.workoutDesc}>{dailyWorkoutPlan.workout?.description}</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                )}
-
-                {selectedPlan == null && (
-                    <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
-                        <NoData>No selected plan</NoData>
+                {trialDay < 0 && (
+                    <View style={{ padding: 20 }}>
+                        <NoData>You trial is expired</NoData>
 
                         <Button onPress={() => {
-                            props.navigation.navigate("ChoosePlan");
-                        }}>Click here to select plan</Button>
+                            props.navigation.navigate("Profile");
+                        }}>Click here to update your Gym Code</Button>
                     </View>
                 )}
 
-                {/* <Text style={styles.chartTitle}>Frequency Bar chart</Text>
+                {trialDay >= 0 && (
+                    <>
+                        <View style={styles.calendar}>
+                            <View style={styles.calendarHeader}>
+                                <ScrollView ref={scrollRef} horizontal={true} showsHorizontalScrollIndicator={false}>
+                                    <View style={{ width: 20 }} />
+                                    {months.map((month, index) => {
+                                        let focusedMonth = month.monthMoment.isSame(focusedDate, 'month');
+                                        return (
+                                            <TouchableOpacity key={index} style={styles.monthButton} onPress={() => {
+                                                // let date = month.monthMoment.format("YYYY-MM-DD");
+                                                //scrollRef.current.scrollTo({ x: 100 * index + 20, animated: true });
+                                                calendarRef.current.setSelectedDate(month.monthMoment);
+                                            }}>
+                                                <Text style={[styles.monthButtonText, focusedMonth ? { color: color.primary } : {}]}>{month.monthMoment.format("MMMM")}</Text>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
+                            </View>
+
+                            <CalendarStrip
+                                ref={calendarRef}
+                                scrollable
+                                // style={{ height: 100 }}
+                                upperCaseDays={false}
+                                showMonth={false}
+                                calendarColor={color.white}
+                                calendarHeaderStyle={{ color: color.primary }}
+                                // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
+                                // dateContainerStyle={{ backgroundColor: 'blue',  }}
+                                dateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
+                                highlightDateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
+                                dateNameStyle={{ color: color.primary, fontSize: 12 }}
+                                highlightDateNameStyle={{ color: color.primary, fontSize: 12 }}
+                                // iconContainer={{ flex: 0.1 }}
+                                onDateSelected={(date) => {
+                                    setSelectedDate(date.format("YYYY-MM-DD"));
+                                }}
+                                onWeekChanged={(start, end) => {
+                                    //console.log(start, end);
+                                    // setSelectedDate(moment(start).format("YYYY-MM-DD"));
+                                    setFocusedDate(start);
+                                    //get month difference with today
+                                    let firstDate = moment().date(1)
+                                    let difference = start.diff(firstDate, 'month');
+                                    console.log("Difference: ", difference);
+                                    scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
+                                }}
+                                markedDates={markedDates}
+                                customDatesStyles={[
+                                    {
+                                        startDate: moment(selectedDate), // Single date since no endDate provided
+                                        // dateNameStyle: styles.dateNameStyle,
+                                        // dateNumberStyle: styles.dateNumberStyle,
+                                        // // Random color...
+                                        dateContainerStyle: {
+                                            // backgroundColor: 'red',
+                                            borderWidth: 1,
+                                            borderColor: color.primary,
+                                            borderRadius: 10,
+                                        },
+                                    }
+                                ]}
+                            />
+                        </View>
+
+                        <View style={styles.line} />
+
+                        <View style={styles.progressBar}>
+                            <Text style={styles.progressBarTitle}>Your progress: {progressPercentage}%</Text>
+                            <ProgressBar percentage={progressPercentage} />
+                        </View>
+
+                        <Text style={styles.chartTitle}>{moment(selectedDate).format("MMM DD, YYYY")} - Day #{dayNumber}</Text>
+
+                        {selectedPlan != null && (
+                            <View style={styles.plan}>
+                                <Text style={styles.chartSubtitle}>{selectedPlan.name}</Text>
+
+                                {dailyWorkoutPlans.length == 0 && <NoData>No workout today</NoData>}
+
+                                {dailyWorkoutPlans.map((dailyWorkoutPlan, index) => {
+                                    let exist = userWoPlanIds.includes(dailyWorkoutPlan.id);
+                                    return (
+                                        <TouchableOpacity key={index} style={styles.workout} onPress={() => {
+                                            props.navigation.navigate("HomeWorkout", {
+                                                workout: dailyWorkoutPlan.workout,
+                                                plan: selectedPlan,
+                                                program: program,
+                                                workoutPlan: dailyWorkoutPlan,
+                                                nextWorkoutPlan: dailyWorkoutPlans[index + 1],
+                                                day: dayNumber,
+                                                shouldSave: !exist,
+                                            });
+                                        }}>
+                                            <Image source={ImageUtils.home1} style={styles.workoutImage} />
+                                            <View style={styles.workoutContent}>
+                                                <Text style={styles.workoutTitle}>{dailyWorkoutPlan.workout?.name}</Text>
+                                                <Text style={styles.workoutDesc}>{dailyWorkoutPlan.workout?.description}</Text>
+                                            </View>
+                                            {exist && (
+                                                <View style={styles.workoutCheck}>
+                                                    <MaterialCommunityIcons name="check" size={20} color={color.white} />
+                                                </View>
+                                            )}
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+                        )}
+
+                        {selectedPlan == null && (
+                            <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+                                <NoData>No selected plan</NoData>
+
+                                <Button onPress={() => {
+                                    props.navigation.navigate("ChoosePlan");
+                                }}>Click here to select plan</Button>
+                            </View>
+                        )}
+
+                        {/* <Text style={styles.chartTitle}>Frequency Bar chart</Text>
                 <Text style={styles.chartSubtitle}>Days of workout</Text>
 
                 <LineChart
@@ -443,6 +596,9 @@ export default function Home(props) {
                         borderRadius: 16
                     }}
                 /> */}
+
+                    </>
+                )}
 
                 <View style={styles.line} />
 
@@ -638,5 +794,14 @@ const styles = {
         paddingHorizontal: 10,
         borderRadius: 10,
         paddingVertical: 5,
+    },
+    workoutCheck: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        backgroundColor: color.success,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
     },
 };

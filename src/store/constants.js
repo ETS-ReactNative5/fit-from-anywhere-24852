@@ -4,3 +4,6 @@ export const SET_PROFILES = 'SET_PROFILES';
 export const SET_SPLASH = 'SET_SPLASH';
 export const SET_SHOW_ONBOARDING = 'SET_SHOW_ONBOARDING';
 export const SET_WORKOUT_PLANS = 'SET_WORKOUT_PLANS';
+export const SET_GYM = 'SET_GYM';
+export const SET_PROGRAMS = 'SET_PROGRAMS';
+export const SET_NEXT_EXERCISE = 'SET_NEXT_EXERCISE';
