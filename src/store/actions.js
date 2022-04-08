@@ -64,5 +64,12 @@ export const setNextExercise = (payload) => (dispatch) => {
     });
 };
 
+export const setRemember = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_REMEMBER,
+        payload,
+    });
+};
+
 
 

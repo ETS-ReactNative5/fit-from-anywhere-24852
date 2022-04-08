@@ -77,3 +77,11 @@ export function isNextExercise(state = false, action) {
 
     return state;
 }
+
+export function remember(state = null, action) {
+    if (action.type == types.SET_REMEMBER) {
+        return action.payload;
+    }
+
+    return state;
+}

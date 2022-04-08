@@ -55,4 +55,26 @@ export default {
 
         dispatch(setPrograms(_gym.program));
     },
+    isCodeExist(code) {
+        return new Promise(async (resolve, reject) => {
+            if (code == null) {
+                code == "";
+            }
+
+            let res = await HttpRequest.getAllGym();
+            let result = res.data.results;
+
+            let exist = false;
+            result.forEach((item) => {
+                if (item.code == null) {
+                    item.code = "";
+                }
+
+                if (item.code == code) {
+                    exist = true;
+                }
+            });
+            resolve(exist);
+        });
+    },
 }

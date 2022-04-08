@@ -6,7 +6,8 @@ import {
     Image,
     StyleSheet,
     Alert,
-    ScrollView
+    ScrollView,
+    Switch
 } from "react-native";
 import color from "../utils/color";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -62,11 +63,13 @@ const userMenus = [
         icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
         label: "Push notifications",
         target: null,
+        type: "push",
     },
     {
         icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
         label: "Email notifications",
         target: null,
+        type: "email",
     },
 ];
 
@@ -105,17 +108,21 @@ const trainerMenus = [
         icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
         label: "Push notifications",
         target: null,
+        type: "push",
     },
     {
         icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
         label: "Email notifications",
         target: null,
+        type: "email"
     },
 ];
 
 export default function Sidebar(props) {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+    const [pushEnabled, setPushEnabled] = useState(false);
+    const [emailEnabled, setEmailEnabled] = useState(false);
 
     console.log("Profile", profile);
 
@@ -170,6 +177,32 @@ export default function Sidebar(props) {
                             }}>
                             {item.icon}
                             <Text style={styles.menuLabel}>{item.label}</Text>
+                            {item.target == null && (
+                                <>
+                                    {item.type == "push" && (
+                                        <Switch
+                                            trackColor={{ false: color.primary + "20", true: color.primary + "20" }}
+                                            thumbColor={pushEnabled ? color.primary : color.white}
+                                            ios_backgroundColor={color.primary + "20"}
+                                            onValueChange={() => {
+                                                setPushEnabled(!pushEnabled);
+                                            }}
+                                            value={pushEnabled}
+                                        />
+                                    )}
+                                    {item.type == "email" && (
+                                        <Switch
+                                            trackColor={{ false: color.primary + "20", true: color.primary + "20" }}
+                                            thumbColor={emailEnabled ? color.primary : color.white}
+                                            ios_backgroundColor={color.primary + "20"}
+                                            onValueChange={() => {
+                                                setEmailEnabled(!emailEnabled);
+                                            }}
+                                            value={emailEnabled}
+                                        />
+                                    )}
+                                </>
+                            )}
                         </TouchableOpacity>
                     );
                 })}

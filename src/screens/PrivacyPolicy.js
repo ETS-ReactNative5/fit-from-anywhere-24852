@@ -24,7 +24,7 @@ export default function PrivacyPolicy(props) {
             }} />
             <WebView
                 originWhitelist={['*']}
-                source={{ uri: "https://www.crowdbotics.com/privacy-policy" }}
+                source={{ uri: "https://fit-from-anywhere-24852.botics.co/static/privacy-policy.html" }}
             />
         </SafeAreaView>
     );

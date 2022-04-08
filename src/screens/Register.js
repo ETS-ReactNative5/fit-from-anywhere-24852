@@ -10,6 +10,7 @@ import app from "../config/app";
 import { setProfile, setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
+import GymUtils from "../utils/GymUtils";
 import { HttpRequest, HttpResponse } from "../utils/http";
 import ImageUtils from "../utils/ImageUtils";
 
@@ -30,7 +31,7 @@ export default function Register(props) {
 
     }, [profile]);
 
-    const register = useCallback(() => {
+    const register = useCallback(async () => {
         //validate password
         if (password !== passwordConfirm) {
             Toast.showError("Password does not match");
@@ -42,6 +43,14 @@ export default function Register(props) {
         }
 
         setIsLoading(true);
+
+        let exist = await GymUtils.isCodeExist(gymCode);
+        if (exist == false) {
+            Toast.showError("Gym code does not exist");
+            setIsLoading(false);
+            return;
+        }
+
 
         let data = {
             name,

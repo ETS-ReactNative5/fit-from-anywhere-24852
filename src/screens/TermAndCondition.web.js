@@ -12,7 +12,6 @@ import Header from '../components/Header';
 import color from '../utils/color';
 
 export default function TermAndCondition(props) {
-    const [source, setSource] = useState('test');
     return (
         <SafeAreaView style={styles.container}>
             <Header title="Terms and Conditions" onLeftClick={() => {
@@ -20,7 +19,7 @@ export default function TermAndCondition(props) {
             }} />
             <ScrollView>
                 <View style={styles.content}>
-                    <div dangerouslySetInnerHTML={{ __html: source }} />
+                    <iframe src="https://fit-from-anywhere-24852.botics.co/static/terms.html" style={{ border: 0 }} />
                 </View>
             </ScrollView>
         </SafeAreaView>

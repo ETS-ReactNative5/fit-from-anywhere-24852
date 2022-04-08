@@ -600,7 +600,7 @@ export default function Home(props) {
                     </>
                 )}
 
-                <View style={styles.line} />
+                {/* <View style={styles.line} />
 
                 <View style={styles.promo}>
                     <Text style={styles.promoTitle}>Promo</Text>
@@ -618,7 +618,7 @@ export default function Home(props) {
                         })}
                         <View style={{ width: 10 }} />
                     </ScrollView>
-                </View>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     );

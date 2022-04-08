@@ -2,12 +2,12 @@ import React, { Component, useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import Toast from "../components/Toast";
 import app from "../config/app";
-import { setProfile, setUser } from "../store/actions";
+import { setProfile, setRemember, setUser } from "../store/actions";
 import color from "../utils/color";
 import { font } from "../utils/font";
 import { HttpRequest, HttpResponse } from "../utils/http";
@@ -15,10 +15,19 @@ import ImageUtils from "../utils/ImageUtils";
 
 export default function Login(props) {
     const dispatch = useDispatch();
-    const [password, setPassword] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
-    const [email, setEmail] = useState(__DEV__ ? app.EXAMPLE_EMAIL : "");
+    const remember = useSelector(state => state.remember);
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
     const [isRemember, setIsRemember] = useState(false);
     const [isLoading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (remember != null) {
+            setEmail(remember.email);
+            setPassword(remember.password);
+            setIsRemember(true);
+        }
+    }, [remember]);
 
     const login = useCallback(() => {
         setLoading(true);
@@ -30,13 +39,19 @@ export default function Login(props) {
             setLoading(false);
             dispatch(setUser(res.data));
 
+            if (isRemember) {
+                dispatch(setRemember({ email, password }));
+            } else {
+                dispatch(setRemember(null));
+            }
+
             loadProfile();
         }).catch((err) => {
             console.log(err, err.response);
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot login"));
             setLoading(false);
         });
-    }, [email, password]);
+    }, [email, password, isRemember]);
 
     const loadProfile = useCallback(() => {
         HttpRequest.getProfile().then((res) => {

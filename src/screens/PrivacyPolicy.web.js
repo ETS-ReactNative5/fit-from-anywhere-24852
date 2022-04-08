@@ -21,7 +21,7 @@ export default function PrivacyPolicy(props) {
             }} />
             <ScrollView>
                 <View style={styles.content}>
-                    <div dangerouslySetInnerHTML={{ __html: source }} />
+                    <iframe src="https://fit-from-anywhere-24852.botics.co/static/privacy-policy.html" style={{ border: 0 }} />
                 </View>
             </ScrollView>
         </SafeAreaView>

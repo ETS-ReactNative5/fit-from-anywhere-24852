@@ -22,7 +22,7 @@ export default function TermAndCondition(props) {
             }} />
             <WebView
                 originWhitelist={['*']}
-                source={{ uri: "https://www.crowdbotics.com/terms-of-service" }}
+                source={{ uri: "https://fit-from-anywhere-24852.botics.co/static/terms.html" }}
             />
         </SafeAreaView>
     );

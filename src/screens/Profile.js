@@ -157,6 +157,8 @@ export default function Profile(props) {
             setGymCodeVisible(false);
 
             loadProfile();
+
+            props.navigation.navigate("Onboarding");
         }).catch((err) => {
             console.log(err, err.response);
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot update gym code"));
@@ -210,7 +212,7 @@ export default function Profile(props) {
                         }} />
                 </View>
 
-                <View style={styles.line} />
+                {/* <View style={styles.line} />
 
                 <View style={styles.row}>
                     <Text style={styles.label}>Date of Birth</Text>
@@ -251,7 +253,7 @@ export default function Profile(props) {
                         onChangeText={(text) => {
                             setAddress(text);
                         }} />
-                </View>
+                </View> */}
 
                 <View style={styles.line} />
 

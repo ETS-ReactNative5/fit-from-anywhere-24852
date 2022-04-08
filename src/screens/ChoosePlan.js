@@ -53,6 +53,8 @@ export default function ChoosePlan(props) {
                 plan.user_plan_id = _userPlan.id;
             }
 
+            console.log("Image", HttpUtils.normalizeUrl(plan.image));
+
             return plan;
         });
         setCombinedPlans(_plans);
@@ -159,11 +161,14 @@ export default function ChoosePlan(props) {
                                 return (
                                     <View key={index} style={styles.card}>
                                         {plan.image == null && <Image source={ImageUtils.home1} style={styles.image} resizeMode='cover' />}
-                                        {plan.image != null && <Image source={HttpUtils.normalizeUrl(plan.image)} style={styles.image} resizeMode='cover' />}
+                                        {plan.image != null && <Image source={{ uri: HttpUtils.normalizeUrl(plan.image) }} style={styles.image} resizeMode='cover' />}
 
                                         <View style={styles.cardContent}>
                                             <View style={styles.cardContentBg}>
                                                 <Text style={styles.cardContentText}>{plan.name}</Text>
+                                            </View>
+                                            <View style={styles.cardContentBg}>
+                                                <Text style={styles.cardContentDesc}>{plan.description}</Text>
                                             </View>
                                         </View>
                                         <View style={styles.cardFooter}>
@@ -218,6 +223,8 @@ const styles = {
         width: SCREEN_WIDTH - 40,
         height: 3 / 5 * (SCREEN_WIDTH - 40),
         marginBottom: 20,
+        backgroundColor: '#ccc',
+        borderRadius: 10,
     },
     image: {
         position: 'absolute',
@@ -237,6 +244,13 @@ const styles = {
         fontSize: 20,
         backgroundColor: 'rgba(255,255,255,0.5)',
         padding: 5,
+    },
+    cardContentDesc: {
+        color: color.primary,
+        fontSize: 13,
+        backgroundColor: 'rgba(255,255,255,0.5)',
+        padding: 5,
+        marginTop: 5,
     },
     cardFooter: {
         height: 60,

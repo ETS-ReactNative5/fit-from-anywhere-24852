@@ -38,6 +38,18 @@ const requestWithAuth = (useFormData = false) => {
     });
 }
 
+const requestWithFakeAuth = (useFormData = false) => {
+    return axios.create({
+        baseURL: AppConfig.BASE_URL,
+        timeout: AppConfig.TIMEOUT,
+        headers: {
+            "Content-Type": (useFormData ? "application/x-www-form-urlencoded" : "application/json"),
+            "Authorization": "token d14b0aa0bc2ced518eda031845d622257b2a3f08",
+            "Accept": "*/*",
+        }
+    });
+}
+
 export const HttpRequest = {
     signup(data) {
         return request().post("/rest-auth/registration/", data);
@@ -192,7 +204,7 @@ export const HttpRequest = {
         return requestWithAuth().get("/gym/?code=" + code);
     },
     getAllGym() {
-        return requestWithAuth().get("/gym/");
+        return requestWithFakeAuth().get("/gym/");
     },
 
     //Messages
