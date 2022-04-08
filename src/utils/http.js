@@ -194,10 +194,20 @@ export const HttpRequest = {
         }
     },
     loadUserProgress(program__id, user_id) {
-        return requestWithAuth().get("/user-progress/?program__id=" + program__id + "&user__id=" + user_id);
+        let data = {};
+        if (program__id) {
+            data.program__id = program__id;
+        }
+        if (user_id) {
+            data.user__id = user_id;
+        }
+        return requestWithAuth().get("/user-progress/?" + qs.stringify(data));
     },
     addProgress(data) {
         return requestWithAuth().post("/user-progress/", data);
+    },
+    deleteProgress(id){
+        return requestWithAuth().delete("/user-progress/" + id + "/");
     },
 
     searchGymCode(code) {

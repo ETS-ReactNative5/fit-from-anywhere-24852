@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import {
     View,
     Text,
@@ -17,6 +17,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommu
 import { font } from "../utils/font";
 import { HttpUtils } from "../utils/http";
 import ImageUtils from "../utils/ImageUtils";
+import moment from "moment";
 
 const userMenus = [
     {
@@ -121,10 +122,21 @@ const trainerMenus = [
 export default function Sidebar(props) {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+    const gym = useSelector(state => state.gym);
     const [pushEnabled, setPushEnabled] = useState(false);
     const [emailEnabled, setEmailEnabled] = useState(false);
 
-    console.log("Profile", profile);
+    const [trialDay, setTrialDay] = useState(10); //10 means no trial
+
+    useEffect(() => {
+        let day = 10;
+        if (profile.trial_code == null || profile.trial_code == "") {
+            day = 7 - moment().diff(moment(profile.created_at), 'days');
+        }
+        setTrialDay(day);
+    }, [profile]);
+
+    //console.log("Profile", profile);
 
     const menus = useMemo(() => {
         return profile.is_trainer ? trainerMenus : userMenus;
@@ -152,8 +164,28 @@ export default function Sidebar(props) {
                     <View style={styles.profileContent}>
                         <Text style={styles.profileName}>{profile?.user?.name}</Text>
                         <View style={styles.profileInfo}>
-                            <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
-                            <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text>
+                            {trialDay != 10 && (
+                                <>
+                                    {trialDay >= 0 && (
+                                        <View style={styles.trialBadge}>
+                                            <Text style={styles.trialBadgeText}>Trial for {trialDay} day{trialDay != 1 && "s"}</Text>
+                                        </View>
+                                    )}
+                                    {trialDay < 0 && (
+                                        <View style={styles.trialBadge}>
+                                            <Text style={styles.trialBadgeText}>Trial Expired</Text>
+                                        </View>
+                                    )}
+                                </>
+                            )}
+
+                            {trialDay == 10 && (
+                                <View style={styles.trialBadgeOk}>
+                                    <Text style={styles.trialBadgeText}>Gym: {gym?.name}</Text>
+                                </View>
+                            )}
+                            {/* <MaterialCommunityIcons name="map-marker" size={15} color={color.text} />
+                            <Text style={styles.profileLocation}>{profile?.student_campus_residential_address}</Text> */}
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -241,6 +273,23 @@ const styles = StyleSheet.create({
         backgroundColor: color.white,
         paddingVertical: 20,
         flex: 1,
+    },
+
+    trialBadge: {
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        backgroundColor: color.danger,
+        borderRadius: 5,
+    },
+    trialBadgeOk: {
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        backgroundColor: color.success,
+        borderRadius: 5,
+    },
+    trialBadgeText: {
+        color: color.white,
+        fontSize: 12,
     },
 
     profile: {

@@ -25,6 +25,7 @@ import CacheUtils from '../utils/CacheUtils';
 import ImageUtils from '../utils/ImageUtils';
 import LoadingIndicator from '../components/LoadingIndicator';
 import NoData from '../components/NoData';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -35,13 +36,15 @@ export default function ChoosePlan(props) {
 
     const [plans, setPlans] = useState([]);
     const [userPlans, setUserPlans] = useState([]);
+    const [userProgress, setUserProgress] = useState([]);
     const [combinedPlans, setCombinedPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         loadProgram();
         loadUserPlan();
-    }, []);
+        loadAllUserProgress();
+    }, []));
 
     useEffect(() => {
         let _plans = [...plans];
@@ -53,12 +56,23 @@ export default function ChoosePlan(props) {
                 plan.user_plan_id = _userPlan.id;
             }
 
-            console.log("Image", HttpUtils.normalizeUrl(plan.image));
+            // console.log("Image", HttpUtils.normalizeUrl(plan.image));
 
             return plan;
         });
         setCombinedPlans(_plans);
     }, [plans, userPlans]);
+
+    const loadAllUserProgress = useCallback(() => {
+        // setIsLoading(true);
+        HttpRequest.loadUserProgress(null, profile.user.id).then((res) => {
+            console.log("loadUserProgress", res.data.results);
+            setUserProgress(res.data.results);
+        }).catch((err) => {
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot get profile"));
+            // setIsLoading(false);
+        });
+    }, [profile]);
 
     const loadProgram = useCallback(() => {
         setIsLoading(true);
@@ -102,6 +116,10 @@ export default function ChoosePlan(props) {
             }
         });
 
+        userProgress.forEach((progress) => {
+            deletePromises.push(HttpRequest.deleteProgress(progress.id));
+        });
+
         setIsLoading(true);
 
         if (deletePromises.length > 0) {
@@ -117,7 +135,7 @@ export default function ChoosePlan(props) {
             user: profile.user.id,
         };
         HttpRequest.addUserPlan(data).then((res) => {
-            Toast.showSuccess("Plan added successfully");
+            Toast.showSuccess("Plan selected successfully");
             //setIsLoading(false);
 
             loadUserPlan();
@@ -127,7 +145,7 @@ export default function ChoosePlan(props) {
             setIsLoading(false);
         });
 
-    }, [profile, plans]);
+    }, [userProgress, profile, plans]);
 
     const deleteUserPlan = useCallback((id) => {
         setIsLoading(true);
@@ -179,7 +197,23 @@ export default function ChoosePlan(props) {
 
                                             {plan.user_plan_id == null && (
                                                 <TouchableOpacity style={styles.addButton} onPress={() => {
-                                                    addUserPlan(plan.id);
+                                                    if (userProgress.length > 0) {
+                                                        Alert.alert(
+                                                            'Warning',
+                                                            'Selecting this plan means you will delete all progress you\'ve made. Are you sure ?',
+                                                            [
+                                                                { text: 'No', onPress: () => { }, style: 'cancel' },
+                                                                {
+                                                                    text: 'Yes', onPress: () => {
+                                                                        addUserPlan(plan.id);
+                                                                    }
+                                                                },
+                                                            ],
+                                                            { cancelable: false }
+                                                        );
+                                                    } else {
+                                                        addUserPlan(plan.id);
+                                                    }
                                                 }}>
                                                     <Text style={styles.addButtonText}>Select</Text>
                                                 </TouchableOpacity>

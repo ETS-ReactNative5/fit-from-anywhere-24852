@@ -159,7 +159,7 @@ export default function Home(props) {
     }, [isNextExercise, userWoPlanIds, dailyWorkoutPlans, selectedPlan, program, dayNumber]);
 
     useEffect(() => {
-        if (userPlanCreatedTime != null && allWorkoutPlans.length != 0 && userProgress.length != 0) {
+        if (userPlanCreatedTime != null && allWorkoutPlans.length != 0) {
             let userProgressObj = [];
             userProgress.forEach((progress) => {
                 userProgressObj.push(progress.workout_plan.id);

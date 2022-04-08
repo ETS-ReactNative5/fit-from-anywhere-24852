@@ -158,7 +158,7 @@ export default function Profile(props) {
 
             loadProfile();
 
-            props.navigation.navigate("Onboarding");
+            props.navigation.navigate("ChooseProgram");
         }).catch((err) => {
             console.log(err, err.response);
             Toast.showError(HttpResponse.processMessage(err.response, "Cannot update gym code"));
@@ -280,6 +280,15 @@ export default function Profile(props) {
                         onPress={() => {
                             setGymCodeVisible(true);
                         }}>Click here to Update Gym Code</Button>
+                </View>
+
+                <View style={styles.line} />
+
+                <View style={{ padding: 20 }}>
+                    <Button
+                        onPress={() => {
+                            props.navigation.navigate("ChooseProgram");
+                        }}>Click here to Choose Program</Button>
                 </View>
 
                 <SimpleModal

@@ -110,7 +110,7 @@ export default function Onboarding(props) {
                 {isReady && (
                     <>
                         <View style={styles.progressView}>
-                            <View style={[styles.progressBar, { width: (page / 3 * 100) + "%" }]} />
+                            <View style={[styles.progressBar, { width: (page / 4 * 100) + "%" }]} />
                         </View>
 
                         {page == 1 && (

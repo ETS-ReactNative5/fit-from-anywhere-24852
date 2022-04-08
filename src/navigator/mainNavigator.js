@@ -32,6 +32,7 @@ import AppointmentSlot from "../screens/AppointmentSlot";
 import ChoosePlan from "../screens/ChoosePlan";
 import HomeWorkout from "../screens/HomeWorkout";
 import ResourceDetail from "../screens/ResourceDetail";
+import ChooseProgram from "../screens/ChooseProgram";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -84,6 +85,7 @@ const DashboardStack = () => {
             {/* <Stack.Screen name="ChoosePlan" component={ChoosePlan} /> */}
             <Stack.Screen name="HomeWorkout" component={HomeWorkout} />
             <Stack.Screen name="ResourceDetail" component={ResourceDetail} />
+            <Stack.Screen name="ChooseProgram" component={ChooseProgram} />
         </Stack.Navigator>
     );
 }
