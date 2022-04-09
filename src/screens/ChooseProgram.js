@@ -85,7 +85,7 @@ export default function ChooseProgram(props) {
     return (
         <SafeAreaView style={styles.container}>
             <Header
-                title="Choose Program"
+                title="Fitness Goal"
                 leftIcon={<MaterialCommunityIcons name="arrow-left" size={25} color={color.white} />}
                 onLeftClick={() => {
                     props.navigation.goBack();

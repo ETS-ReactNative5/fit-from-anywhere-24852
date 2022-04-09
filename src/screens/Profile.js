@@ -14,6 +14,7 @@ import Header from '../components/Header';
 import color from '../utils/color';
 import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import Feather from "react-native-vector-icons/dist/Feather";
 import UploadImageView from '../components/UploadImageView';
 import { FormDataConverter, HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
@@ -259,6 +260,7 @@ export default function Profile(props) {
 
                 <View style={{ padding: 20 }}>
                     <Button loading={isSaving}
+                        icon={<MaterialCommunityIcons name="pencil-outline" size={20} color={color.white} />}
                         onPress={() => { updateProfile() }}>Update Profile</Button>
                 </View>
 
@@ -277,18 +279,20 @@ export default function Profile(props) {
                     )}
 
                     <Button
+                        icon={<MaterialCommunityIcons name="pencil-outline" size={20} color={color.white} />}
                         onPress={() => {
                             setGymCodeVisible(true);
-                        }}>Click here to Update Gym Code</Button>
+                        }}>Update Gym Code</Button>
                 </View>
 
                 <View style={styles.line} />
 
                 <View style={{ padding: 20 }}>
                     <Button
+                        icon={<MaterialCommunityIcons name="target" size={20} color={color.white} />}
                         onPress={() => {
                             props.navigation.navigate("ChooseProgram");
-                        }}>Click here to Choose Program</Button>
+                        }}>Set Fitness Goal</Button>
                 </View>
 
                 <SimpleModal

@@ -70,7 +70,15 @@ export default function Button(props) {
                     props.onPress != null && props.onPress();
                 }
             }}>
-            {!loading && <Text style={[styles.textStyle, textStyle]}>{props.children}</Text>}
+            {!loading && (
+                <>
+                    {props.icon}
+                    {props.icon != null && (
+                        <View style={{ width: 7 }} />
+                    )}
+                    <Text style={[styles.textStyle, textStyle]}>{props.children}</Text>
+                </>
+            )}
             {loading && <ActivityIndicator color={textStyle.color ?? color.white} />}
 
         </TouchableOpacity>
@@ -84,6 +92,7 @@ const styles = StyleSheet.create({
         height: 45,
         justifyContent: "center",
         alignItems: "center",
+        flexDirection: 'row',
     },
     textStyle: {
         fontSize: 18,
