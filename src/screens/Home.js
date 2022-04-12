@@ -443,7 +443,7 @@ export default function Home(props) {
                     <>
                         <View style={styles.calendar}>
                             <View style={styles.calendarHeader}>
-                                <ScrollView ref={scrollRef} horizontal={true} showsHorizontalScrollIndicator={false}>
+                                {/* <ScrollView ref={scrollRef} horizontal={true} showsHorizontalScrollIndicator={false}>
                                     <View style={{ width: 20 }} />
                                     {months.map((month, index) => {
                                         let focusedMonth = month.monthMoment.isSame(focusedDate, 'month');
@@ -457,15 +457,15 @@ export default function Home(props) {
                                             </TouchableOpacity>
                                         );
                                     })}
-                                </ScrollView>
+                                </ScrollView> */}
                             </View>
 
                             <CalendarStrip
                                 ref={calendarRef}
                                 scrollable
-                                // style={{ height: 100 }}
+                                style={{ height: 80 }}
                                 upperCaseDays={false}
-                                showMonth={false}
+                                showMonth={true}
                                 calendarColor={color.white}
                                 calendarHeaderStyle={{ color: color.primary }}
                                 // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
@@ -481,12 +481,12 @@ export default function Home(props) {
                                 onWeekChanged={(start, end) => {
                                     //console.log(start, end);
                                     // setSelectedDate(moment(start).format("YYYY-MM-DD"));
-                                    setFocusedDate(start);
-                                    //get month difference with today
-                                    let firstDate = moment().date(1)
-                                    let difference = start.diff(firstDate, 'month');
-                                    console.log("Difference: ", difference);
-                                    scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
+                                    // setFocusedDate(start);
+                                    // //get month difference with today
+                                    // let firstDate = moment().date(1)
+                                    // let difference = start.diff(firstDate, 'month');
+                                    // console.log("Difference: ", difference);
+                                    // scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
                                 }}
                                 markedDates={markedDates}
                                 customDatesStyles={customDatesStyles}
@@ -755,7 +755,7 @@ const styles = {
         paddingVertical: 20,
     },
     calendarHeader: {
-        height: 30,
+        height: 0,
         // backgroundColor: 'blue',
     },
     monthButton: {
