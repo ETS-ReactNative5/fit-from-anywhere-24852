@@ -26,6 +26,7 @@ import { setProfile } from '../store/actions';
 import SimpleModal from '../components/SimpleModal';
 import ImageUtils from '../utils/ImageUtils';
 import GymUtils from '../utils/GymUtils';
+import { Calendar } from 'react-native-calendars';
 
 const analytics = [
     { label: "Jump Squats" },
@@ -50,9 +51,19 @@ export default function Profile(props) {
     const [gymCodeVisible, setGymCodeVisible] = useState(false);
     const [isSavingGymCode, setSavingGymCode] = useState(false);
 
+    const [currentDate, setCurrentDate] = useState(moment().format('YYYY-MM-DD'));
+    const [markedDates, setMarkedDates] = useState({});
+
     useEffect(() => {
         loadProfile();
     }, []);
+
+    useEffect(() => {
+        let obj = {};
+        obj[currentDate] = { selected: true, selectedColor: color.primary };
+
+        setMarkedDates(obj);
+    }, [currentDate]);
 
     const loadProfile = useCallback(() => {
         setLoading(true);
@@ -213,7 +224,58 @@ export default function Profile(props) {
                         }} />
                 </View>
 
-                {/* <View style={styles.line} />
+                <View style={styles.line} />
+
+                <View style={styles.row}>
+                    <Text style={styles.label}>Gender</Text>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => {
+                            setGender("M");
+                        }}>
+                            <MaterialCommunityIcons name={gender == "M" ? "checkbox-marked" : "checkbox-blank-outline"} size={20} color={color.primary} />
+                            <Text style={styles.checkboxText}>Male</Text>
+                        </TouchableOpacity>
+                        <View style={{ width: 10 }} />
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => {
+                            setGender("F");
+                        }}>
+                            <MaterialCommunityIcons name={gender == "F" ? "checkbox-marked" : "checkbox-blank-outline"} size={20} color={color.primary} />
+                            <Text style={styles.checkboxText}>Female</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <View style={styles.line} />
+
+                <View style={styles.row}>
+                    <Text style={styles.label}>Address</Text>
+                    <TouchableOpacity style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }} onPress={() => {
+                        setGymCodeVisible(true);
+                    }}>
+                        {gym != null && (
+                            <>
+                                <Text style={styles.gymName}>{gym.name}</Text>
+                                <Text style={styles.gymCode}>Gym Code: {gym.code}</Text>
+                            </>
+                        )}
+                        {gym == null && (
+                            <>
+                                <Text style={styles.gymName}>N/A</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.line} />
+
+                <TouchableOpacity style={styles.row} onPress={() => {
+                    props.navigation.navigate("ChooseProgram");
+                }}>
+                    <MaterialCommunityIcons name="target" size={20} color={color.primary} />
+                    <Text style={styles.label}> Change Goal</Text>
+                </TouchableOpacity>
+
+                {/* 
 
                 <View style={styles.row}>
                     <Text style={styles.label}>Date of Birth</Text>
@@ -242,19 +304,7 @@ export default function Profile(props) {
                         }} />
                 </View>
 
-                <View style={styles.line} />
-
-                <View style={styles.row}>
-                    <Text style={styles.label}>Student Campus Address</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Address"
-                        placeholderTextColor={color.gray}
-                        value={address}
-                        onChangeText={(text) => {
-                            setAddress(text);
-                        }} />
-                </View> */}
+                 */}
 
                 <View style={styles.line} />
 
@@ -266,33 +316,21 @@ export default function Profile(props) {
 
                 <View style={styles.line} />
 
-                <View style={{ padding: 20 }}>
-                    {gym != null && (
-                        <View style={styles.gym}>
-                            {gym.gym_image == null && <Image source={ImageUtils.defaultImage} style={styles.gymImage} />}
-                            {gym.gym_image != null && <Image source={{ uri: HttpUtils.normalizeUrl(gym.gym_image) }} style={styles.gymImage} />}
-                            <View style={styles.gymInfo}>
-                                <Text style={styles.gymName}>{gym.name}</Text>
-                                <Text style={styles.gymText}>Gym Code: {gym.code}</Text>
-                            </View>
-                        </View>
-                    )}
+                <View style={styles.bottomArea}>
+                    <View style={styles.calendar}>
+                        <Calendar
+                            // Initially visible month. Default = now
+                            current={currentDate}
+                            markedDates={markedDates}
+                            onDayPress={day => {
+                                console.log('selected day', day);
+                            }}
+                            monthFormat={'MMM yyyy'}
 
-                    <Button
-                        icon={<MaterialCommunityIcons name="pencil-outline" size={20} color={color.white} />}
-                        onPress={() => {
-                            setGymCodeVisible(true);
-                        }}>Update Gym Code</Button>
-                </View>
-
-                <View style={styles.line} />
-
-                <View style={{ padding: 20 }}>
-                    <Button
-                        icon={<MaterialCommunityIcons name="target" size={20} color={color.white} />}
-                        onPress={() => {
-                            props.navigation.navigate("ChooseProgram");
-                        }}>Set Fitness Goal</Button>
+                            // Enable the option to swipe between months. Default = false
+                            enableSwipeMonths={true}
+                        />
+                    </View>
                 </View>
 
                 <SimpleModal
@@ -350,6 +388,11 @@ export default function Profile(props) {
 }
 
 const styles = {
+    checkboxText: {
+        marginLeft: 5,
+        fontSize: 14,
+        color: color.text,
+    },
     gym: {
         flexDirection: "row",
         padding: 10,
@@ -375,7 +418,7 @@ const styles = {
     gymCode: {
         fontSize: 13,
         fontFamily: font.sourceSansPro,
-        color: color.black,
+        color: color.text,
     },
 
     container: {
@@ -397,11 +440,10 @@ const styles = {
     row: {
         flexDirection: 'row',
         paddingHorizontal: 20,
-        paddingVertical: 20,
+        paddingVertical: 10,
         alignItems: 'center',
     },
     label: {
-        flex: 1,
         fontSize: 16,
         fontFamily: font.sourceSansPro,
         color: color.text,
@@ -415,6 +457,8 @@ const styles = {
         fontSize: 16,
         fontFamily: font.sourceSansPro,
         color: color.text,
+        flex: 1,
+        textAlign: 'right',
     },
     section: {
         paddingHorizontal: 20,
@@ -453,4 +497,14 @@ const styles = {
         backgroundColor: color.text,
         marginHorizontal: 10,
     },
+
+    bottomArea: {
+        backgroundColor: "#e6ebed",
+        padding: 20,
+    },
+    calendar: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 10,
+    }
 };

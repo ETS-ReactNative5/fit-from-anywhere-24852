@@ -76,6 +76,7 @@ export default function Home(props) {
     const [dayNumber, setDayNumber] = useState(0);
     const [allWorkoutPlans, setAllWorkoutPlans] = useState([]);
     const [markedDates, setMarkedDates] = useState([]);
+    const [customDatesStyles, setCustomDatesStyles] = useState([]);
     const [userProgress, setUserProgress] = useState([]);
     const [userWoPlanIds, setUserWoPlanIds] = useState([]);
 
@@ -210,6 +211,35 @@ export default function Home(props) {
                 doneCount += existNum;
                 totalCount += totalNum;
             });
+
+            [
+                {
+                    startDate: moment(selectedDate), // Single date since no endDate provided
+                    // dateNameStyle: styles.dateNameStyle,
+                    // dateNumberStyle: styles.dateNumberStyle,
+                    // // Random color...
+                    dateContainerStyle: {
+                        // backgroundColor: 'red',
+                        borderRadius: 10,
+                        backgroundColor: color.primary,
+                    },
+                    dateNameStyle: {
+                        color: color.white,
+                    },
+                    dateNumberStyle: {
+                        color: color.white,
+                    }
+                },
+                {
+                    startDate: moment(selectedDate).subtract(1, 'day'), // Single date since no endDate provided
+                    dateContainerStyle: {
+                        borderWidth: 3,
+                        borderColor: color.danger,
+                        borderRadius: 10,
+                    },
+                }
+            ]
+
             setMarkedDates(arrMarkedDates);
             setUserWoPlanIds(userProgressObj);
             setProgressPercentage(Math.round((doneCount / totalCount) * 100));
@@ -227,6 +257,38 @@ export default function Home(props) {
             loadWorkoutPlan(selectedPlan.id, _dayNumber);
         }
     }, [selectedPlan, userPlanCreatedTime, selectedDate]);
+
+    useEffect(() => {
+        let customDateStyles = [];
+        customDateStyles.push({
+            startDate: moment(selectedDate),
+            dateContainerStyle: {
+                // backgroundColor: 'red',
+                borderRadius: 10,
+                backgroundColor: color.primary,
+            },
+            dateNameStyle: {
+                color: color.white,
+            },
+            dateNumberStyle: {
+                color: color.white,
+            }
+        });
+
+        markedDates.forEach((markedDate) => {
+            customDateStyles.push({
+                startDate: moment(markedDate.date),
+                dateContainerStyle: {
+                    // backgroundColor: 'red',
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: markedDate.dots[0].color,
+                },
+            })
+        })
+
+        setCustomDatesStyles(customDateStyles);
+    }, [selectedDate, markedDates]);
 
     const loadProgram = useCallback(() => {
         if (profile.fitness_goal != "" && profile.fitness_goal != null) {
@@ -427,20 +489,7 @@ export default function Home(props) {
                                     scrollRef.current.scrollTo({ x: 100 * difference, animated: true });
                                 }}
                                 markedDates={markedDates}
-                                customDatesStyles={[
-                                    {
-                                        startDate: moment(selectedDate), // Single date since no endDate provided
-                                        // dateNameStyle: styles.dateNameStyle,
-                                        // dateNumberStyle: styles.dateNumberStyle,
-                                        // // Random color...
-                                        dateContainerStyle: {
-                                            // backgroundColor: 'red',
-                                            borderWidth: 1,
-                                            borderColor: color.primary,
-                                            borderRadius: 10,
-                                        },
-                                    }
-                                ]}
+                                customDatesStyles={customDatesStyles}
                             />
                         </View>
 
