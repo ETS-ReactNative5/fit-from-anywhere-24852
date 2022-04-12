@@ -1,6 +1,7 @@
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     Image,
     ScrollView,
     Text,
@@ -25,7 +26,7 @@ const appointmentTypes = [
     { id: "training", label: "Training" },
 ];
 
-export default function AppointmentEdit(props) {
+export default function AppointmentView(props) {
     const profile = useSelector(state => state.profile);
     const appointment = props.route.params?.appointment;
 
@@ -34,20 +35,9 @@ export default function AppointmentEdit(props) {
     const [apointment_type, setApointmentType] = useState("appointment");
     const [status, setStatus] = useState("pending");
     const [trainer, setTrainer] = useState(null);
-    const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const [trainers, setTrainers] = useState([]);
-    const [users, setUsers] = useState([]);
-
-    useEffect(() => {
-        if (profile.is_trainer) {
-            setTrainer(profile.user.id);
-            setStatus("approved");
-        } else {
-            setUser(profile.user.id);
-        }
-    }, [profile]);
 
     useEffect(() => {
         if (appointment) {
@@ -69,16 +59,10 @@ export default function AppointmentEdit(props) {
         HttpRequest.getUserProfileList().then((res) => {
             console.log("loadTrainers", res.data.results);
             let _trainers = [];
-            let _users = [];
             let rawTrainers = res.data.results;
             rawTrainers.forEach((trn) => {
                 if (trn.is_trainer) {
                     _trainers.push({
-                        id: trn.user.id,
-                        label: trn.user.name,
-                    });
-                } else {
-                    _users.push({
                         id: trn.user.id,
                         label: trn.user.name,
                     });
@@ -88,32 +72,12 @@ export default function AppointmentEdit(props) {
                 setTrainer(_trainers[0].id);
             }
             setTrainers(_trainers);
-
-            if (user) {
-                setUser(_users[0].id);
-            }
-            setUsers(_users);
         }).catch((err) => {
-            Toast.showError(HttpResponse.processMessage(err.response, "Cannot load trainer & user list"));
+            Toast.showError(HttpResponse.processMessage(err.response, "Cannot load trainer list"));
         });
-    }, [trainer, user]);
+    }, [trainer]);
 
-    const saveAppointment = useCallback(() => {
-        if (user == null) {
-            Toast.showError("Please select user");
-            return;
-        }
-
-        if (trainer == null) {
-            Toast.showError("Please select trainer");
-            return;
-        }
-
-        if (dateTime == null) {
-            Toast.showError("Please select date & time");
-            return;
-        }
-
+    const saveAppointment = useCallback((status) => {
         setIsLoading(true);
 
         let data = {
@@ -123,7 +87,7 @@ export default function AppointmentEdit(props) {
             apointment_type,
             status,
             trainer,
-            user,
+            user: profile.user.id,
         };
 
         let promise = appointment ? HttpRequest.patchAppointment(appointment.id, data) : HttpRequest.saveAppointment(data);
@@ -138,106 +102,45 @@ export default function AppointmentEdit(props) {
             setIsLoading(false);
         });
 
-    }, [appointment, zoom_link, dateTime, apointment_type, status, trainer, user]);
+    }, [appointment, profile, zoom_link, dateTime, apointment_type, trainer]);
 
     return (
         <SafeAreaView style={styles.container}>
             <Header
-                title={appointment ? "Edit Appointment" : "New Appointment"}
+                title={"View Appointment"}
                 leftIcon={<MaterialCommunityIcons name="arrow-left" size={25} color={color.white} />}
                 onLeftClick={() => {
                     props.navigation.goBack();
                 }} />
             <ScrollView>
                 <View style={styles.content}>
-                    {profile.is_trainer == false && (
-                        <>
+                    <Text style={styles.chooserLabel}>User</Text>
+                    <View style={styles.chooser}>
+                        <Text style={styles.chooserText}>{appointment.user.name}</Text>
+                    </View>
 
-                            <Combobox
-                                label="Trainer"
-                                placeholder="Select trainer"
-                                style={styles.combo}
-                                selectedValue={trainer}
-                                data={trainers}
-                                onValueChange={(val, itemIndex) => {
-                                    setTrainer(val);
-                                }}
-                            />
+                    <Text style={styles.chooserLabel}>Time</Text>
+                    <TouchableOpacity style={styles.chooser} onPress={() => {
+                        props.navigation.navigate("AppointmentSlot", {
+                            trainer: trainer,
+                            onSelect: (dateTime) => {
+                                console.log("onSelect", dateTime);
+                                setDateTime(dateTime);
+                            },
+                        });
+                    }}>
+                        {/* <Text style={styles.chooserText}>{dateTime}</Text> */}
+                        {dateTime != null && <Text style={styles.chooserText}>{moment(dateTime).format("MMM DD, YYYY, hh:mm a")}</Text>}
+                        {dateTime == null && <Text style={styles.chooserText}>Select time slot</Text>}
+                    </TouchableOpacity>
 
-                            {trainer != null && (
-                                <>
-                                    <Text style={styles.chooserLabel}>Choose Time</Text>
-                                    <TouchableOpacity style={styles.chooser} onPress={() => {
-                                        props.navigation.navigate("AppointmentSlot", {
-                                            trainer: trainer,
-                                            onSelect: (dateTime) => {
-                                                console.log("onSelect", dateTime);
-                                                setDateTime(dateTime);
-                                            },
-                                        });
-                                    }}>
-                                        {/* <Text style={styles.chooserText}>{dateTime}</Text> */}
-                                        {dateTime != null && <Text style={styles.chooserText}>{moment(dateTime).format("MMM DD, YYYY, hh:mm a")}</Text>}
-                                        {dateTime == null && <Text style={styles.chooserText}>Select time slot</Text>}
-                                    </TouchableOpacity>
-
-                                </>
-                            )}
-
-                            {trainer == null && (
-                                <View style={{ opacity: 0.5 }}>
-                                    <Text style={styles.chooserLabel}>Choose Time</Text>
-                                    <View style={styles.chooser}>
-                                        <Text style={styles.chooserText}>Please select trainer first</Text>
-                                    </View>
-                                </View>
-                            )}
-                        </>
-                    )}
-
-                    {profile.is_trainer == true && (
-                        <>
-
-                            <Combobox
-                                label="User"
-                                placeholder="Select user"
-                                style={styles.combo}
-                                selectedValue={user}
-                                data={users}
-                                onValueChange={(val, itemIndex) => {
-                                    setUser(val);
-                                }}
-                            />
-
-                            {user != null && (
-                                <>
-                                    <Text style={styles.chooserLabel}>Choose Time</Text>
-                                    <TouchableOpacity style={styles.chooser} onPress={() => {
-                                        props.navigation.navigate("AppointmentSlot", {
-                                            trainer: trainer,
-                                            onSelect: (dateTime) => {
-                                                console.log("onSelect", dateTime);
-                                                setDateTime(dateTime);
-                                            },
-                                        });
-                                    }}>
-                                        {/* <Text style={styles.chooserText}>{dateTime}</Text> */}
-                                        {dateTime != null && <Text style={styles.chooserText}>{moment(dateTime).format("MMM DD, YYYY, hh:mm a")}</Text>}
-                                        {dateTime == null && <Text style={styles.chooserText}>Select time slot</Text>}
-                                    </TouchableOpacity>
-
-                                </>
-                            )}
-
-                            {user == null && (
-                                <View style={{ opacity: 0.5 }}>
-                                    <Text style={styles.chooserLabel}>Choose Time</Text>
-                                    <View style={styles.chooser}>
-                                        <Text style={styles.chooserText}>Please select user first</Text>
-                                    </View>
-                                </View>
-                            )}
-                        </>
+                    {trainer == null && (
+                        <View style={{ opacity: 0.5 }}>
+                            <Text style={styles.chooserLabel}>Choose Time</Text>
+                            <View style={styles.chooser}>
+                                <Text style={styles.chooserText}>Please select trainer first</Text>
+                            </View>
+                        </View>
                     )}
 
                     {/* <DatePicker
@@ -287,11 +190,43 @@ export default function AppointmentEdit(props) {
 
                     <View style={{ height: 20 }} />
 
-                    <Button loading={isLoading} onPress={() => {
-                        saveAppointment();
-                    }}>Save</Button>
+
                 </View>
             </ScrollView>
+
+            {(appointment.status == null || appointment.status == "pending") && (
+                <View style={{ paddingHorizontal: 20 }}>
+                    {isLoading && (
+                        <View style={{ alignItems: 'center' }}>
+                            <ActivityIndicator color={color.primary} size='small' />
+                        </View>
+                    )}
+
+                    {!isLoading && (
+                        <>
+                            <Button onPress={() => {
+                                saveAppointment("approved");
+                            }}>Approve</Button>
+                            <View style={{ height: 10 }} />
+                            <Button
+                                theme='secondary'
+                                onPress={() => {
+                                    saveAppointment("rejected");
+                                }}>Reject</Button>
+                        </>
+                    )}
+                </View>
+            )}
+
+            {appointment.status == "approved" && (
+                <View style={{ paddingHorizontal: 20 }}>
+                    <Button
+                        loading={isLoading}
+                        onPress={() => {
+                            saveAppointment("approved");
+                        }}>Update</Button>
+                </View>
+            )}
         </SafeAreaView>
     );
 }

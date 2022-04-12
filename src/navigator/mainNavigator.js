@@ -33,6 +33,7 @@ import ChoosePlan from "../screens/ChoosePlan";
 import HomeWorkout from "../screens/HomeWorkout";
 import ResourceDetail from "../screens/ResourceDetail";
 import ChooseProgram from "../screens/ChooseProgram";
+import AppointmentView from "../screens/AppointmentView";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -76,6 +77,7 @@ const DashboardStack = () => {
         <Stack.Navigator initialRouteName="HomeStack" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeStack" component={HomeNavigator} />
             <Stack.Screen name="AppointmentEdit" component={AppointmentEdit} />
+            <Stack.Screen name="AppointmentView" component={AppointmentView} /> 
             <Stack.Screen name="AppointmentSlot" component={AppointmentSlot} />
             <Stack.Screen name="MessageCreateGroup" component={MessageCreateGroup} />
             <Stack.Screen name="MessageCreateDirect" component={MessageCreateDirect} />

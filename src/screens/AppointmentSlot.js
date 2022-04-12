@@ -46,6 +46,10 @@ export default function AppointmentSlot(props) {
     const [dailyBookings, setDailyBookings] = useState([]);
     const [selectedHour, setSelectedHour] = useState(null);
 
+    useEffect(() => {
+        console.log("Convert time to minute", convertTimeToMinute("01:00:00"));
+    }, []);
+
     const convertTimeToMinute = useCallback((time) => {
         return Math.floor(moment(time, 'HH:mm:ss').diff(moment().startOf('day'), 'seconds') / 60)
     }, []);
@@ -193,7 +197,7 @@ export default function AppointmentSlot(props) {
                                     })}
 
                                     {dailyBookings.map((item, index) => {
-                                        let start = convertTimeToMinute(moment(item.date_and_time).format("HH:mm:ss"));
+                                        let start = convertTimeToMinute(item.booked_time);
                                         let minute = 60;
 
                                         return (
@@ -270,5 +274,24 @@ const styles = {
     bottomContainer: {
         paddingHorizontal: 20,
         paddingBottom: 10,
+    },
+
+    bookingSlot: {
+        position: 'absolute',
+        left: 72,
+        top: 100,
+        width: 100,
+        height: 30,
+        backgroundColor: color.danger,
+        borderWidth: 1,
+        borderColor: color.border,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        justifyContent: 'center',
+    },
+    bookingSlotTitle: {
+        fontFamily: fonts.workSansMedium,
+        fontSize: 14,
+        color: color.white,
     },
 };

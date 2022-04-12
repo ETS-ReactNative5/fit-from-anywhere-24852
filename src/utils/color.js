@@ -5,6 +5,7 @@ export default {
     gray: "#ABB3BB",
     danger: "#e74c3c",
     success: "#2ecc71",
+    warning: "#f1c40f",
     header: "#2E2E30",
     border: '#003358',
     text: "#3F5259",

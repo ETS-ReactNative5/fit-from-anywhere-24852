@@ -20,6 +20,7 @@ import NoData from '../components/NoData';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ImageUtils from '../utils/ImageUtils';
 import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 // const appointments = [
 //     { label: "Practice online", time: "2022-01-01T09:30:00.000Z" },
@@ -34,9 +35,9 @@ export default function Appointment(props) {
     const [isLoading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState([]);
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         loadAppointments();
-    }, []);
+    }, []));
 
     const loadAppointments = useCallback(() => {
         setLoading(true);
@@ -84,28 +85,62 @@ export default function Appointment(props) {
                         {appointments.length == 0 && <NoData>No Appointment Available</NoData>}
                         {appointments.map((appointment, index) => {
                             return (
-                                <View style={styles.appointment} key={index}>
-                                    <Text style={styles.appointmentLabel}>
-                                        {appointment.apointment_type == "appointment" && "Appointment with " + appointment.trainer?.name}
-                                        {appointment.apointment_type == "training" && "Training with " + appointment.trainer?.name}
-                                    </Text>
+                                <TouchableOpacity style={styles.appointment} key={index} onPress={() => {
+                                    if (profile.is_trainer) {
+                                        props.navigation.navigate("AppointmentView", { appointment });
+                                    } else {
+                                        props.navigation.navigate("AppointmentEdit", { appointment });
+                                    }
+                                }}>
+                                    {!profile.is_trainer && (
+                                        <Text style={styles.appointmentLabel}>
+                                            {appointment.apointment_type == null && "Appointment with " + appointment.trainer?.name}
+                                            {appointment.apointment_type == "appointment" && "Appointment with " + appointment.trainer?.name}
+                                            {appointment.apointment_type == "training" && "Training with " + appointment.trainer?.name}
+                                        </Text>
+                                    )}
+                                    {profile.is_trainer && (
+                                        <Text style={styles.appointmentLabel}>
+                                            {appointment.apointment_type == null && "Appointment with " + appointment.user?.name}
+                                            {appointment.apointment_type == "appointment" && "Appointment with " + appointment.user?.name}
+                                            {appointment.apointment_type == "training" && "Training with " + appointment.user?.name}
+                                        </Text>
+                                    )}
                                     <Text style={styles.appointmentTime}>{moment(appointment.created_at).format("hh:mm a")}</Text>
 
                                     <View style={{ flexDirection: 'row', marginTop: 10, }}>
-                                        {appointment.zoom_link != null && (
+                                        {(appointment.status == null || appointment.status == "pending") && (
+                                            <View style={styles.badgeWarning}>
+                                                <Text style={styles.badgeWarningText}>Requires Trainer Approval</Text>
+                                            </View>
+                                        )}
+                                        {appointment.status == "approved" && (
+                                            <View style={styles.badgeSuccess}>
+                                                <Text style={styles.badgeSuccessText}>Approved by Trainer</Text>
+                                            </View>
+                                        )}
+                                        {appointment.status == "rejected" && (
+                                            <View style={styles.badgeDanger}>
+                                                <Text style={styles.badgeDangerText}>Rejected by Trainer</Text>
+                                            </View>
+                                        )}
+                                    </View>
+
+                                    <View style={{ flexDirection: 'row', marginTop: 10, }}>
+                                        {(appointment.zoom_link != null && appointment.zoom_link != "") && (
                                             <TouchableOpacity style={styles.zoomButton} onPress={() => {
-                                                if (Linking.canOpenURL(appointment.zoom_link)) {
+                                                Linking.canOpenURL(appointment.zoom_link).then(() => {
                                                     Linking.openURL(appointment.zoom_link);
-                                                } else {
+                                                }).catch((err) => {
                                                     Toast.showError("Your link is not valid");
-                                                }
+                                                });
                                             }}>
                                                 <Text style={styles.zoomButtonText}>Zoom</Text>
                                                 <Image source={ImageUtils.logoZoom} style={styles.zoomImage} resizeMode='contain' />
                                             </TouchableOpacity>
                                         )}
 
-                                        {appointment.zoom_link == null && (
+                                        {(appointment.zoom_link == null || appointment.zoom_link == "") && (
                                             <View style={styles.zoomButton}>
                                                 <Text style={styles.zoomButtonTextNa}>Zoom Link Not Available</Text>
                                             </View>
@@ -113,14 +148,12 @@ export default function Appointment(props) {
 
                                         <View style={{ width: 20 }} />
 
-                                        <TouchableOpacity style={styles.zoomButton} onPress={() => {
-                                            props.navigation.navigate("AppointmentEdit", { appointment });
-                                        }}>
+                                        <View style={styles.zoomButton}>
                                             <Text style={styles.zoomButtonText}>{moment(appointment.booked_date + " " + appointment.booked_time).format("MMM DD, YYYY")}</Text>
                                             <MaterialCommunityIcons name="calendar-clock" size={20} color={color.black} />
-                                        </TouchableOpacity>
+                                        </View>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
                             );
                         })}
                     </>
@@ -175,5 +208,36 @@ const styles = {
     zoomImage: {
         width: 25,
         height: 25,
-    }
+    },
+
+    badgeWarning: {
+        backgroundColor: color.warning,
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 5,
+    },
+    badgeWarningText: {
+        color: color.black,
+        fontSize: 12,
+    },
+    badgeSuccess: {
+        backgroundColor: color.success,
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 5,
+    },
+    badgeSuccessText: {
+        color: color.white,
+        fontSize: 12,
+    },
+    badgeDanger: {
+        backgroundColor: color.danger,
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 5,
+    },
+    badgeDangerText: {
+        color: color.white,
+        fontSize: 12,
+    },
 };
