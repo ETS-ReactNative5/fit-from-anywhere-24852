@@ -19,16 +19,14 @@ import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Toast from '../components/Toast';
 import _ from 'lodash';
 import LoadingIndicator from '../components/LoadingIndicator';
-import VideoPlayer from '../components/VideoPlayer';
 import BottomSheet from '@gorhom/bottom-sheet';
 import StyleUtils from '../utils/StyleUtils';
 import Button from '../components/Button';
-import CircularProgress from '../components/CircularProgress';
-import Timer from 'react-native-timer';
 import useInterval from '../utils/useInterval';
-import YoutubePlayer from "react-native-youtube-iframe";
+
 import { useDispatch, useSelector } from 'react-redux';
 import { setNextExercise } from '../store/actions';
+import YoutubePlayer from '../components/YoutubePlayer';
 
 let timerResting = 0;
 let timerSet = 0;

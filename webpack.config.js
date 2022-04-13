@@ -9,6 +9,9 @@ const { presets } = require(`${appDirectory}/babel.config.js`);
 const compileNodeModules = [
 	// Add every react-native package that needs compiling
 	// 'react-native-gesture-handler',
+	'react-native-calendars',
+	'react-native-calendar-strip',
+	'react-native-swipe-gestures',
 ].map((moduleName) => path.resolve(appDirectory, `node_modules/${moduleName}`));
 
 const babelLoaderConfiguration = {

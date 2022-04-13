@@ -18,7 +18,6 @@ import { Calendar } from 'react-native-calendars';
 import { useDispatch, useSelector } from 'react-redux';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Button from '../components/Button';
-import { LineChart } from 'react-native-chart-kit';
 import { setNextExercise, setShowOnboard } from '../store/actions';
 import ImageUtils from '../utils/ImageUtils';
 import Toast from '../components/Toast';

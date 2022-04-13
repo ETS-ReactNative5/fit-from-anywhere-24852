@@ -34,6 +34,11 @@ object-assign
  */
 
 /**
+ * @preserve XDate v@VERSION
+ * Docs & Licensing: http://arshaw.com/xdate/
+ */
+
+/**
  * Checks if two values are equal. Values may be primitives, arrays, or objects.
  * Returns true if both arguments have the same keys and values.
  *
