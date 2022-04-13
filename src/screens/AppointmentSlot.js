@@ -290,7 +290,7 @@ const styles = {
         justifyContent: 'center',
     },
     bookingSlotTitle: {
-        fontFamily: fonts.workSansMedium,
+        fontFamily: font.sourceSansPro,
         fontSize: 14,
         color: color.white,
     },
