@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     View,
-    TextInput,
+    RefreshControl,
+    Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
@@ -19,23 +20,20 @@ import NoData from '../components/NoData';
 import Toast from '../components/Toast';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import { useSelector } from 'react-redux';
-import Combobox from '../components/Combobox';
-import slugify from 'slugify';
-import { v4 as uuidv4 } from 'uuid';
 import { usePubNub } from 'pubnub-react';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ImageUtils from '../utils/ImageUtils';
+import TextInput from '../components/TextInput';
 
 export default function MessageCreateDirect(props) {
     const profile = useSelector((state) => state.profile);
     const pubnub = usePubNub();
 
-    const [name, setName] = useState('');
-    const [image, setImage] = useState(null);
     const [allMembers, setAllMembers] = useState([]);
-    const [selectedMember, setSelectedMember] = useState(null);
+    const [filteredAllMembers, setFilteredAllMembers] = useState([]);
     const [isLoading, setLoading] = useState(false);
     const [isSaving, setSaving] = useState(false);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         loadProfiles();
@@ -43,19 +41,34 @@ export default function MessageCreateDirect(props) {
 
     const loadProfiles = useCallback(() => {
         setLoading(true);
+        setSearch("");
         HttpRequest.getUserProfileList().then((res) => {
             console.log("getUserProfileList", res.data);
             let _allMembers = [];
-            res.data.results.forEach((item) => {
-                if (item.user.id != profile.user.id) {
-                    _allMembers.push({
-                        id: item.user.id + "",
-                        label: item.user.name,
-                        image: HttpUtils.normalizeUrl(item.profile_image),
-                    });
-                }
-            });
+            if (profile.is_trainer) {
+                res.data.results.forEach((item) => {
+                    if (item.user.id != profile.user.id && !item.is_trainer) {
+                        _allMembers.push({
+                            id: item.user.id + "",
+                            label: item.user.name,
+                            image: HttpUtils.normalizeUrl(item.profile_image),
+                        });
+                    }
+                });
+            } else {
+                res.data.results.forEach((item) => {
+                    if (item.user.id != profile.user.id && item.is_trainer) {
+                        _allMembers.push({
+                            id: item.user.id + "",
+                            label: item.user.name,
+                            image: HttpUtils.normalizeUrl(item.profile_image),
+                        });
+                    }
+                });
+            }
+            console.log("Members", _allMembers);
             setAllMembers(_allMembers);
+            setFilteredAllMembers(_allMembers);
             setLoading(false);
         }).catch((err) => {
             console.log(err, err.response);
@@ -64,12 +77,7 @@ export default function MessageCreateDirect(props) {
         });
     }, [profile]);
 
-    const createDirect = useCallback(() => {
-        if (selectedMember.length == 0) {
-            Toast.showError("Please select members");
-            return;
-        }
-
+    const createDirect = useCallback((selectedMember) => {
         setSaving(true);
 
         const channelName = "private." + profile.user.id + "-" + selectedMember.id;
@@ -80,8 +88,7 @@ export default function MessageCreateDirect(props) {
                 name: "[DIRECT]",
                 description: "N/A",
                 custom: {
-                    image,
-                    member_1: profile.user.id + "", 
+                    member_1: profile.user.id + "",
                     member_2: selectedMember.id + "",
                 },
             },
@@ -119,49 +126,88 @@ export default function MessageCreateDirect(props) {
             Toast.showError("Cannot create channel, please try again");
             setSaving(false);
         });
-    }, [profile, selectedMember]);
+    }, [profile]);
+
+    const searchName = useCallback((text) => {
+        setSearch(text);
+
+        let filtered = [];
+        allMembers.forEach((item) => {
+            if (item.label.toLowerCase().includes(text.toLowerCase())) {
+                filtered.push(item);
+            }
+        });
+
+        setFilteredAllMembers(filtered);
+    }, [allMembers]);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header title='New Message'
-                leftIcon={<MaterialCommunityIcons name="arrow-left" size={25} color={color.white} />}
-                onLeftClick={() => {
-                    props.navigation.goBack();
-                }}
-                rightIcon={isSaving ? <ActivityIndicator color={color.white} /> : <MaterialCommunityIcons name='content-save' size={25} color={color.white} />}
-                onRightClick={() => {
-                    createDirect();
-                }}
-            />
-            <ScrollView>
-                <View style={styles.content}>
-                    {isLoading && <LoadingIndicator />}
+        <>
+            <SafeAreaView style={styles.container}>
+                <Header title='New Message'
+                    leftIcon={<MaterialCommunityIcons name="arrow-left" size={25} color={color.white} />}
+                    onLeftClick={() => {
+                        props.navigation.goBack();
+                    }}
+                // rightIcon={isSaving ? <ActivityIndicator color={color.white} /> : <MaterialCommunityIcons name='content-save' size={25} color={color.white} />}
+                // onRightClick={() => {
+                //     createDirect();
+                // }}
+                />
 
-                    {!isLoading && (
-                        <>
-                            {allMembers.length == 0 && <NoData>No Member Available</NoData>}
-                            {allMembers.map((member, index) => {
-                                let isSelected = false;
-                                if (selectedMember) {
-                                    if (selectedMember.id == member.id) {
-                                        isSelected = true;
-                                    }
-                                }
-                                return (
-                                    <TouchableOpacity style={isSelected ? styles.listSelected : styles.list} key={index} onPress={() => {
-                                        setSelectedMember(member);
-                                    }}>
-                                        {member.image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
-                                        {member.image != null && <Image source={{ uri: member.image }} style={styles.image} resizeMode='cover' />}
-                                        <Text style={styles.name}>{member.label}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </>
-                    )}
+                <View style={styles.searchWrapper}>
+                    <TextInput
+                        placeholder="Search a name"
+                        value={search}
+                        onChangeText={searchName}
+                        containerStyle={styles.input} />
                 </View>
-            </ScrollView>
-        </SafeAreaView>
+
+                <ScrollView refreshControl={
+                    <RefreshControl
+                        refreshing={isLoading}
+                        onRefresh={loadProfiles}
+                    />
+                }>
+                    <View style={styles.content}>
+                        {isLoading && <LoadingIndicator />}
+
+                        {!isLoading && (
+                            <>
+                                {filteredAllMembers.length == 0 && <NoData>No Member Available</NoData>}
+                                {filteredAllMembers.map((member, index) => {
+                                    return (
+                                        <TouchableOpacity style={styles.list} key={index} onPress={() => {
+                                            createDirect(member);
+                                        }}>
+                                            {member.image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
+                                            {member.image != null && <Image source={{ uri: member.image }} style={styles.image} resizeMode='cover' />}
+                                            <View style={styles.listContent}>
+                                                <Text style={styles.name}>{member.label}</Text>
+
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <View style={styles.badge}>
+                                                        {profile.is_trainer == true ?
+                                                            <Text style={styles.badgeText}>Member</Text> :
+                                                            <Text style={styles.badgeText}>Trainer</Text>}
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </>
+                        )}
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+
+            {isSaving && (
+                <View style={styles.loading}>
+                    <LoadingIndicator />
+                </View>
+            )}
+        </>
     );
 }
 
@@ -172,6 +218,10 @@ const styles = {
     },
     content: {
         padding: 20,
+    },
+    searchWrapper: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
     },
     card: {
         padding: 10,
@@ -187,7 +237,12 @@ const styles = {
         borderWidth: 1,
         borderColor: color.gray,
         borderRadius: 10,
-        padding: 10,
+        padding: 6,
+    },
+    listContent: {
+        justifyContent: 'center',
+        flex: 1,
+        marginLeft: 10,
     },
     listSelected: {
         flexDirection: 'row',
@@ -205,15 +260,15 @@ const styles = {
         marginBottom: 7,
     },
     image: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
     },
     name: {
-        // fontWeight: '600',
+        fontFamily: font.sourceSansPro,
         fontSize: 16,
         color: color.black,
-        marginLeft: 10,
+        marginBottom: 4,
     },
     desc: {
         fontWeight: '400',
@@ -239,5 +294,28 @@ const styles = {
         fontSize: 12,
         color: color.black,
         marginLeft: 10,
-    }
+    },
+
+    badge: {
+        backgroundColor: color.success,
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 5,
+    },
+    badgeText: {
+        fontFamily: font.sourceSansPro,
+        fontSize: 14,
+        color: color.white,
+    },
+
+    loading: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: Dimensions.get('screen').width,
+        height: Dimensions.get('screen').height,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 };

@@ -4,6 +4,7 @@ import { HttpRequest } from "./http"
 
 export default {
     findProfile(id, dispatch) {
+        id = id + "";
         let oldProfiles = store.getState().profiles;
         if (oldProfiles[id] == null) {
             HttpRequest.getOtherUserProfile(id).then((res) => {
@@ -18,6 +19,7 @@ export default {
     },
 
     findWorkoutPlansByPlanId(id, dispatch) {
+        id = id + "";
         let oldWorkoutPlans = store.getState().workoutPlans;
         if (oldWorkoutPlans[id] == null) {
             HttpRequest.getWorkoutPlansByPlanId(id).then((res) => {

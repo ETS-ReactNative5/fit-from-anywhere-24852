@@ -21,6 +21,8 @@ import { MenuView } from '@react-native-menu/menu';
 import CacheUtils from '../utils/CacheUtils';
 import ImageUtils from '../utils/ImageUtils';
 import PushNotificationUtils from '../utils/PushNotificationUtils';
+import LoadingIndicator from '../components/LoadingIndicator';
+import { HttpUtils } from '../utils/http';
 
 export default function Message(props) {
     const pubnub = usePubNub();
@@ -69,7 +71,7 @@ export default function Message(props) {
         }).then((res) => {
             console.log("getMembership", res);
 
-            let channelIds = ["chat-notification." + profile.user.id];
+            let channelIds = ["notification." + profile.user.id];
 
             let result = res.data.map((message) => {
                 if (message.channel.name == "[DIRECT]") {
@@ -98,72 +100,87 @@ export default function Message(props) {
                     props.navigation.openDrawer();
                 }}
                 rightIcon={
-                    <MenuView
-                        title="New Message"
-                        onPressAction={({ nativeEvent }) => {
-                            if (nativeEvent.event == "private") {
-                                props.navigation.navigate("MessageCreateDirect");
-                            } else {
-                                props.navigation.navigate("MessageCreateGroup");
-                            }
-                        }}
-                        actions={[
-                            {
-                                id: 'private',
-                                title: 'Private Message',
-                                titleColor: color.black,
-                                subtitle: 'Send private message to a trainer',
-                            },
-                            {
-                                id: 'group',
-                                title: 'Group Message',
-                                titleColor: color.black,
-                                subtitle: 'Create a group with some members',
-                            },
-                        ]}
-                        shouldOpenOnLongPress={false}
-                    >
-                        <MaterialCommunityIcons name='plus' size={25} color={color.white} />
-                    </MenuView>
+                    // <MenuView
+                    //     title="New Message"
+                    //     onPressAction={({ nativeEvent }) => {
+                    //         if (nativeEvent.event == "private") {
+                    //             props.navigation.navigate("MessageCreateDirect");
+                    //         } else {
+                    //             props.navigation.navigate("MessageCreateGroup");
+                    //         }
+                    //     }}
+                    //     actions={[
+                    //         {
+                    //             id: 'private',
+                    //             title: 'Private Message',
+                    //             titleColor: color.black,
+                    //             subtitle: 'Send private message to a trainer',
+                    //         },
+                    //         {
+                    //             id: 'group',
+                    //             title: 'Group Message',
+                    //             titleColor: color.black,
+                    //             subtitle: 'Create a group with some members',
+                    //         },
+                    //     ]}
+                    //     shouldOpenOnLongPress={false}
+                    // >
+                    //     <MaterialCommunityIcons name='plus' size={25} color={color.white} />
+                    // </MenuView>
+                    <MaterialCommunityIcons name='plus' size={25} color={color.white} />
                 }
-            // onRightClick={() => {
-            //     // props.navigation.navigate("MessageCreateGroup");
-            // }} 
+                onRightClick={() => {
+                    props.navigation.navigate("MessageCreateDirect");
+                }}
             />
 
-            <ScrollView refreshControl={<RefreshControl refreshing={false} onRefresh={getMembership} />}>
+            <ScrollView refreshControl={
+                <RefreshControl refreshing={false}
+                    onRefresh={getMembership} />}>
                 <View style={styles.content}>
-                    {channels.length == 0 && <NoData>No Message Available</NoData>}
-                    {channels.map((message, index) => {
-                        let otherUser = null;
-                        if (message.other_profile) {
-                            otherUser = profiles[message.other_profile];
-                        }
-                        let image = message.channel.custom?.image;
-                        let totalMember = message.channel.custom?.total_member ?? 1;
+                    {isLoading && <LoadingIndicator />}
 
-                        return (
-                            <TouchableOpacity style={styles.message} key={index} onPress={() => {
+                    {!isLoading && (
+                        <>
+                            {channels.length == 0 && <NoData>No Message Available</NoData>}
+                            {channels.map((message, index) => {
+                                let otherUser = null;
                                 if (message.other_profile) {
-                                    props.navigation.navigate("MessagePrivate", {
-                                        message,
-                                    });
-                                } else {
-                                    props.navigation.navigate("MessageDetail", {
-                                        message,
-                                    });
+                                    otherUser = profiles[message.other_profile];
                                 }
-                            }}>
-                                {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
-                                {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
-                                <View style={styles.messageContent}>
-                                    <Text style={styles.title}>{otherUser ? otherUser.user.name : message.channel.name}</Text>
-                                    <Text style={styles.description}>{totalMember} member{totalMember != 1 ? "s" : ""}</Text>
-                                </View>
-                                <MaterialCommunityIcons name="chevron-right" size={20} color={color.black} />
-                            </TouchableOpacity>
-                        );
-                    })}
+                                let image = HttpUtils.normalizeUrl(otherUser.profile_image);
+                                let totalMember = message.channel.custom?.total_member ?? 1;
+
+                                let lastMessage = message.channel.custom?.lastMessage ?? "(N/A)";
+
+                                return (
+                                    <TouchableOpacity style={styles.message} key={index} onPress={() => {
+                                        if (message.other_profile) {
+                                            props.navigation.navigate("MessagePrivate", {
+                                                message,
+                                            });
+                                        } else {
+                                            props.navigation.navigate("MessageDetail", {
+                                                message,
+                                            });
+                                        }
+                                    }}>
+                                        {image == null && <Image source={ImageUtils.defaultImage} style={styles.image} resizeMode='cover' />}
+                                        {image != null && <Image source={{ uri: image }} style={styles.image} resizeMode='cover' />}
+                                        <View style={styles.messageContent}>
+                                            <View style={styles.titleRow}>
+                                                <Text style={styles.title}>{otherUser ? otherUser.user.name : message.channel.name}</Text>
+                                                <Text style={styles.time}>{moment(message.channel.updated).utc().fromNow()}</Text>
+                                            </View>
+                                            <Text style={styles.description}>{lastMessage}</Text>
+                                            {/* <Text style={styles.description}>{totalMember} member{totalMember != 1 ? "s" : ""}</Text> */}
+                                        </View>
+                                        <MaterialCommunityIcons name="chevron-right" size={20} color={color.black} />
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -194,17 +211,28 @@ const styles = {
     image: {
         width: 40,
         height: 40,
-        borderRadius: 18,
+        borderRadius: 20,
+    },
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 5,
     },
     title: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 16,
+        fontFamily: font.sourceSansPro,
         color: color.black,
-        marginBottom: 5,
+        flex: 1,
+    },
+    time: {
+        fontSize: 14,
+        fontFamily: font.sourceSansPro,
+        color: color.gray,
     },
     description: {
         fontSize: 14,
-        fontWeight: '400',
-        color: color.black,
+        // fontWeight: '400',
+        fontFamily: font.sourceSansPro,
+        color: color.primary,
     },
 };

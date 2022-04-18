@@ -19,6 +19,8 @@ import Combobox from '../components/Combobox';
 import { HttpRequest, HttpResponse } from '../utils/http';
 import { useSelector } from 'react-redux';
 import Toast from '../components/Toast';
+import { usePubNub } from 'pubnub-react';
+import PushNotificationUtils from '../utils/PushNotificationUtils';
 
 const appointmentTypes = [
     { id: "appointment", label: "Appointment" },
@@ -26,6 +28,7 @@ const appointmentTypes = [
 ];
 
 export default function AppointmentEdit(props) {
+    const pubnub = usePubNub();
     const profile = useSelector(state => state.profile);
     const appointment = props.route.params?.appointment;
 
@@ -130,6 +133,16 @@ export default function AppointmentEdit(props) {
 
         promise.then((res) => {
             Toast.showSuccess("Appointment saved successfully");
+
+            //only send notification when create new appointment
+            if (appointment == null) {
+                if (profile.is_trainer) {
+                    PushNotificationUtils.sendChatNotification(pubnub, user, "New Appointment", "You have a new appointment from " + profile.user.name);
+                } else {
+                    PushNotificationUtils.sendChatNotification(pubnub, trainer, "New Appointment", "You have a new appointment from " + profile.user.name);
+                }
+            }
+
             props.navigation.goBack();
             setIsLoading(false);
         }).catch((err) => {
@@ -138,7 +151,7 @@ export default function AppointmentEdit(props) {
             setIsLoading(false);
         });
 
-    }, [appointment, zoom_link, dateTime, apointment_type, status, trainer, user]);
+    }, [appointment, zoom_link, dateTime, apointment_type, status, trainer, user, profile, pubnub]);
 
     return (
         <SafeAreaView style={styles.container}>
