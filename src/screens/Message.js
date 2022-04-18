@@ -148,7 +148,7 @@ export default function Message(props) {
                                 if (message.other_profile) {
                                     otherUser = profiles[message.other_profile];
                                 }
-                                let image = HttpUtils.normalizeUrl(otherUser.profile_image);
+                                let image = HttpUtils.normalizeUrl(otherUser?.profile_image);
                                 let totalMember = message.channel.custom?.total_member ?? 1;
 
                                 let lastMessage = message.channel.custom?.lastMessage ?? "(N/A)";
