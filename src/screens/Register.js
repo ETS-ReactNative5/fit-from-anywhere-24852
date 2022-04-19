@@ -130,15 +130,22 @@ export default function Register(props) {
                         onChangeText={setGymCode}
                         containerStyle={styles.input} />
 
-                    <TouchableOpacity style={styles.checkboxWrapper}
-                        activeOpacity={1}
-                        onPress={() => {
-                            setIsChecked(!isChecked);
+                    <View style={{ flexDirection: 'row' }}>
+                        <TouchableOpacity style={styles.checkbox}
+                            activeOpacity={1}
+                            onPress={() => {
+                                setIsChecked(!isChecked);
+                            }}>
+                            {!isChecked && <MaterialCommunityIcons name='radiobox-blank' size={20} color={color.text} />}
+                            {isChecked && <MaterialCommunityIcons name='radiobox-marked' size={20} color={color.text} />}
+
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.checkbox} onPress={()=>{
+                            props.navigation.navigate("AuthTermAndCondition");
                         }}>
-                        {!isChecked && <MaterialCommunityIcons name='radiobox-blank' size={20} color={color.text} />}
-                        {isChecked && <MaterialCommunityIcons name='radiobox-marked' size={20} color={color.text} />}
-                        <Text style={styles.checkboxText}>I have read Terms and Conditions and Privacy Policy</Text>
-                    </TouchableOpacity>
+                            <Text style={styles.checkboxText}>I have read Terms and Conditions and Privacy Policy</Text>
+                        </TouchableOpacity>
+                    </View>
 
                     <View style={styles.inputView}>
                         <Button

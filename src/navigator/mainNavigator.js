@@ -34,6 +34,7 @@ import HomeWorkout from "../screens/HomeWorkout";
 import ResourceDetail from "../screens/ResourceDetail";
 import ChooseProgram from "../screens/ChooseProgram";
 import AppointmentView from "../screens/AppointmentView";
+import AuthTermAndCondition from "../screens/AuthTermAndCondition";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -68,6 +69,7 @@ const AuthTab = () => {
             <Tab.Screen name="Intro" component={Intro} options={() => ({ headerShown: false })} />
             <Tab.Screen name="Register" component={Register} options={() => ({ headerShown: false })} />
             <Tab.Screen name="Login" component={Login} options={() => ({ headerShown: false })} />
+            <Tab.Screen name="AuthTermAndCondition" component={AuthTermAndCondition} options={() => ({ headerShown: false })} />
         </Tab.Navigator>
     );
 }
@@ -77,7 +79,7 @@ const DashboardStack = () => {
         <Stack.Navigator initialRouteName="HomeStack" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="HomeStack" component={HomeNavigator} />
             <Stack.Screen name="AppointmentEdit" component={AppointmentEdit} />
-            <Stack.Screen name="AppointmentView" component={AppointmentView} /> 
+            <Stack.Screen name="AppointmentView" component={AppointmentView} />
             <Stack.Screen name="AppointmentSlot" component={AppointmentSlot} />
             <Stack.Screen name="MessageCreateGroup" component={MessageCreateGroup} />
             <Stack.Screen name="MessageCreateDirect" component={MessageCreateDirect} />
@@ -88,6 +90,7 @@ const DashboardStack = () => {
             <Stack.Screen name="HomeWorkout" component={HomeWorkout} />
             <Stack.Screen name="ResourceDetail" component={ResourceDetail} />
             <Stack.Screen name="ChooseProgram" component={ChooseProgram} />
+
         </Stack.Navigator>
     );
 }

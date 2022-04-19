@@ -21,6 +21,7 @@ import { HttpRequest, HttpResponse } from '../utils/http';
 import { useSelector } from 'react-redux';
 import Toast from '../components/Toast';
 import LoadingIndicator from '../components/LoadingIndicator';
+import { Calendar } from 'react-native-calendars';
 
 let hours = [];
 for (let i = 0; i <= 23; i++) {
@@ -41,14 +42,19 @@ export default function AppointmentSlot(props) {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingDay, setIsLoadingDay] = useState(false);
+    const [currentDate, setCurrentDate] = useState(moment().format('YYYY-MM-DD'));
     const [markedDates, setMarkedDates] = useState([]);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [dailyBookings, setDailyBookings] = useState([]);
     const [selectedHour, setSelectedHour] = useState(null);
 
     useEffect(() => {
-        console.log("Convert time to minute", convertTimeToMinute("01:00:00"));
-    }, []);
+        let date = selectedDate.format("YYYY-MM-DD");
+        let obj = {};
+        obj[date] = { selected: true, selectedColor: color.primary };
+
+        setMarkedDates(obj);
+    }, [selectedDate]);
 
     const convertTimeToMinute = useCallback((time) => {
         return Math.floor(moment(time, 'HH:mm:ss').diff(moment().startOf('day'), 'seconds') / 60)
@@ -111,29 +117,20 @@ export default function AppointmentSlot(props) {
 
             {!isLoading && (
                 <>
-                    <CalendarStrip
-                        scrollable
-                        calendarAnimation={{ type: 'sequence', duration: 30 }}
-                        daySelectionAnimation={{ type: 'border', duration: 200, borderWidth: 0, borderHighlightColor: 'white' }}
-                        style={{ height: 100, paddingTop: 20, paddingBottom: 10 }}
-                        // calendarHeaderStyle={{ color: 'white' }}
-                        calendarColor={'#eee'}
-                        dateNumberStyle={{ color: color.black }}
-                        dateNameStyle={{ color: color.black }}
-                        highlightDateNumberStyle={{ color: color.primary }}
-                        highlightDateNameStyle={{ color: color.primary }}
-                        // disabledDateNameStyle={{ color: 'grey' }}
-                        // disabledDateNumberStyle={{ color: 'grey' }}
-                        // datesWhitelist={datesWhitelist}
-                        iconContainer={{ flex: 0.1 }}
-                        selectedDate={selectedDate}
-                        onDateSelected={(date) => {
-                            let selectedDate = date;
-                            console.log("Date", selectedDate);
-                            setSelectedDate(selectedDate);
-                            filterDay(moment(selectedDate).format("YYYY-MM-DD"));
-                        }}
+                    <Calendar
+                        // Initially visible month. Default = now
+                        current={selectedDate.format("YYYY-MM-DD")}
                         markedDates={markedDates}
+                        onDayPress={day => {
+                            console.log('selected day', day);
+                            let momentDate = moment(day.dateString);
+                            setSelectedDate(momentDate);
+                            filterDay(day.dateString);
+                        }}
+                        monthFormat={'MMM yyyy'}
+
+                        // Enable the option to swipe between months. Default = false
+                        enableSwipeMonths={true}
                     />
 
                     {selectedDate != null && (

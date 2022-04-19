@@ -229,6 +229,10 @@ export const HttpRequest = {
             read: false,
         });
     },
+
+    addPhoto(data) {
+        return requestWithAuth(true).post("/photos/", data);
+    },
 };
 
 export const FormDataConverter = {

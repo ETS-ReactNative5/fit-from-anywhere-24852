@@ -55,6 +55,29 @@ export default {
         });
     },
 
+    uploadFile(obj) {
+        let { uri, name, mimeType, pubnub, channel } = obj;
+
+        return new Promise((resolve, reject) => {
+            pubnub.sendFile({
+                channel: channel,
+                file: {
+                    uri,
+                    name,
+                    mimeType,
+                },
+            }).then((res) => {
+                console.log("SendFile", res);
+
+                const result = pubnub.getFileUrl({ channel, id: res.id, name: res.name });
+                resolve(result);
+            }).catch(err => {
+                console.log("Err:sendFile", err);
+                reject("Cannot upload file");
+            });
+        });
+    },
+
     getPushNotifObject(title, message) {
         return {
             "pn_apns": {

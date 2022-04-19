@@ -27,6 +27,9 @@ import useInterval from '../utils/useInterval';
 import { useDispatch, useSelector } from 'react-redux';
 import { setNextExercise } from '../store/actions';
 import YoutubePlayer from '../components/YoutubePlayer';
+import TextInput from '../components/TextInput';
+import SimpleModal from '../components/SimpleModal';
+import urlParser from "js-video-url-parser";
 
 let timerResting = 0;
 let timerSet = 0;
@@ -46,7 +49,7 @@ let timerExcercise = null;
 let timerRest = null;
 
 export default function HomeWorkout(props) {
-    const { plan, workout, program, workoutPlan, day, shouldSave } = props.route.params;
+    const { plan, workout, program, workoutPlan, day, shouldSave, progress } = props.route.params;
 
     const dispatch = useDispatch();
 
@@ -75,13 +78,33 @@ export default function HomeWorkout(props) {
     const [excerciseCount, setExcerciseCount] = useState(0);
     const [restCounter, setRestCounter] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const [weight, setWeight] = useState('');
+    const [weightTemp, setWeightTemp] = useState('');
+    const [weightDialogVisible, setWeightDialogVisible] = useState(false);
+
+    const [youtubeVideoId, setYoutubeVideoId] = useState('jWCm9piAwAU');
 
     useEffect(() => {
         stopAllTimer();
 
-        console.log({ plan, workout, program, workoutPlan, day });
+        console.log({ plan, workout, program, workoutPlan, day, progress });
 
         setTotalSet(workoutPlan.sets);
+
+        if (progress) {
+            setWeight(progress.weight + "");
+        } else {
+            if (workoutPlan.weight) {
+                setWeight(workoutPlan.weight + '');
+            } else {
+                setWeight('');
+            }
+        }
+
+        if (workout.video_url) {
+            let videoData = urlParser.parse(workout.video_url);
+            setYoutubeVideoId(videoData.id);
+        }
     }, []);
 
     const handleSheetChanges = useCallback((index) => {
@@ -181,6 +204,7 @@ export default function HomeWorkout(props) {
                 program: program.id,
                 workout: workout.id,
                 workout_plan: workoutPlan.id,
+                weight: weight,
             };
             HttpRequest.addProgress(data).then((res) => {
                 console.log("loadWorkoutPlan", res.data.results);
@@ -211,7 +235,7 @@ export default function HomeWorkout(props) {
             Toast.showSuccess("Save progress success");
             props.navigation.goBack();
         }
-    }, [currentSet, profile, plan, workout, program, workoutPlan, day, shouldSave]);
+    }, [currentSet, profile, plan, workout, program, workoutPlan, day, shouldSave, weight]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -235,7 +259,7 @@ export default function HomeWorkout(props) {
                             <YoutubePlayer
                                 height={YOUTUBE_HEIGHT}
                                 play={true}
-                                videoId='jWCm9piAwAU' />
+                                videoId={youtubeVideoId} />
 
                             <View style={styles.videoContent}>
                                 <Text style={styles.videoLabel}>{workout.name}</Text>
@@ -252,7 +276,13 @@ export default function HomeWorkout(props) {
                                     <View style={styles.sectionSeparator} />
                                     <Text style={styles.sectionQty}>Repetition: {workoutPlan.repetitions ?? "N/A"}</Text>
                                     <View style={styles.sectionSeparator} />
-                                    <Text style={styles.sectionQty}>Rest Period: {workoutPlan.rest_period ?? "N/A"}</Text>
+                                    <TouchableOpacity onPress={() => {
+                                        setWeightDialogVisible(true);
+                                        setWeightTemp(weight + '');
+                                    }}>
+                                        <Text style={styles.sectionQty}>Weight: {weight ?? "N/A"}</Text>
+                                        <Text style={styles.sectionQtyDesc}>Click to Edit</Text>
+                                    </TouchableOpacity>
                                     {/* <MaterialCommunityIcons name='yoga' size={20} color={color.text} />
                                     <Text style={styles.sectionQty}>7</Text>
                                     <View style={styles.sectionSeparator} />
@@ -428,6 +458,29 @@ export default function HomeWorkout(props) {
                     )}
 
                     <View style={{ height: 50 }} />
+
+                    <SimpleModal
+                        visible={weightDialogVisible}
+                        onRequestClose={() => {
+                            setWeightDialogVisible(false);
+                        }}>
+                        <TextInput
+                            label='Enter weight'
+                            style={styles.input}
+                            placeholder="Enter your eqipment weight"
+                            placeholderTextColor={color.gray}
+                            value={weightTemp}
+                            onChangeText={(text) => {
+                                setWeightTemp(text);
+                            }} />
+
+                        <Button
+                            style={{ marginTop: 20 }}
+                            onPress={() => {
+                                setWeight(weightTemp);
+                                setWeightDialogVisible(false);
+                            }}>Update Weight</Button>
+                    </SimpleModal>
                 </View>
             </BottomSheet>
         </SafeAreaView>
@@ -612,6 +665,12 @@ const styles = {
     },
     sectionQty: {
         fontSize: 16,
+        fontFamily: font.sourceSansPro,
+        color: color.text,
+        marginHorizontal: 10,
+    },
+    sectionQtyDesc: {
+        fontSize: 12,
         fontFamily: font.sourceSansPro,
         color: color.text,
         marginHorizontal: 10,

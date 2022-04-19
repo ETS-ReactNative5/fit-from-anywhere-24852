@@ -511,6 +511,8 @@ export default function Home(props) {
                                     let exist = userWoPlanIds.includes(dailyWorkoutPlan.id);
                                     return (
                                         <TouchableOpacity key={index} style={styles.workout} onPress={() => {
+                                            let progress = userProgress.find(x => x.workout_plan.id == dailyWorkoutPlan.id);
+
                                             props.navigation.navigate("HomeWorkout", {
                                                 workout: dailyWorkoutPlan.workout,
                                                 plan: selectedPlan,
@@ -518,6 +520,7 @@ export default function Home(props) {
                                                 workoutPlan: dailyWorkoutPlan,
                                                 nextWorkoutPlan: dailyWorkoutPlans[index + 1],
                                                 day: dayNumber,
+                                                progress,
                                                 shouldSave: !exist,
                                             });
                                         }}>
