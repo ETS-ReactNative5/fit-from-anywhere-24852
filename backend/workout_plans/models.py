@@ -44,6 +44,10 @@ class WorkoutPlan(BaseModel):
         blank=True,
         null=True,
     )
+    weight = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Workout Plans"

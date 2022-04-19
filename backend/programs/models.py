@@ -81,6 +81,10 @@ class UserProgress(BaseModel):
         null=True,
         help_text="How many repetitions of this workout has been performed?",
     )
+    weight = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "User Progress"
