@@ -529,8 +529,8 @@ const styles = {
         color: color.text,
     },
     video: {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').width * 0.6,
+        width: StyleUtils.getScreenWidth(),
+        height: StyleUtils.getScreenWidth() * 0.6,
         backgroundColor: color.black,
     },
     videoContent: {

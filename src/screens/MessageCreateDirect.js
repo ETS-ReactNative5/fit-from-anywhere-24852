@@ -24,6 +24,7 @@ import { usePubNub } from 'pubnub-react';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ImageUtils from '../utils/ImageUtils';
 import TextInput from '../components/TextInput';
+import StyleUtils from '../utils/StyleUtils';
 
 export default function MessageCreateDirect(props) {
     const profile = useSelector((state) => state.profile);
@@ -312,7 +313,7 @@ const styles = {
         position: 'absolute',
         top: 0,
         left: 0,
-        width: Dimensions.get('screen').width,
+        width: StyleUtils.getScreenWidth(),
         height: Dimensions.get('screen').height,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',

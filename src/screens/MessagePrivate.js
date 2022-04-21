@@ -32,6 +32,7 @@ import SimpleModal from '../components/SimpleModal';
 import Button from '../components/Button';
 import CheckBox from '../components/CheckBox';
 import ImagePicker from "react-native-image-crop-picker"
+import StyleUtils from '../utils/StyleUtils';
 
 export default function MessagePrivate(props) {
     const pubnub = usePubNub();
@@ -623,7 +624,7 @@ const styles = {
         position: 'absolute',
         top: 0,
         left: 0,
-        width: Dimensions.get('screen').width,
+        width: StyleUtils.getScreenWidth(),
         height: Dimensions.get('screen').height,
         justifyContent: 'center',
         alignItems: 'center',

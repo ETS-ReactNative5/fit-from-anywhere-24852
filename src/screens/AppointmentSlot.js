@@ -22,13 +22,14 @@ import { useSelector } from 'react-redux';
 import Toast from '../components/Toast';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { Calendar } from 'react-native-calendars';
+import StyleUtils from '../utils/StyleUtils';
 
 let hours = [];
 for (let i = 0; i <= 23; i++) {
     hours.push(i);
 }
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_WIDTH = StyleUtils.getScreenWidth();
 
 export default function AppointmentSlot(props) {
     const trainerId = props.route.params?.trainer;

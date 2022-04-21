@@ -30,7 +30,7 @@ import YoutubePlayer from '../components/YoutubePlayer';
 let timerResting = 0;
 let timerSet = 0;
 
-const YOUTUBE_HEIGHT = Dimensions.get('window').width * 9 / 16;
+const YOUTUBE_HEIGHT = StyleUtils.getScreenWidth() * 9 / 16;
 
 const TIMER_EXCERCISE = 'timer_excersise';
 const TIMER_REST = 'timer_rest';
@@ -528,8 +528,8 @@ const styles = {
         color: color.text,
     },
     video: {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').width * 0.6,
+        width: StyleUtils.getScreenWidth(),
+        height: StyleUtils.getScreenWidth() * 0.6,
         backgroundColor: color.black,
     },
     videoContent: {

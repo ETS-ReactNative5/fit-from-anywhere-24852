@@ -3,9 +3,10 @@ import { View, TouchableOpacity, Modal, StyleSheet, Dimensions, Platform } from 
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 //import VideoPlayer from 'react-native-video-player'
 import VideoPlayer from 'react-native-video-controls';
+import StyleUtils from '../utils/StyleUtils';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_WIDTH = StyleUtils.getScreenWidth();
 
 
 class CustomVideoPlayer extends React.Component {

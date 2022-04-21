@@ -5,12 +5,13 @@ import MaterialIcons from 'react-native-vector-icons/dist/MaterialIcons';
 import { connect } from 'react-redux';
 import Color from "../utils/color";
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SCREEN_WIDTH = Dimensions.get('window').width;
-
 import NoData from './NoData';
 import { font } from '../utils/font';
+import StyleUtils from '../utils/StyleUtils';
 let KEYS_TO_FILTERS = ['label', 'value', 'id'];
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = StyleUtils.getScreenWidth();
 
 class Combobox extends Component {
     static navigationOptions = {

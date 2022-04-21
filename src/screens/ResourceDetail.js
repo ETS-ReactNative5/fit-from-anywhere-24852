@@ -15,8 +15,9 @@ import { font } from '../utils/font';
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import ImageUtils from '../utils/ImageUtils';
 import { HttpUtils } from '../utils/http';
+import StyleUtils from '../utils/StyleUtils';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_WIDTH = StyleUtils.getScreenWidth();
 
 export default function ResourceDetail(props) {
     const { resource } = props.route.params;

@@ -26,8 +26,9 @@ import ImageUtils from '../utils/ImageUtils';
 import LoadingIndicator from '../components/LoadingIndicator';
 import NoData from '../components/NoData';
 import { useFocusEffect } from '@react-navigation/native';
+import StyleUtils from '../utils/StyleUtils';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_WIDTH = StyleUtils.getScreenWidth();
 
 export default function ChoosePlan(props) {
     const dispatch = useDispatch();
