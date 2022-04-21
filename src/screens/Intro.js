@@ -18,15 +18,19 @@ export default function Intro(props) {
                 <Text style={styles.welcome}>Welcome Back</Text>
 
                 <View style={styles.inputView}>
-                    <Button style={{ flex: 1 }} onPress={() => {
-                        props.navigation.navigate("Register");
-                    }}>Sign up</Button>
+                    <View style={{ flex: 1 }}>
+                        <Button onPress={() => {
+                            props.navigation.navigate("Register");
+                        }}>Sign up</Button>
+                    </View>
 
                     <View style={{ width: 20 }} />
 
-                    <Button style={{ flex: 1 }} onPress={() => {
-                        props.navigation.navigate("Login");
-                    }}>Log in</Button>
+                    <View style={{ flex: 1 }}>
+                        <Button onPress={() => {
+                            props.navigation.navigate("Login");
+                        }}>Log in</Button>
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
@@ -66,7 +70,6 @@ const styles = {
     bottomView: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
         paddingHorizontal: 40,
     },
     inputView: {

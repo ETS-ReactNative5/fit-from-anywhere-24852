@@ -102,19 +102,22 @@ export default function Login(props) {
                     </TouchableOpacity>
 
                     <View style={styles.inputView}>
-                        <Button
-                            loading={isLoading}
-                            style={{ flex: 1 }}
-                            onPress={() => {
-                                login();
-                            }}>Log in</Button>
+                        <View style={{ flex: 1 }}>
+                            <Button
+                                loading={isLoading}
+                                onPress={() => {
+                                    login();
+                                }}>Log in</Button>
+                        </View>
 
                         <View style={{ width: 20 }} />
 
-                        <Button theme='secondary' style={{ flex: 1 }}
-                            onPress={() => {
-                                props.navigation.navigate("Intro");
-                            }}>Cancel</Button>
+                        <View style={{ flex: 1 }}>
+                            <Button theme='secondary'
+                                onPress={() => {
+                                    props.navigation.navigate("Intro");
+                                }}>Cancel</Button>
+                        </View>
                     </View>
 
                     {/* <View style={styles.or}>

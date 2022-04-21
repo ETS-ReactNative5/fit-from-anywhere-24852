@@ -31,7 +31,6 @@ import Feather from 'react-native-vector-icons/dist/Feather';
 import SimpleModal from '../components/SimpleModal';
 import Button from '../components/Button';
 import CheckBox from '../components/CheckBox';
-import ImagePicker from "react-native-image-crop-picker"
 import StyleUtils from '../utils/StyleUtils';
 
 export default function MessagePrivate(props) {
@@ -288,7 +287,7 @@ export default function MessagePrivate(props) {
     }, [pubnub, params]);
 
     const pickCamera = useCallback(() => {
-        ImagePicker.openCamera({
+        ImageUtils.openCamera({
             width: 400,
             height: 400,
             cropping: true
@@ -299,7 +298,7 @@ export default function MessagePrivate(props) {
     }, []);
 
     const pickImage = useCallback(() => {
-        ImagePicker.openPicker({
+        ImageUtils.openPicker({
             width: 400,
             height: 400,
             cropping: true

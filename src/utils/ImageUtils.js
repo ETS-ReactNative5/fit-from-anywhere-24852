@@ -7,6 +7,7 @@ import home2 from '../assets/images/home-2.jpg';
 import logoZoom from '../assets/images/logo-zoom.png';
 import logoLetter from '../assets/images/logo-letter.png';
 import logo from '../assets/images/logo.png';
+import ImagePicker from "react-native-image-crop-picker";
 
 export default {
     defaultImage,
@@ -30,5 +31,12 @@ export default {
             return HttpUtils.normalizeUrl(url);
         }
         return "https://via.placeholder.com/150";
-    }
+    },
+
+    openCamera(params) {
+        return ImagePicker.openCamera(params);
+    },
+    openPicker(params) {
+        return ImagePicker.openPicker(params);
+    },
 }
