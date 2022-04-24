@@ -52,6 +52,17 @@ export default function MessagePrivate(props) {
     const [isUploadingMedia, setIsUploadingMedia] = useState(false);
     const [messageType, setMessageType] = useState("text");
 
+    const otherUser = useMemo(() => {
+        if (params.other_profile) {
+            let _otherUser = profiles[params.other_profile];
+            if (_otherUser) {
+                return _otherUser;
+            }
+        }
+
+        return null;
+    }, [params, profiles]);
+
     const scrollView = useRef(null);
 
     const messageSubjects = useMemo(() => {
@@ -176,7 +187,7 @@ export default function MessagePrivate(props) {
         } else if (messageType == "audio") {
             _message.audio = pubnubMediaUrl;
         }
-        
+
         _message.subject = messageSubject;
 
         channelMetaData.lastMessage = lastMessage;
@@ -198,6 +209,8 @@ export default function MessagePrivate(props) {
             }).catch((err) => {
                 console.log("Err", err.status);
             });
+
+            PushNotificationUtils.setMessageIndicator(pubnub, otherUser.user.id);
         }).catch((err) => {
 
         });
@@ -206,7 +219,7 @@ export default function MessagePrivate(props) {
         setMessageType("text");
         setPubnubMediaUrl(null);
 
-    }, [params, profile, message, messageSubject, channelMetaData, messageType, pubnubMediaUrl]);
+    }, [params, profile, message, messageSubject, channelMetaData, messageType, pubnubMediaUrl, otherUser]);
 
     const deleteChannel = useCallback(() => {
         Alert.alert(
@@ -307,11 +320,6 @@ export default function MessagePrivate(props) {
             uploadFile(image);
         })
     }, []);
-
-    let otherUser = null;
-    if (params.other_profile) {
-        otherUser = profiles[params.other_profile];
-    }
 
     return (
         <SafeAreaView style={styles.container}>

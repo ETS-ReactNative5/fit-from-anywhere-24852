@@ -138,8 +138,10 @@ export default function AppointmentEdit(props) {
             if (appointment == null) {
                 if (profile.is_trainer) {
                     PushNotificationUtils.sendChatNotification(pubnub, user, "New Appointment", "You have a new appointment from " + profile.user.name);
+                    PushNotificationUtils.setNotificationIndicator(pubnub, user);
                 } else {
                     PushNotificationUtils.sendChatNotification(pubnub, trainer, "New Appointment", "You have a new appointment from " + profile.user.name);
+                    PushNotificationUtils.setNotificationIndicator(pubnub, trainer);
                 }
             }
 

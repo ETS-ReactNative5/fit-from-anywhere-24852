@@ -43,7 +43,7 @@ export default function Message(props) {
             setFcmToken(token);
         }).catch((err) => {
             console.log("Token Err", err);
-        })
+        });
     }, [profile]);
 
     useEffect(() => {
@@ -54,8 +54,9 @@ export default function Message(props) {
     }, [fcmToken, channelIds]);
 
     useFocusEffect(useCallback(() => {
+        PushNotificationUtils.setMessageIndicator(pubnub, profile.user.id, false);
         getMembership();
-    }, []));
+    }, [pubnub, profile]));
 
     const getMembership = useCallback(() => {
         setIsLoading(true);

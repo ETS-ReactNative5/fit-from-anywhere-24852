@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import messaging from '@react-native-firebase/messaging';
+import { store } from "../store";
 
 export default {
     getToken() {
@@ -148,5 +149,86 @@ export default {
         }, (status) => {
             console.log("publish", status);
         });
-    }
+    },
+
+    getNotificationIndicator(pubnub) {
+        return new Promise((resolve, reject) => {
+            const user = store.getState().user;
+            pubnub.objects.getChannelMetadata({
+                channel: 'notification.' + user.user.id,
+            }).then((res) => {
+                console.log("Get metadata success", res.data.custom);
+                let custom = res.data.custom;
+                if (custom && custom.indicator) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }).catch((err) => {
+                console.log("Get metadata error", err.status);
+                resolve(false);
+            });
+        });
+    },
+
+    setNotificationIndicator(pubnub, targetId, indicator = true) {
+        return new Promise((resolve, reject) => {
+            pubnub.objects.setChannelMetadata({
+                channel: 'notification.' + targetId,
+                data: {
+                    custom: {
+                        indicator,
+                    },
+                },
+                include: {
+                    customFields: true,
+                },
+            }).then((res) => {
+                resolve();
+            }).catch((err) => {
+                reject(err.status);
+            });
+        });
+    },
+
+    getMessageIndicator(pubnub) {
+        return new Promise((resolve, reject) => {
+            const user = store.getState().user;
+            console.log("Channel", 'message.' + user.user.id);
+            pubnub.objects.getChannelMetadata({
+                channel: 'message.' + user.user.id,
+            }).then((res) => {
+                console.log("Get metadata success", res.data.custom);
+                let custom = res.data.custom;
+                if (custom && custom.indicator) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }).catch((err) => {
+                console.log("Get metadata error", err.status);
+                resolve(false);
+            });
+        });
+    },
+
+    setMessageIndicator(pubnub, targetId, indicator = true) {
+        return new Promise((resolve, reject) => {
+            pubnub.objects.setChannelMetadata({
+                channel: 'message.' + targetId,
+                data: {
+                    custom: {
+                        indicator,
+                    },
+                },
+                include: {
+                    customFields: true,
+                },
+            }).then((res) => {
+                resolve();
+            }).catch((err) => {
+                reject(err.status);
+            });
+        });
+    },
 }   

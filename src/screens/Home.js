@@ -211,34 +211,6 @@ export default function Home(props) {
                 totalCount += totalNum;
             });
 
-            [
-                {
-                    startDate: moment(selectedDate), // Single date since no endDate provided
-                    // dateNameStyle: styles.dateNameStyle,
-                    // dateNumberStyle: styles.dateNumberStyle,
-                    // // Random color...
-                    dateContainerStyle: {
-                        // backgroundColor: 'red',
-                        borderRadius: 10,
-                        backgroundColor: color.primary,
-                    },
-                    dateNameStyle: {
-                        color: color.white,
-                    },
-                    dateNumberStyle: {
-                        color: color.white,
-                    }
-                },
-                {
-                    startDate: moment(selectedDate).subtract(1, 'day'), // Single date since no endDate provided
-                    dateContainerStyle: {
-                        borderWidth: 3,
-                        borderColor: color.danger,
-                        borderRadius: 10,
-                    },
-                }
-            ]
-
             setMarkedDates(arrMarkedDates);
             setUserWoPlanIds(userProgressObj);
             setProgressPercentage(Math.round((doneCount / totalCount) * 100));
@@ -274,16 +246,20 @@ export default function Home(props) {
             }
         });
 
+        const today = moment(moment().format("YYYY-MM-DD"));
+
         markedDates.forEach((markedDate) => {
-            customDateStyles.push({
-                startDate: moment(markedDate.date),
-                dateContainerStyle: {
-                    // backgroundColor: 'red',
-                    borderRadius: 10,
-                    borderWidth: 2,
-                    borderColor: markedDate.dots[0].color,
-                },
-            })
+            if (moment(markedDate.date).isSameOrBefore(today)) {
+                customDateStyles.push({
+                    startDate: moment(markedDate.date),
+                    dateContainerStyle: {
+                        // backgroundColor: 'red',
+                        borderRadius: 10,
+                        borderWidth: 2,
+                        borderColor: markedDate.dots[0].color,
+                    },
+                });
+            }
         })
 
         setCustomDatesStyles(customDateStyles);

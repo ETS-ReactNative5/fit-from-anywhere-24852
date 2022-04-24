@@ -7,7 +7,8 @@ import {
     StyleSheet,
     Alert,
     ScrollView,
-    Switch
+    Switch,
+    Platform
 } from "react-native";
 import color from "../utils/color";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,6 +19,9 @@ import { font } from "../utils/font";
 import { HttpUtils } from "../utils/http";
 import ImageUtils from "../utils/ImageUtils";
 import moment from "moment";
+import { useDrawerStatus } from "@react-navigation/drawer";
+import PushNotificationUtils from "../utils/PushNotificationUtils";
+import { usePubNub } from "pubnub-react";
 
 const userMenus = [
     {
@@ -29,11 +33,13 @@ const userMenus = [
         icon: <MaterialCommunityIcons name="message-text-outline" size={30} color={color.text} />,
         label: "Message",
         target: "Message",
+        type: 'message',
     },
     {
         icon: <MaterialCommunityIcons name="bell" size={30} color={color.text} />,
         label: "Notifications",
         target: "Notification",
+        type: 'notification',
     },
     {
         icon: <MaterialCommunityIcons name="dumbbell" size={30} color={color.text} />,
@@ -64,13 +70,13 @@ const userMenus = [
         icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
         label: "Push notifications",
         target: null,
-        type: "push",
+        // type: "push",
     },
     {
         icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
         label: "Email notifications",
         target: null,
-        type: "email",
+        // type: "email",
     },
 ];
 
@@ -84,11 +90,13 @@ const trainerMenus = [
         icon: <MaterialCommunityIcons name="message-text-outline" size={30} color={color.text} />,
         label: "Message",
         target: "Message",
+        type: 'message',
     },
     {
         icon: <MaterialCommunityIcons name="bell" size={30} color={color.text} />,
         label: "Notifications",
         target: "Notification",
+        type: 'notification',
     },
     {
         icon: <MaterialCommunityIcons name="calendar-clock" size={30} color={color.text} />,
@@ -109,22 +117,27 @@ const trainerMenus = [
         icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
         label: "Push notifications",
         target: null,
-        type: "push",
+        // type: "push",
     },
-    {
-        icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
-        label: "Email notifications",
-        target: null,
-        type: "email"
-    },
+    // {
+    //     icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
+    //     label: "Email notifications",
+    //     target: null,
+    //     type: "email"
+    // },
 ];
 
 export default function Sidebar(props) {
     const dispatch = useDispatch();
+    const pubnub = usePubNub();
     const profile = useSelector(state => state.profile);
     const gym = useSelector(state => state.gym);
     const [pushEnabled, setPushEnabled] = useState(false);
     const [emailEnabled, setEmailEnabled] = useState(false);
+    const [hasMessage, setHasMessage] = useState(false);
+    const [hasNotification, setHasNotification] = useState(false);
+
+    const drawerStatus = useDrawerStatus();
 
     const [trialDay, setTrialDay] = useState(10); //10 means no trial
 
@@ -150,6 +163,25 @@ export default function Sidebar(props) {
         dispatch(setUser(null));
         dispatch(setProfile(null));
     }, []);
+
+    useEffect(() => {
+        if (drawerStatus == "open") {
+            loadIndicator();
+        }
+    }, [drawerStatus]);
+
+    const loadIndicator = useCallback(() => {
+        console.log("Load status");
+        PushNotificationUtils.getMessageIndicator(pubnub).then((status) => {
+            console.log("getMessageIndicator", status);
+            // setHasMessage(status);
+            setHasMessage(status);
+        });
+        PushNotificationUtils.getNotificationIndicator(pubnub).then((status) => {
+            console.log("getNotificationIndicator", status);
+            setHasNotification(status);
+        });
+    }, [pubnub]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -209,31 +241,33 @@ export default function Sidebar(props) {
                             }}>
                             {item.icon}
                             <Text style={styles.menuLabel}>{item.label}</Text>
-                            {item.target == null && (
-                                <>
-                                    {item.type == "push" && (
-                                        <Switch
-                                            trackColor={{ false: color.primary + "20", true: color.primary + "20" }}
-                                            thumbColor={pushEnabled ? color.primary : color.white}
-                                            ios_backgroundColor={color.primary + "20"}
-                                            onValueChange={() => {
-                                                setPushEnabled(!pushEnabled);
-                                            }}
-                                            value={pushEnabled}
-                                        />
-                                    )}
-                                    {item.type == "email" && (
-                                        <Switch
-                                            trackColor={{ false: color.primary + "20", true: color.primary + "20" }}
-                                            thumbColor={emailEnabled ? color.primary : color.white}
-                                            ios_backgroundColor={color.primary + "20"}
-                                            onValueChange={() => {
-                                                setEmailEnabled(!emailEnabled);
-                                            }}
-                                            value={emailEnabled}
-                                        />
-                                    )}
-                                </>
+                            {item.type == "message" && hasMessage && (
+                                <View style={styles.redDot} />
+                            )}
+                            {item.type == "notification" && hasNotification && (
+                                <View style={styles.redDot} />
+                            )}
+                            {item.type == "push" && (
+                                <Switch
+                                    trackColor={{ false: color.primary + "20", true: color.primary + "20" }}
+                                    thumbColor={pushEnabled ? color.primary : color.white}
+                                    ios_backgroundColor={color.primary + "20"}
+                                    onValueChange={() => {
+                                        setPushEnabled(!pushEnabled);
+                                    }}
+                                    value={pushEnabled}
+                                />
+                            )}
+                            {item.type == "email" && (
+                                <Switch
+                                    trackColor={{ false: color.primary + "20", true: color.primary + "20" }}
+                                    thumbColor={emailEnabled ? color.primary : color.white}
+                                    ios_backgroundColor={color.primary + "20"}
+                                    onValueChange={() => {
+                                        setEmailEnabled(!emailEnabled);
+                                    }}
+                                    value={emailEnabled}
+                                />
                             )}
                         </TouchableOpacity>
                     );
@@ -246,19 +280,23 @@ export default function Sidebar(props) {
                     activeOpacity={0.9}
                     onPress={() => {
                         props.navigation.closeDrawer();
-                        Alert.alert(
-                            'Information',
-                            'Are you sure want to logout?',
-                            [
-                                { text: 'No', onPress: () => { }, style: 'cancel' },
-                                {
-                                    text: 'Yes', onPress: () => {
-                                        logout();
-                                    }
-                                },
-                            ],
-                            { cancelable: false }
-                        );
+                        if (Platform.OS == 'web') {
+                            window.confirm("Are you sure you want to logout?") && logout();
+                        } else {
+                            Alert.alert(
+                                'Information',
+                                'Are you sure want to logout?',
+                                [
+                                    { text: 'No', onPress: () => { }, style: 'cancel' },
+                                    {
+                                        text: 'Yes', onPress: () => {
+                                            logout();
+                                        }
+                                    },
+                                ],
+                                { cancelable: false }
+                            );
+                        }
                     }}>
                     <MaterialCommunityIcons name="exit-to-app" size={30} color={color.text} />
                     <Text style={styles.logoutButton}>Logout</Text>
@@ -323,7 +361,12 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
 
-
+    redDot: {
+        width: 5,
+        height: 5,
+        borderRadius: 5,
+        backgroundColor: color.danger,
+    },
 
     line: {
         height: 1,

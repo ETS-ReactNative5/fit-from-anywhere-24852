@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import Toast from '../components/Toast';
 import LoadingIndicator from '../components/LoadingIndicator';
+import PushNotificationUtils from '../utils/PushNotificationUtils';
 
 // const notifications = [
 //     {
@@ -55,8 +56,9 @@ export default function Notification(props) {
     const [isLoading, setLoading] = useState(false);
 
     useFocusEffect(useCallback(() => {
+        PushNotificationUtils.setNotificationIndicator(pubnub, profile.user.id, false);
         loadNotification();
-    }, []));
+    }, [pubnub, profile]));
 
     const loadNotification = useCallback(() => {
         setLoading(true);
