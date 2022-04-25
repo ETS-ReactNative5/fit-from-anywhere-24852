@@ -442,6 +442,7 @@ const styles = {
         paddingHorizontal: 20,
         paddingVertical: 10,
         alignItems: 'center',
+        height: 50,
     },
     label: {
         fontSize: 16,

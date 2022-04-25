@@ -97,7 +97,7 @@ export default function HomeWorkout(props) {
             if (workoutPlan.weight) {
                 setWeight(workoutPlan.weight + '');
             } else {
-                setWeight('');
+                setWeight('0');
             }
         }
 
@@ -204,7 +204,7 @@ export default function HomeWorkout(props) {
                 program: program.id,
                 workout: workout.id,
                 workout_plan: workoutPlan.id,
-                weight: weight,
+                weight: (weight == null || weight == '') ? 0 : parseInt(weight),
             };
             HttpRequest.addProgress(data).then((res) => {
                 console.log("loadWorkoutPlan", res.data.results);
@@ -434,7 +434,11 @@ export default function HomeWorkout(props) {
                                         //add skip to list
                                         addToList(TYPE_SKIP, "", currentSet);
 
-                                        setCurrentSet(currentSet + 1);
+                                        if (currentSet >= totalSet) {
+                                            saveProgress();
+                                        } else {
+                                            setCurrentSet(currentSet + 1);
+                                        }
                                     }}>Skip Set</Button>
 
                                 <View style={{ width: 10 }} />

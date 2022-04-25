@@ -55,6 +55,7 @@ const styles = {
         fontSize: 26,
         fontFamily: font.sourceSansPro,
         color: color.text,
+        textAlign: 'center',
     },
     background: {
         width: '100%',

@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, View, Dimensions, Text, Linking, StatusBar, S
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import { useDispatch, useSelector } from "react-redux";
+import { ActionSheet, SheetItem } from "action-sheet-rn";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
 import Toast from "../components/Toast";
@@ -26,6 +27,8 @@ export default function Register(props) {
     const [passwordConfirm, setPasswordConfirm] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
     const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+
+    const [isShowToc, setShowToc] = useState(false);
 
     useEffect(() => {
 
@@ -82,11 +85,11 @@ export default function Register(props) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.topView}>
-                <Image source={ImageUtils.logoLetter} style={styles.logo} resizeMode='contain' />
-                <Text style={styles.title}>Sign up</Text>
-            </View>
             <ScrollView>
+                <View style={styles.topView}>
+                    <Image source={ImageUtils.logoLetter} style={styles.logo} resizeMode='contain' />
+                    <Text style={styles.title}>Sign up</Text>
+                </View>
                 <View style={styles.bottomView}>
                     <TextInput
                         // label='Email address'
@@ -140,8 +143,8 @@ export default function Register(props) {
                             {isChecked && <MaterialCommunityIcons name='radiobox-marked' size={20} color={color.text} />}
 
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.checkbox} onPress={()=>{
-                            props.navigation.navigate("AuthTermAndCondition");
+                        <TouchableOpacity style={styles.checkbox} onPress={() => {
+                            setShowToc(true);
                         }}>
                             <Text style={styles.checkboxText}>I have read Terms and Conditions and Privacy Policy</Text>
                         </TouchableOpacity>
@@ -182,6 +185,30 @@ export default function Register(props) {
                     </View>
                 </View>
             </ScrollView>
+
+            {isShowToc && (
+                <ActionSheet title="Choose Action">
+                    <SheetItem onPress={() => {
+                        setShowToc(false);
+                        props.navigation.navigate("AuthTermAndCondition");
+                    }}>
+                        Terms and Conditions
+                    </SheetItem>
+
+                    <SheetItem onPress={() => {
+                        setShowToc(false);
+                        props.navigation.navigate("AuthPrivacyPolicy");
+                    }}>
+                        Privacy Policy
+                    </SheetItem>
+
+                    <SheetItem type="cancel" onPress={() => {
+                        setShowToc(false);
+                    }}>
+                        Cancel
+                    </SheetItem>
+                </ActionSheet>
+            )}
         </SafeAreaView>
     );
 }

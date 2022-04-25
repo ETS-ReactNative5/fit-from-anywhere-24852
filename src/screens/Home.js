@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
     Dimensions,
     Image,
+    Platform,
     ScrollView,
     Text,
     TouchableOpacity,
@@ -438,11 +439,14 @@ export default function Home(props) {
                             <CalendarStrip
                                 ref={calendarRef}
                                 scrollable
-                                style={{ height: 80 }}
+                                style={{ height: Platform.OS == 'web' ? 120 : 80 }}
                                 upperCaseDays={false}
                                 showMonth={true}
                                 calendarColor={color.white}
-                                calendarHeaderStyle={{ color: color.primary }}
+                                calendarHeaderStyle={{
+                                    color: color.primary,
+                                    fontSize: Platform.OS == 'web' ? 12 : 14,
+                                }}
                                 // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
                                 // dateContainerStyle={{ backgroundColor: 'blue',  }}
                                 dateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}

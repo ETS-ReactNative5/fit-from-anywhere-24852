@@ -70,14 +70,14 @@ const userMenus = [
         icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
         label: "Push notifications",
         target: null,
-        // type: "push",
+        type: "push",
     },
-    {
-        icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
-        label: "Email notifications",
-        target: null,
-        // type: "email",
-    },
+    // {
+    //     icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,
+    //     label: "Email notifications",
+    //     target: null,
+    //     // type: "email",
+    // },
 ];
 
 const trainerMenus = [
@@ -117,7 +117,7 @@ const trainerMenus = [
         icon: <MaterialCommunityIcons name="bell-circle-outline" size={30} color={color.text} />,
         label: "Push notifications",
         target: null,
-        // type: "push",
+        type: "push",
     },
     // {
     //     icon: <MaterialCommunityIcons name="email-alert" size={30} color={color.text} />,

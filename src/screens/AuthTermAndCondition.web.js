@@ -22,7 +22,7 @@ export default function AuthTermAndCondition(props) {
                 onLeftClick={() => {
                     props.navigation.navigate("Register");
                 }} />
-
+            <iframe src="https://fit-from-anywhere-24852.botics.co/static/terms.html" style={{ width: '100%', height: '100%' }} border="0" />
         </SafeAreaView>
     );
 }
