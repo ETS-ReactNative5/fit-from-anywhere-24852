@@ -71,5 +71,12 @@ export const setRemember = (payload) => (dispatch) => {
     });
 };
 
+export const setDateIndicator = (payload) => (dispatch) => {
+    dispatch({
+        type: types.SET_DATE_INDICATOR,
+        payload,
+    });
+};
+
 
 

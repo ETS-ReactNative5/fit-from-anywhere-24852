@@ -85,3 +85,11 @@ export function remember(state = null, action) {
 
     return state;
 }
+
+export function dateIndicator(state = {}, action) {
+    if (action.type == types.SET_DATE_INDICATOR) {
+        return action.payload;
+    }
+
+    return state;
+}

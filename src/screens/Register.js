@@ -133,7 +133,7 @@ export default function Register(props) {
                         onChangeText={setGymCode}
                         containerStyle={styles.input} />
 
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <TouchableOpacity style={styles.checkbox}
                             activeOpacity={1}
                             onPress={() => {
@@ -143,11 +143,23 @@ export default function Register(props) {
                             {isChecked && <MaterialCommunityIcons name='radiobox-marked' size={20} color={color.text} />}
 
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.checkbox} onPress={() => {
+                        <Text style={styles.checkboxText}>I have read</Text>
+                        <TouchableOpacity onPress={() => {
+                            props.navigation.navigate("AuthTermAndCondition");
+                        }}>
+                            <Text style={styles.checkboxTextBold}>Terms and Conditions</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.checkboxText}>and</Text>
+                        <TouchableOpacity onPress={() => {
+                            props.navigation.navigate("AuthPrivacyPolicy");
+                        }}>
+                            <Text style={styles.checkboxTextBold}>Privacy Policy</Text>
+                        </TouchableOpacity>
+                        {/* <TouchableOpacity style={styles.checkbox} onPress={() => {
                             setShowToc(true);
                         }}>
                             <Text style={styles.checkboxText}>I have read Terms and Conditions and Privacy Policy</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
 
                     <View style={styles.inputView}>
@@ -249,7 +261,7 @@ const styles = {
     },
     inputView: {
         flexDirection: 'row',
-        marginTop: 30,
+        marginVertical: 30,
     },
     input: {
         marginBottom: 20,
@@ -262,5 +274,11 @@ const styles = {
         color: color.text,
         fontSize: 11,
         marginLeft: 5,
+    },
+    checkboxTextBold: {
+        color: color.text,
+        fontSize: 11,
+        marginLeft: 5,
+        fontWeight: 'bold',
     }
 };

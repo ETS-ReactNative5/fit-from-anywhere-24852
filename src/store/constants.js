@@ -8,3 +8,4 @@ export const SET_GYM = 'SET_GYM';
 export const SET_PROGRAMS = 'SET_PROGRAMS';
 export const SET_NEXT_EXERCISE = 'SET_NEXT_EXERCISE';
 export const SET_REMEMBER = 'SET_REMEMBER';
+export const SET_DATE_INDICATOR = 'SET_DATE_INDICATOR';

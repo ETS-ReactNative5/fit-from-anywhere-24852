@@ -38,6 +38,8 @@ export default function Profile(props) {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
     const gym = useSelector(state => state.gym);
+    const dateIndicator = useSelector(state => state.dateIndicator);
+
     const [image, setImage] = useState(null);
     const [name, setName] = useState('Tim Castle');
     const [email, setEmail] = useState('');
@@ -60,10 +62,22 @@ export default function Profile(props) {
 
     useEffect(() => {
         let obj = {};
-        obj[currentDate] = { selected: true, selectedColor: color.primary };
+
+        Object.keys(dateIndicator).forEach((date) => {
+            obj[date] = { marked: true, dotColor: dateIndicator[date] };
+        });
+
+        if (obj[currentDate] != null) {
+            obj[currentDate].selected = true;
+            obj[currentDate].selectedColor = color.primary;
+        } else {
+            obj[currentDate] = { selected: true, selectedColor: color.primary };
+        }
+
+        console.log("Obj", obj);
 
         setMarkedDates(obj);
-    }, [currentDate]);
+    }, [currentDate, dateIndicator]);
 
     const loadProfile = useCallback(() => {
         setLoading(true);
@@ -440,7 +454,7 @@ const styles = {
     row: {
         flexDirection: 'row',
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        // paddingVertical: 10,
         alignItems: 'center',
         height: 50,
     },

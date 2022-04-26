@@ -22,7 +22,9 @@ export default function AuthTermAndCondition(props) {
                 onLeftClick={() => {
                     props.navigation.navigate("Register");
                 }} />
-            <iframe src="https://fit-from-anywhere-24852.botics.co/static/terms.html" style={{ width: '100%', height: '100%' }} border="0" />
+            <View style={styles.content}>
+                <iframe src="https://fit-from-anywhere-24852.botics.co/static/terms.html" style={{ border: 0, width: '100%', height: '100%' }} />
+            </View>
         </SafeAreaView>
     );
 }
@@ -30,6 +32,10 @@ export default function AuthTermAndCondition(props) {
 const styles = {
     container: {
         backgroundColor: color.white,
+        flex: 1,
+    },
+    content: {
+        paddingHorizontal: 20,
         flex: 1,
     },
 };

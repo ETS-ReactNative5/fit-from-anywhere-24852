@@ -19,7 +19,7 @@ import { Calendar } from 'react-native-calendars';
 import { useDispatch, useSelector } from 'react-redux';
 import { HttpRequest, HttpResponse, HttpUtils } from '../utils/http';
 import Button from '../components/Button';
-import { setNextExercise, setShowOnboard } from '../store/actions';
+import { setDateIndicator, setNextExercise, setShowOnboard } from '../store/actions';
 import ImageUtils from '../utils/ImageUtils';
 import Toast from '../components/Toast';
 import CacheUtils from '../utils/CacheUtils';
@@ -231,6 +231,7 @@ export default function Home(props) {
     }, [selectedPlan, userPlanCreatedTime, selectedDate]);
 
     useEffect(() => {
+        let reduxIndicator = {}
         let customDateStyles = [];
         customDateStyles.push({
             startDate: moment(selectedDate),
@@ -250,6 +251,7 @@ export default function Home(props) {
         const today = moment(moment().format("YYYY-MM-DD"));
 
         markedDates.forEach((markedDate) => {
+            reduxIndicator[markedDate.date] = markedDate.dots[0].color;
             if (moment(markedDate.date).isSameOrBefore(today)) {
                 customDateStyles.push({
                     startDate: moment(markedDate.date),
@@ -264,6 +266,7 @@ export default function Home(props) {
         })
 
         setCustomDatesStyles(customDateStyles);
+        dispatch(setDateIndicator(reduxIndicator));
     }, [selectedDate, markedDates]);
 
     const loadProgram = useCallback(() => {
@@ -439,6 +442,7 @@ export default function Home(props) {
                             <CalendarStrip
                                 ref={calendarRef}
                                 scrollable
+                                selectedDate={focusedDate}
                                 style={{ height: Platform.OS == 'web' ? 120 : 80 }}
                                 upperCaseDays={false}
                                 showMonth={true}
@@ -450,13 +454,24 @@ export default function Home(props) {
                                 // dayContainerStyle={{ backgroundColor: 'blue', overflow: 'visible' }}
                                 // dateContainerStyle={{ backgroundColor: 'blue',  }}
                                 dateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
-                                highlightDateNumberStyle={{ color: color.primary, marginTop: 5, fontSize: 16 }}
+                                highlightDateNumberStyle={{ color: color.white, marginTop: 5, fontSize: 16 }}
                                 dateNameStyle={{ color: color.primary, fontSize: 12 }}
-                                highlightDateNameStyle={{ color: color.primary, fontSize: 12 }}
+                                highlightDateNameStyle={{ color: color.white, fontSize: 12 }}
                                 // iconContainer={{ flex: 0.1 }}
                                 onDateSelected={(date) => {
                                     setSelectedDate(date.format("YYYY-MM-DD"));
+                                    setFocusedDate(moment(date));
                                 }}
+                                leftSelector={(
+                                    <View>
+                                        <MaterialCommunityIcons name="chevron-left" size={30} color={color.primary} />
+                                    </View>
+                                )}
+                                rightSelector={(
+                                    <View>
+                                        <MaterialCommunityIcons name="chevron-right" size={30} color={color.primary} />
+                                    </View>
+                                )}
                                 onWeekChanged={(start, end) => {
                                     //console.log(start, end);
                                     // setSelectedDate(moment(start).format("YYYY-MM-DD"));

@@ -12,18 +12,14 @@ import Header from '../components/Header';
 import color from '../utils/color';
 
 export default function PrivacyPolicy(props) {
-    const [source, setSource] = useState('test');
-
     return (
         <SafeAreaView style={styles.container}>
             <Header title="Privacy Policy" onLeftClick={() => {
                 props.navigation.openDrawer();
             }} />
-            <ScrollView>
-                <View style={styles.content}>
-                    <iframe src="https://fit-from-anywhere-24852.botics.co/static/privacy-policy.html" style={{ border: 0 }} />
-                </View>
-            </ScrollView>
+            <View style={styles.content}>
+                <iframe src="https://fit-from-anywhere-24852.botics.co/static/privacy-policy.html" style={{ border: 0, width: '100%', height: '100%' }} />
+            </View>
         </SafeAreaView>
     );
 }
@@ -35,5 +31,6 @@ const styles = {
     },
     content: {
         paddingHorizontal: 20,
+        flex: 1,
     },
 };
