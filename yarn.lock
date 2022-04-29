@@ -8391,10 +8391,10 @@ react-native-app-intro-slider@^4.0.4:
   resolved "https://registry.yarnpkg.com/react-native-app-intro-slider/-/react-native-app-intro-slider-4.0.4.tgz#fa5cda7057db62c448ac975ffd2ba0cff94cc8d8"
   integrity sha512-Zkjaol6X3BbZkHUpVDj2LjdidpS6rCgKi0fx80xgGKa0pHxBRd4swWTv2bHnnvu5k1/HXwYk0mY2TbK+2jHl5w==
 
-react-native-calendar-strip@^2.2.5:
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/react-native-calendar-strip/-/react-native-calendar-strip-2.2.5.tgz#544d41784d93b455a886311de25c0d69935f369a"
-  integrity sha512-3DmHIJX+Uu9Nv2wNTViPOGBY7rvODaHl7xaaxuqDFTN4sCxeM+1ref8k5RE1PgyZ3Wqs4Z8XJoEyORQIc++VMA==
+react-native-calendar-strip@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-calendar-strip/-/react-native-calendar-strip-2.2.1.tgz#91be91134b50eebc3ca407b5a69ef4a3d4a379fa"
+  integrity sha512-YykwBALmRYb70D/IL8IU77BQBUNBVGCi2CNaE5Mv7NJX/swd5XzGcC8/CmSN294zp5BLbRh/y7lWPRLe6u8a/w==
   dependencies:
     moment ">=2.0.0"
     node-git-hooks "^1.0.1"
