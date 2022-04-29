@@ -268,7 +268,7 @@ export default function HomeWorkout(props) {
             )}
 
             <View style={styles.bottomSheet}>
-                <View style={[styles.bottomSheetContainer, sheetStyle]}>
+                <View style={styles.bottomSheetContainer}>
                     <Text style={styles.excSetTitle}>Set {currentSet}/{totalSet}</Text>
 
                     <ScrollView>
