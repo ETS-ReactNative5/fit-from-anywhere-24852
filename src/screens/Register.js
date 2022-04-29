@@ -19,12 +19,12 @@ export default function Register(props) {
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
 
-    const [name, setName] = useState(__DEV__ ? app.EXAMPLE_FULL_NAME : "");
-    const [phoneNumber, setPhoneNumber] = useState(__DEV__ ? app.EXAMPLE_PHONE : "");
-    const [email, setEmail] = useState(__DEV__ ? app.EXAMPLE_EMAIL : "");
+    const [name, setName] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [email, setEmail] = useState("");
     const [gymCode, setGymCode] = useState("");
-    const [password, setPassword] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
-    const [passwordConfirm, setPasswordConfirm] = useState(__DEV__ ? app.EXAMPLE_PASSWORD : "");
+    const [password, setPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
 
