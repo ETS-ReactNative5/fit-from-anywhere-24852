@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     SafeAreaView,
     StyleSheet,
@@ -20,32 +20,76 @@ import SimpleModal from './SimpleModal';
 import Button from './Button';
 import color from '../utils/color';
 
-export default class DatePicker extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            show: false,
-            currentTime: new Date(),
+const defaultDate = moment().format("YYYY-MM-DD");
+const defaultYear = moment().format("YYYY");
 
-            hour: 0,
-            minute: 0,
-            hourString: '00',
-            minuteString: '00',
+export default function DatePicker(props) {
+    const mode = props.mode || 'date';
+    const format = props.format || 'YYYY-MM-DD';
+    const displayFormat = props.displayFormat || 'dddd, DD MMM YYYY';
+    const value = props.value;
 
-            display: 'date', //year
-        };
+    const [show, setShow] = useState(false);
+    const [currentDate, setCurrentDate] = useState(defaultDate);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [currentYear, setCurrentYear] = useState(defaultYear);
+    const [hour, setHour] = useState(null);
+    const [minute, setMinute] = useState(null);
+    const [hourString, setHourString] = useState(null);
+    const [minuteString, setMinuteString] = useState(null);
+    const [display, setDisplay] = useState('date');
+    const [markedDates, setMarkedDates] = useState({});
 
+    const [arrayYear, setArrayYear] = useState([]);
+    const [yearIndex, setYearIndex] = useState(0);
 
-    }
+    const scrollRef = useRef(null);
 
-    componentDidMount() {
-        if (this.props.isPrevious) {
-            var d = new Date();
-            this.setState({ currentTime: d.setDate(d.getDate() - 1) });
+    const icon = useMemo(() => {
+        return mode === 'date' ? 'calendar-blank' : 'clock-outline';
+    }, [mode]);
+
+    useEffect(() => {
+        if (mode == 'date') {
+            //set array year
+            let _markedDates = {};
+            let _arrayYear = [];
+            let _currentYear = null;
+            let idx = 0;
+
+            if (value) {
+                let _currentTime = moment(value, format).toDate();
+                let _currentDate = moment(_currentTime).format('YYYY-MM-DD');
+                _markedDates[_currentDate] = { selected: true };
+
+                let firstYear = parseInt(moment().subtract(80, 'year').format('YYYY'));
+                let endYear = parseInt(moment().add(1, 'year').format('YYYY'));
+
+                _arrayYear = [];
+                let _idx = 0;
+                _currentYear = parseInt(moment(_currentTime).format('YYYY'));
+                for (let i = firstYear; i < endYear; i++) {
+                    _arrayYear.push(i);
+                    if (_currentYear == i) {
+                        idx = _idx;
+                    }
+                    _idx++;
+                }
+
+                setMarkedDates(_markedDates);
+                setArrayYear(_arrayYear);
+                setCurrentDate(_currentDate);
+                setCurrentTime(_currentTime);
+                setCurrentYear(_currentYear);
+                setYearIndex(idx);
+            }
+        } else {
+            // setCurrentTime(new Date());
         }
-    }
 
-    pad(time) {
+    }, [value, format, mode]);
+
+    const pad = useCallback((time) => {
         if (time == null) {
             return '00';
         }
@@ -55,354 +99,276 @@ export default class DatePicker extends Component {
             return '0' + str;
         }
         return str;
-    }
+    }, []);
 
-    render() {
-        let mode = 'date';
-        if (this.props.mode) {
-            mode = this.props.mode;
-        }
+    return (
+        <View style={[styles.wrapper, props.containerStyle]}>
+            {props.label != null && (
+                <Text style={styles.label}>{props.label}</Text>
+            )}
 
-        let icon = 'calendar-blank';
-        if (mode == 'time') {
-            icon = 'clock-outline';
-        }
+            <TouchableOpacity
+                style={[styles.box, props.style]}
+                activeOpacity={0.8}
+                onPress={() => {
+                    setShow(true);
 
-        let currentTime = this.state.currentTime;
-        let format = 'YYYY-MM-DD';
-        if (this.props.format) {
-            format = this.props.format;
-        }
+                    if (mode == 'date') {
+                        setDisplay('date');
+                    } else if (mode == 'time') {
+                        let hour = parseInt(moment(currentTime).format('HH'));
+                        let minute = parseInt(moment(currentTime).format('mm'));
 
-        let markedDates = {};
-        let currentDate = null;
-        let arrayYear = [];
-        let currentYear = null;
-        let idx = 0;
-        if (this.props.value) {
-            currentTime = moment(this.props.value, format).toDate();
-            currentDate = moment(currentTime).format('YYYY-MM-DD');
-            markedDates[currentDate] = { selected: true };
+                        setHour(hour);
+                        setMinute(minute);
+                        setHourString(pad(hour));
+                        setMinuteString(pad(minute));
+                    }
+                }}>
 
-            let firstYear = parseInt(moment().subtract(80, 'year').format('YYYY'));
-            let endYear = parseInt(moment().add(2, 'year').format('YYYY'));
-
-            arrayYear = [];
-            let _idx = 0;
-            currentYear = parseInt(moment(currentTime).format('YYYY'));
-            for (let i = firstYear; i < endYear; i++) {
-                arrayYear.push(i);
-                if (currentYear == i) {
-                    idx = _idx;
-                }
-                _idx++;
-            }
-        }
-
-        let displayFormat = 'dddd, DD MMM YYYY';
-        if (this.props.displayFormat) {
-            displayFormat = this.props.displayFormat;
-        }
-
-        return (
-            <View style={[styles.wrapper, this.props.containerStyle]}>
-                {this.props.error != '' && this.props.error != null && (
-                    <Text style={styles.errorText}>{this.props.error}</Text>
-                )}
-
-                {this.props.label != null && (
-                    <Text style={styles.label}>
-                        {this.props.label}
+                <View style={{ flexDirection: 'column', flex: 1 }}>
+                    <Text style={styles.text}>
+                        {moment(currentTime).format(displayFormat)}
                     </Text>
-                )}
+                </View>
+                <MaterialCommunityIcons
+                    name={icon}
+                    size={22}
+                    color={Color.blackFont}
+                />
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => {
-                        this.setState({ show: true });
+            <SimpleModal
+                visible={show}
+                onRequestClose={() => {
+                    setShow(false);
+                }}>
+                {mode == 'date' && (
+                    <>
+                        {display == 'date' && (
+                            <>
+                                <View
+                                    style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                    <TouchableOpacity
+                                        style={[styles.yearPickerButton, { backgroundColor: color.primary }]}
+                                        onPress={() => {
+                                            //switch to year picker
+                                            setDisplay('year');
 
-                        if (mode == 'time') {
-                            let hour = parseInt(moment(currentTime).format('HH'));
-                            let minute = parseInt(moment(currentTime).format('mm'));
-                            this.setState({
-                                hour,
-                                minute,
-                                hourString: this.pad(hour),
-                                minuteString: this.pad(minute),
-                            });
-                        }
-                    }}
-                    style={[styles.box, this.props.style]}>
-
-                    <View style={{ flexDirection: 'column', flex: 1 }}>
-
-                        <Text style={styles.text}>
-                            {moment(currentTime).lang("id").format(displayFormat)}
-                        </Text>
-                    </View>
-                    <MaterialCommunityIcons
-                        name={icon}
-                        size={22}
-                        color={Color.blackFont}
-                    />
-                </TouchableOpacity>
-
-                <SimpleModal
-                    visible={this.state.show}
-                    onRequestClose={() => {
-                        this.setState({ show: false });
-                    }}>
-                    {mode == 'date' && (
-                        <>
-                            {this.state.display == 'date' && (
-                                <>
-                                    <View
-                                        style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                        <TouchableOpacity
-                                            style={[styles.yearPickerButton, { backgroundColor: color.primary }]}
-                                            onPress={() => {
-                                                //switch to year picker
-                                                this.setState({ display: 'year' }, () => {
-                                                    setTimeout(() => {
-                                                        if (this.myScroll) {
-                                                            this.myScroll.scrollTo({
-                                                                x: 0,
-                                                                y: 30 * idx,
-                                                                animated: true,
-                                                            });
-                                                        }
-                                                    }, 500);
+                                            setTimeout(() => {
+                                                scrollRef.current?.scrollTo({
+                                                    x: 0,
+                                                    y: 30 * yearIndex,
+                                                    animated: true,
                                                 });
+                                            }, 500);
+                                        }}>
+                                        <MaterialCommunityIcons
+                                            name="calendar-search"
+                                            size={20}
+                                            color={Color.white}
+                                        />
+                                        <Text style={styles.yearPickerText}>
+                                            {moment(currentDate).format('YYYY')}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <Calendar
+                                    current={currentDate}
+                                    markedDates={markedDates}
+                                    onDayPress={(day) => {
+                                        props.onChange(moment(day.timestamp).format(format));
+                                        setShow(false);
+                                    }}
+                                    enableSwipeMonths={true}
+                                />
+                            </>
+                        )}
+
+                        {display == 'year' && (
+                            // <View style={{ flex: 1 }}>
+                            <ScrollView
+                                style={{ height: '80%' }}
+                                ref={scrollRef}>
+                                {arrayYear.map((y) => {
+                                    return (
+                                        <TouchableOpacity
+                                            style={
+                                                y == currentYear
+                                                    ? [styles.pickerItemYearSelected, { backgroundColor: color.primary }]
+                                                    : styles.pickerItemYear
+                                            }
+                                            onPress={() => {
+                                                let selectedTime =
+                                                    y + moment(currentDate).format('-MM-DD');
+                                                props.onChange(
+                                                    moment(selectedTime).format(format),
+                                                );
+                                                setDisplay('date');
                                             }}>
-                                            <MaterialCommunityIcons
-                                                name="calendar-search"
-                                                size={20}
-                                                color={Color.white}
-                                            />
-                                            <Text style={styles.yearPickerText}>
-                                                {moment(currentDate).format('YYYY')}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <Calendar
-                                        // {...this.props}
-                                        // current={moment(currentTime).format('YYYY-MM-DD')}
-                                        current={currentDate}
-                                        markedDates={markedDates}
-                                        onDayPress={(day) => {
-                                            this.props.onChange(moment(day.timestamp).format(format));
-                                            this.setState({ show: false });
-                                        }}
-                                        // renderHeader={(date) => {
-                                        //     return (
-                                        //         <TouchableOpacity style={styles.headerWrapper} onPress={() => {
-
-                                        //         }}>
-                                        //             <Text style={styles.headerText}>{moment(date).format("MMM YYYY")}</Text>
-                                        //         </TouchableOpacity>
-                                        //     );
-                                        // }}
-
-                                        enableSwipeMonths={true}
-                                    />
-                                    {/* <View style={{ height: 1, backgroundColor: Color.danger }} /> */}
-                                </>
-                            )}
-
-                            {this.state.display == 'year' && (
-                                // <View style={{ flex: 1 }}>
-                                <ScrollView
-                                    style={{ height: '80%' }}
-                                    ref={(ref) => {
-                                        this.myScroll = ref;
-                                    }}>
-                                    {arrayYear.map((y) => {
-                                        return (
-                                            <TouchableOpacity
+                                            <Text
                                                 style={
                                                     y == currentYear
-                                                        ? [styles.pickerItemYearSelected, { backgroundColor: color.primary }]
-                                                        : styles.pickerItemYear
-                                                }
-                                                onPress={() => {
-                                                    let selectedTime =
-                                                        y + moment(currentDate).format('-MM-DD');
-                                                    this.props.onChange(
-                                                        moment(selectedTime).format(format),
-                                                    );
-                                                    this.setState({ display: 'date' });
-                                                }}>
-                                                <Text
-                                                    style={
-                                                        y == currentYear
-                                                            ? styles.pickerItemYearSelectedText
-                                                            : styles.pickerItemYearText
-                                                    }>
-                                                    {y}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                                </ScrollView>
-                                // </View>
-                            )}
-                        </>
-                    )}
-                    {mode == 'time' && (
-                        <TouchableOpacity activeOpacity={1}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginBottom: 20,
-                                }}>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <TouchableOpacity
-                                        style={styles.chevronButton}
-                                        activeOpacity={0.8}
-                                        onPress={() => {
-                                            if (this.state.hour < 23) {
-                                                this.setState({
-                                                    hour: this.state.hour + 1,
-                                                    hourString: this.pad(this.state.hour + 1),
-                                                });
-                                            } else {
-                                                this.setState({ hour: 0, hourString: '00' });
-                                            }
-                                        }}>
-                                        <MaterialCommunityIcons
-                                            name="chevron-up"
-                                            size={30}
-                                            color={Color.primary}
-                                        />
-                                    </TouchableOpacity>
+                                                        ? styles.pickerItemYearSelectedText
+                                                        : styles.pickerItemYearText
+                                                }>
+                                                {y}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
+                            // </View>
+                        )}
+                    </>
+                )}
 
-                                    <TextInput
-                                        style={styles.inputTime}
-                                        keyboardType="numeric"
-                                        value={this.state.hourString}
-                                        onChangeText={(hourString) => {
-                                            let num = parseInt(hourString);
-                                            if (num > 23) {
-                                                hourString = '23';
-                                                num = 23;
-                                            }
-                                            if (num < 0) {
-                                                hourString = '00';
-                                                num = 0;
-                                            }
-                                            this.setState({ hourString, hour: num });
-                                        }}
+                {mode == 'time' && (
+                    <TouchableOpacity activeOpacity={1}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: 20,
+                            }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <TouchableOpacity
+                                    style={styles.chevronButton}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (hour < 23) {
+                                            setHour(hour + 1);
+                                            setHourString(pad(hour + 1));
+                                        } else {
+                                            setHour(0);
+                                            setHourString(pad(0));
+                                        }
+                                    }}>
+                                    <MaterialCommunityIcons
+                                        name="chevron-up"
+                                        size={30}
+                                        color={Color.primary}
                                     />
+                                </TouchableOpacity>
 
-                                    {/* <Text style={styles.timeString}>{this.pad(this.state.hour)}</Text> */}
-                                    <TouchableOpacity
-                                        style={styles.chevronButton}
-                                        activeOpacity={0.8}
-                                        onPress={() => {
-                                            if (this.state.hour > 0) {
-                                                this.setState({
-                                                    hour: this.state.hour - 1,
-                                                    hourString: this.pad(this.state.hour - 1),
-                                                });
-                                            } else {
-                                                this.setState({ hour: 23, hourString: '23' });
-                                            }
-                                        }}>
-                                        <MaterialCommunityIcons
-                                            name="chevron-down"
-                                            size={30}
-                                            color={Color.primary}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={styles.timeString}>:</Text>
-                                </View>
-                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                    <TouchableOpacity
-                                        style={styles.chevronButton}
-                                        activeOpacity={0.8}
-                                        onPress={() => {
-                                            if (this.state.minute < 59) {
-                                                this.setState({
-                                                    minute: this.state.minute + 1,
-                                                    minuteString: this.pad(this.state.minute + 1),
-                                                });
-                                            } else {
-                                                this.setState({ minute: 0, minuteString: '00' });
-                                            }
-                                        }}>
-                                        <MaterialCommunityIcons
-                                            name="chevron-up"
-                                            size={30}
-                                            color={Color.primary}
-                                        />
-                                    </TouchableOpacity>
+                                <TextInput
+                                    style={styles.inputTime}
+                                    keyboardType="numeric"
+                                    value={hourString}
+                                    onChangeText={(hourString) => {
+                                        let num = parseInt(hourString);
+                                        if (num > 23) {
+                                            hourString = '23';
+                                            num = 23;
+                                        }
+                                        if (num < 0) {
+                                            hourString = '00';
+                                            num = 0;
+                                        }
+                                        setHourString(hourString);
+                                        setHour(num);
+                                    }}
+                                />
 
-                                    <TextInput
-                                        style={styles.inputTime}
-                                        keyboardType="numeric"
-                                        value={this.state.minuteString}
-                                        onChangeText={(minuteString) => {
-                                            let num = parseInt(minuteString);
-                                            if (num > 59) {
-                                                minuteString = '59';
-                                                num = 59;
-                                            }
-                                            if (num < 0) {
-                                                minuteString = '00';
-                                                num = 0;
-                                            }
-                                            this.setState({ minuteString, minute: num });
-                                        }}
+                                <TouchableOpacity
+                                    style={styles.chevronButton}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (hour > 0) {
+                                            setHour(hour - 1);
+                                            setHourString(pad(hour - 1));
+                                        } else {
+                                            setHour(23);
+                                            setHourString(pad(23));
+                                        }
+                                    }}>
+                                    <MaterialCommunityIcons
+                                        name="chevron-down"
+                                        size={30}
+                                        color={Color.primary}
                                     />
-
-                                    {/* <Text style={styles.timeString}>{this.pad(this.state.minute)}</Text> */}
-                                    <TouchableOpacity
-                                        style={styles.chevronButton}
-                                        activeOpacity={0.8}
-                                        onPress={() => {
-                                            if (this.state.minute > 0) {
-                                                this.setState({
-                                                    minute: this.state.minute - 1,
-                                                    minuteString: this.pad(this.state.minute - 1),
-                                                });
-                                            } else {
-                                                this.setState({ minute: 59, minuteString: '59' });
-                                            }
-                                        }}>
-                                        <MaterialCommunityIcons
-                                            name="chevron-down"
-                                            size={30}
-                                            color={Color.primary}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
+                                </TouchableOpacity>
                             </View>
-                            <Button
-                                onPress={() => {
-                                    let day =
-                                        moment().format('YYYY-MM-DD') +
-                                        ' ' +
-                                        this.pad(this.state.hour) +
-                                        ':' +
-                                        this.pad(this.state.minute) +
-                                        ':00';
-                                    console.log('Day', day);
-                                    this.props.onChange(moment(day).format(format));
-                                    this.setState({ show: false });
-                                }}
-                            >
-                                SELECT
-                            </Button>
-                        </TouchableOpacity>
-                    )}
-                </SimpleModal>
-            </View>
-        );
-    }
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={styles.timeString}>:</Text>
+                            </View>
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <TouchableOpacity
+                                    style={styles.chevronButton}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (minute < 59) {
+                                            setMinute(minute + 1);
+                                            setMinuteString(pad(minute + 1));
+                                        } else {
+                                            setMinute(0);
+                                            setMinuteString(pad(0));
+                                        }
+                                    }}>
+                                    <MaterialCommunityIcons
+                                        name="chevron-up"
+                                        size={30}
+                                        color={Color.primary}
+                                    />
+                                </TouchableOpacity>
+
+                                <TextInput
+                                    style={styles.inputTime}
+                                    keyboardType="numeric"
+                                    value={minuteString}
+                                    onChangeText={(minuteString) => {
+                                        let num = parseInt(minuteString);
+                                        if (num > 59) {
+                                            minuteString = '59';
+                                            num = 59;
+                                        }
+                                        if (num < 0) {
+                                            minuteString = '00';
+                                            num = 0;
+                                        }
+                                        setMinuteString(minuteString);
+                                        setMinute(num);
+                                    }}
+                                />
+
+                                <TouchableOpacity
+                                    style={styles.chevronButton}
+                                    activeOpacity={0.8}
+                                    onPress={() => {
+                                        if (minute > 0) {
+                                            setMinute(minute - 1);
+                                            setMinuteString(pad(minute - 1));
+                                        } else {
+                                            setMinute(59);
+                                            setMinuteString(pad(59));
+                                        }
+                                    }}>
+                                    <MaterialCommunityIcons
+                                        name="chevron-down"
+                                        size={30}
+                                        color={Color.primary}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <Button
+                            onPress={() => {
+                                let day =
+                                    moment().format('YYYY-MM-DD') + ' ' + pad(hour) + ':' + pad(minute) + ':00';
+
+                                console.log('Day', day);
+                                props.onChange(moment(day).format(format));
+                                setShow(false);
+                            }}
+                        >
+                            SELECT
+                        </Button>
+                    </TouchableOpacity>
+                )}
+            </SimpleModal>
+        </View>
+    );
 }
 
 const styles = {

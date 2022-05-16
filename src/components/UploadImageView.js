@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import color from '../utils/color';
 import Ionicons from 'react-native-vector-icons/dist/Ionicons';
+import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 import ImagePicker, { ImageOrVideo } from "react-native-image-crop-picker"
 
 export default function UploadImageView(props) {
@@ -49,7 +50,7 @@ export default function UploadImageView(props) {
                                 props.onSelectImage(null);
                             }
                         }}>
-                        <Ionicons name="trash-outline" size={14} color={color.black} />
+                        <FontAwesome name="plus-circle" size={25} color={color.primary} />
                     </TouchableOpacity>
                 </View>
             )}
@@ -124,18 +125,16 @@ const styles = StyleSheet.create({
     },
 
     whiteButton: {
-        width: 34,
-        height: 34,
+        width: 30,
+        height: 30,
         borderRadius: 17,
         backgroundColor: color.white,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: color.gray,
     },
     buttonDelete: {
         position: 'absolute',
-        right: 10,
-        bottom: 10,
+        right: -5,
+        bottom: -5,
     }
 });

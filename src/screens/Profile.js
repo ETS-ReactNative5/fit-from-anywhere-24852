@@ -289,22 +289,26 @@ export default function Profile(props) {
                     <Text style={styles.label}> Change Goal</Text>
                 </TouchableOpacity>
 
-                {/* 
+                <View style={styles.line} />
 
                 <View style={styles.row}>
                     <Text style={styles.label}>Date of Birth</Text>
-                    <DatePicker
-                        style={{ borderWidth: 0, padding: 0, borderBottomWidth: 0, height: 30, paddingVertical: 0 }}
-                        containerStyle={{ width: 130, padding: 0 }}
-                        format='YYYY-MM-DD'
-                        displayFormat='MMM DD, YYYY'
-                        value={dob}
-                        onChange={(dob) => {
-                            setDob(dob);
-                        }} />
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                        <DatePicker
+                            style={{ borderWidth: 0, paddingHorizontal: 0, borderBottomWidth: 0, height: 30, paddingVertical: 0 }}
+                            containerStyle={{ width: 130, padding: 0 }}
+                            format='YYYY-MM-DD'
+                            displayFormat='MMM DD, YYYY'
+                            value={dob}
+                            onChange={(dob) => {
+                                setDob(dob);
+                            }} />
+                    </View>
                 </View>
 
-                <View style={styles.line} />
+
+
+                {/* 
 
                 <View style={styles.row}>
                     <Text style={styles.label}>Gender</Text>

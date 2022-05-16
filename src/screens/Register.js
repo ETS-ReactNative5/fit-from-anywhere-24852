@@ -196,6 +196,7 @@ export default function Register(props) {
                             }}>Cancel</Button>
                     </View>
                 </View>
+                <View style={{ height: 50 }} />
             </ScrollView>
 
             {isShowToc && (

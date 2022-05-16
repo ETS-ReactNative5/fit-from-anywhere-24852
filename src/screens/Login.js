@@ -90,16 +90,29 @@ export default function Login(props) {
                         onChangeText={setPassword}
                         containerStyle={styles.input} />
 
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flex: 1 }}>
+                            <TouchableOpacity style={styles.checkboxWrapper}
+                                activeOpacity={1}
+                                onPress={() => {
+                                    setIsRemember(!isRemember);
+                                }}>
+                                {!isRemember && <MaterialCommunityIcons name='checkbox-blank-outline' size={20} color={color.text} />}
+                                {isRemember && <MaterialCommunityIcons name='check-box-outline' size={20} color={color.text} />}
+                                <Text style={styles.checkboxText}>Remember Me</Text>
+                            </TouchableOpacity>
+                        </View>
 
-                    <TouchableOpacity style={styles.checkboxWrapper}
-                        activeOpacity={1}
-                        onPress={() => {
-                            setIsRemember(!isRemember);
-                        }}>
-                        {!isRemember && <MaterialCommunityIcons name='checkbox-blank-outline' size={20} color={color.text} />}
-                        {isRemember && <MaterialCommunityIcons name='check-box-outline' size={20} color={color.text} />}
-                        <Text style={styles.checkboxText}>Remember Me</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.checkboxWrapper}
+                            activeOpacity={1}
+                            onPress={() => {
+                                props.navigation.navigate("ResetPassword");
+                            }}>
+                            <Text style={styles.checkboxText}>Forgot Password?</Text>
+                        </TouchableOpacity>
+                    </View>
+
+
 
                     <View style={styles.inputView}>
                         <View style={{ flex: 1 }}>
@@ -129,6 +142,8 @@ export default function Login(props) {
                             //props.navigation.navigate("Dashboard");
                         }}>Trial Login</Button> */}
                 </View>
+
+                <View style={{ height: 50 }} />
             </ScrollView>
         </SafeAreaView>
     );

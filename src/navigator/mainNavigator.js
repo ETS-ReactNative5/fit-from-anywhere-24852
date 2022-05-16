@@ -36,6 +36,7 @@ import ChooseProgram from "../screens/ChooseProgram";
 import AppointmentView from "../screens/AppointmentView";
 import AuthTermAndCondition from "../screens/AuthTermAndCondition";
 import AuthPrivacyPolicy from "../screens/AuthPrivacyPolicy";
+import ResetPassword from "../screens/ResetPassword";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -69,6 +70,7 @@ const AuthTab = () => {
         <Tab.Navigator tabBar={() => null}>
             <Tab.Screen name="Intro" component={Intro} options={() => ({ headerShown: false })} />
             <Tab.Screen name="Register" component={Register} options={() => ({ headerShown: false })} />
+            <Tab.Screen name="ResetPassword" component={ResetPassword} options={() => ({ headerShown: false })} />
             <Tab.Screen name="Login" component={Login} options={() => ({ headerShown: false })} />
             <Tab.Screen name="AuthTermAndCondition" component={AuthTermAndCondition} options={() => ({ headerShown: false })} />
             <Tab.Screen name="AuthPrivacyPolicy" component={AuthPrivacyPolicy} options={() => ({ headerShown: false })} />

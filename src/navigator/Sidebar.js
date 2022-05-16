@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfile, setUser } from "../store/actions";
 import MaterialCommunityIcons from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import AntDesign from 'react-native-vector-icons/dist/AntDesign';
 import { font } from "../utils/font";
 import { HttpUtils } from "../utils/http";
 import ImageUtils from "../utils/ImageUtils";
@@ -22,6 +23,8 @@ import moment from "moment";
 import { useDrawerStatus } from "@react-navigation/drawer";
 import PushNotificationUtils from "../utils/PushNotificationUtils";
 import { usePubNub } from "pubnub-react";
+import SimpleModal from "../components/SimpleModal";
+import Button from "../components/Button";
 
 const userMenus = [
     {
@@ -132,10 +135,12 @@ export default function Sidebar(props) {
     const pubnub = usePubNub();
     const profile = useSelector(state => state.profile);
     const gym = useSelector(state => state.gym);
-    const [pushEnabled, setPushEnabled] = useState(false);
+    const [pushEnabled, setPushEnabled] = useState(true);
     const [emailEnabled, setEmailEnabled] = useState(false);
     const [hasMessage, setHasMessage] = useState(false);
     const [hasNotification, setHasNotification] = useState(false);
+
+    const [isShowLogout, setIsShowLogout] = useState(false);
 
     const drawerStatus = useDrawerStatus();
 
@@ -186,6 +191,17 @@ export default function Sidebar(props) {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView>
+                <View style={styles.topWrapper}>
+                    <Text style={styles.sidebarTitle}>Hello</Text>
+                    <TouchableOpacity onPress={() => {
+                        props.navigation.closeDrawer();
+                    }}>
+                        <MaterialCommunityIcons name="close" size={22} color={color.primary} />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.line} />
+
                 <TouchableOpacity style={styles.profile}
                     activeOpacity={0.8}
                     onPress={() => {
@@ -283,6 +299,8 @@ export default function Sidebar(props) {
                         if (Platform.OS == 'web') {
                             window.confirm("Are you sure you want to logout?") && logout();
                         } else {
+                            setIsShowLogout(true);
+                            /*
                             Alert.alert(
                                 'Information',
                                 'Are you sure want to logout?',
@@ -291,22 +309,80 @@ export default function Sidebar(props) {
                                     {
                                         text: 'Yes', onPress: () => {
                                             logout();
+
+                                            setIsShowLogout(true);
                                         }
                                     },
                                 ],
                                 { cancelable: false }
                             );
+                            */
                         }
                     }}>
                     <MaterialCommunityIcons name="exit-to-app" size={30} color={color.text} />
                     <Text style={styles.logoutButton}>Logout</Text>
                 </TouchableOpacity>
             </ScrollView>
+
+            <SimpleModal
+                visible={isShowLogout}
+                onRequestClose={() => {
+                    setIsShowLogout(false);
+                }}>
+                <View style={styles.logoutHeader}>
+                    <AntDesign name="logout" size={20} color={color.primary} />
+                    <Text style={styles.logoutHeaderText}>Logout</Text>
+                </View>
+
+                <View style={styles.line} />
+
+                <View style={styles.logoutContent}>
+                    <Text style={styles.logoutText}>Your are leaving..</Text>
+                    <Text style={styles.logoutText}>Are you sure ?</Text>
+
+                    <Button
+                        style={{ marginVertical: 10 }}
+                        onPress={() => {
+                            logout();
+                        }}>Logout</Button>
+
+                    <Button
+                        theme='secondary'
+                        onPress={() => {
+                            setIsShowLogout(false);
+                        }}>Cancel</Button>
+
+                </View>
+            </SimpleModal>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    logoutHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 10,
+    },
+    logoutHeaderText: {
+        fontSize: 18,
+        fontFamily: font.sourceSansProBold,
+        color: color.primary,
+        marginLeft: 10,
+    },
+    logoutContent: {
+        paddingHorizontal: 20,
+    },
+    logoutText: {
+        fontSize: 16,
+        fontFamily: font.sourceSansPro,
+        color: color.text,
+        textAlign: 'center',
+    },
+
+
+
     container: {
         backgroundColor: color.white,
         paddingVertical: 20,
@@ -359,6 +435,18 @@ const styles = StyleSheet.create({
         fontFamily: font.sourceSansPro,
         color: color.text,
         marginLeft: 5,
+    },
+    topWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    sidebarTitle: {
+        fontSize: 18,
+        fontFamily: font.sourceSansProBold,
+        color: color.primary,
+        flex: 1,
     },
 
     redDot: {
